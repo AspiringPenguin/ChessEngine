@@ -97,3 +97,6 @@ typedef unsigned int move;
 
 //Bitboards
 typedef unsigned __int64 U64;
+
+//Max possible depth
+constexpr int maxDepth = 64;
