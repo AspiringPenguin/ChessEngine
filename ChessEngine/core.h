@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <vector>
 
 //For all the typedefs, constexprs, structs etc.
 
@@ -100,3 +102,5 @@ typedef unsigned __int64 U64;
 
 //Max possible depth
 constexpr int maxDepth = 64;
+
+std::vector<std::string> split(std::string string, std::string delimiter);
