@@ -9,7 +9,17 @@ namespace engine {
 	int moveNum;
 
 	void showPosition(color perspective) {
+		if (perspective == black) {
 
+		}
+		else {
+			for (int y = 7; y >= 0; y--) {
+				for (int x = 0; x < 8; x++) {
+					std::cout << pieceChars[mailbox[y * 8 + x]];
+				}
+				std::cout << std::endl;
+			}
+		}
 	}
 
 	void reset() {

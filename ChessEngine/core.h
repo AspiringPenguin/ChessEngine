@@ -103,4 +103,8 @@ typedef unsigned __int64 U64;
 //Max possible depth
 constexpr int maxDepth = 64;
 
+//Characters to represent pieces
+static char pieceChars[16] = { '.', 'P', 'N', 'B', 'R', 'Q', 'K', ' ', ' ', 'p', 'n', 'b', 'r', 'q', 'k', ' ' };
+
+//String split
 std::vector<std::string> split(std::string string, std::string delimiter);

@@ -6,7 +6,7 @@
 #include <string>
 
 namespace engine{
-	void showPosition(color perspective);
+	void showPosition(color perspective = white);
 
 	void reset();
 	void loadFEN(std::string fen);
