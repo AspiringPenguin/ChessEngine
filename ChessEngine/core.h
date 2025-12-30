@@ -69,6 +69,22 @@ enum square {
 	H8 = 63
 };
 
+enum piece {
+	wPawn = 1,
+	wKnight = 2,
+	wBishop = 3,
+	wRook = 4,
+	wQueen = 5,
+	wKing = 6,
+
+	bPawn = 9,
+	bKnight = 10,
+	bBishop = 11,
+	bRook = 12,
+	bQueen = 13,
+	bKing = 14,
+};
+
 //Move type
 typedef unsigned int move;
 
