@@ -6,8 +6,10 @@
 #include <string>
 
 namespace engine{
-	void loadFEN(std::string fen);
+	void showPosition(color perspective);
+
 	void reset();
+	void loadFEN(std::string fen);
 
 	void makeMove(move& m);
 	void makeMove(move& m, bool reversible);

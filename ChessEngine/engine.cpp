@@ -8,6 +8,10 @@ namespace engine {
 	move moves[maxDepth];
 	int moveNum;
 
+	void showPosition(color perspective) {
+
+	}
+
 	void reset() {
 		//Mailbox
 		mailbox[A1] = wRook;
