@@ -4,11 +4,12 @@
 namespace moves {
 	move encodeMove(square from, square to, piece capture, bool promote, bool isCapture, bool special1, bool special2);
 
-	square getFrom(move m);
-	square getTo(move m);
-	piece getCapture(move m);
-	bool getPromote(move m);
-	bool getCaptureFlag(move m);
-	bool getSpecial1(move m);
-	bool getSpecial2(move m);
+	square getFrom(const move& m);
+	square getTo(const move& m);
+	piece getCapture(const move& m);
+	bool getPromoteFlag(const move& m);
+	piece getPromote(const move& m, const color& colour); //Interpret special flags
+	bool getCaptureFlag(const move& m);
+	bool getSpecial1(const move& m);
+	bool getSpecial2(const move& m);
 }
