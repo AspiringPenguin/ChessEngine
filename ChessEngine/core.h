@@ -72,7 +72,7 @@ enum square {
 };
 
 enum piece {
-	null = 0,
+	nullPiece = 0,
 
 	wPawn = 1,
 	wKnight = 2,
