@@ -5,16 +5,17 @@
 #include "core.h"
 #include <string>
 
-static piece mailbox[64]{ null };
-static U64 bitboards[16]{ 0 };
+namespace engine{
+	static piece mailbox[64]{ null };
+	static U64 bitboards[16]{ 0 };
 
-static move moves[maxDepth];
-static int moveNum;
+	static move moves[maxDepth];
+	static int moveNum;
 
-void loadFEN(std::string fen);
-void reset();
+	void loadFEN(std::string fen);
+	void reset();
 
-void makeMove(move& m);
-void makeMove(move& m, bool reversible);
-void undoMove();
-
+	void makeMove(move& m);
+	void makeMove(move& m, bool reversible);
+	void undoMove();
+}

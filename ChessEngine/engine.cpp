@@ -1,5 +1,7 @@
 #include "engine.h"
 
-void makeMove(move& m) {
-	makeMove(m, true);
+namespace engine {
+	void makeMove(move& m) {
+		makeMove(m, true);
+	}
 }
