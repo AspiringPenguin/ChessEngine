@@ -6,12 +6,6 @@
 #include <string>
 
 namespace engine{
-	static piece mailbox[64]{ null };
-	static U64 bitboards[16]{ 0 };
-
-	static move moves[maxDepth];
-	static int moveNum;
-
 	void loadFEN(std::string fen);
 	void reset();
 
