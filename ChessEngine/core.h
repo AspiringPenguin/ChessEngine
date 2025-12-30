@@ -87,6 +87,11 @@ enum piece {
 	bKing = 14,
 };
 
+enum color {
+	white = 0,
+	black = 1,
+};
+
 //Move type
 typedef unsigned int move;
 
