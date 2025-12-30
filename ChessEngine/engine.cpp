@@ -10,7 +10,12 @@ namespace engine {
 
 	void showPosition(color perspective) {
 		if (perspective == black) {
-
+			for (int y = 0; y < 8; y++) {
+				for (int x = 7; x >= 0; x--) {
+					std::cout << pieceChars[mailbox[y * 8 + x]];
+				}
+				std::cout << std::endl;
+			}
 		}
 		else {
 			for (int y = 7; y >= 0; y--) {
