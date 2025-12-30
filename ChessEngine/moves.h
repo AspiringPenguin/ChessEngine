@@ -8,7 +8,7 @@ namespace moves {
 	square getTo(const move& m);
 	piece getCapture(const move& m);
 	bool getPromoteFlag(const move& m);
-	piece getPromote(const move& m, const color& colour); //Interpret special flags
+	piece getPromote(const move& m, const color& color); //Interpret special flags
 	bool getCaptureFlag(const move& m);
 	bool getSpecial1(const move& m);
 	bool getSpecial2(const move& m);

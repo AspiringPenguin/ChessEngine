@@ -21,11 +21,11 @@ namespace moves {
 		return (m & 0x10000) >> 13;
 	}
 
-	piece getPromote(const move& m, const color& colour) {
+	piece getPromote(const move& m, const color& color) {
 		bool flag1 = getSpecial1(m);
 		bool flag2 = getSpecial2(m);
 
-		return piece(flag1 ? (flag2 ? wQueen : wRook) : (flag2 ? wBishop : wKnight) | (colour << 3));
+		return piece(flag1 ? (flag2 ? wQueen : wRook) : (flag2 ? wBishop : wKnight) | (color << 3));
 	}
 
 	bool getCaptureFlag(const move& m){
