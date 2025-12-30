@@ -123,15 +123,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bitboards.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="moves.cpp" />
+    <ClCompile Include="zobrist.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bitboards.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="moves.h" />
+    <ClInclude Include="zobrist.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
