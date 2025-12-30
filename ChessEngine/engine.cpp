@@ -2,8 +2,8 @@
 #include <iostream>
 
 namespace engine {
-	piece mailbox[64]{ nullPiece };
-	U64 bitboards[16]{ 0 };
+	piece mailbox[64]{ }; //Initialise as 0s = empty
+	U64 bitboards[16]{ }; //Initialise as 0s
 
 	move moves[maxDepth];
 	int moveNum;
@@ -62,7 +62,6 @@ namespace engine {
 		for (piece p : engine::mailbox) {
 			std::cout << p << std::endl;
 		}
-		//Bitboards
 	}
 
 	void loadFEN() {
