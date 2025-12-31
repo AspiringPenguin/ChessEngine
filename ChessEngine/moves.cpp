@@ -5,9 +5,10 @@ namespace moves {
 		return from | (to << 6) | (p << 12) | (capture << 16) | (promote << 20) | (special1 << 21) | (special2 << 22) | (enPassant << 23) | (wkc << 24) | (wqc << 25) | (bkc << 26) | (bqc << 27);
 	}
 
-	//Special 1 = double pawn push
-	//Special 2 = king castle
-	//Special 1 and 2 = queen castle
+	//No flags = normal, just capture, or promote to knight (with different flags)
+	//Special 1 = double pawn push or promote to rook
+	//Special 2 = king castle or promote to bishop
+	//Special 1 and 2 = queen castle or promote to queen
 
 	square getFrom(const move& m){
 		return square(m & 0x3F);
