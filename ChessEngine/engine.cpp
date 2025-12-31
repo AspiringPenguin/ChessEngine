@@ -59,9 +59,7 @@ namespace engine {
 		mailbox[G8] = bKnight;
 		mailbox[H8] = bRook;
 
-		for (piece p : engine::mailbox) {
-			std::cout << p << std::endl;
-		}
+		//Bitboard, zobrist, castling and any other stuff here
 	}
 
 	void loadFEN() {
