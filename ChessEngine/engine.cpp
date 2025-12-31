@@ -5,8 +5,10 @@ namespace engine {
 	piece mailbox[64]{ }; //Initialise as 0s = empty
 	U64 bitboards[16]{ }; //Initialise as 0s
 
-	move moves[maxDepth];
-	int moveNum;
+	U64 zobrist = 0;
+
+	move moves[maxDepth]{};
+	int moveNum = 0;
 
 	void showPosition(color perspective) {
 		if (perspective == black) {
@@ -59,7 +61,43 @@ namespace engine {
 		mailbox[G8] = bKnight;
 		mailbox[H8] = bRook;
 
-		//Bitboard, zobrist, castling and any other stuff here
+		//Bitboards
+		bitboards[wPawn] ^= (1ull << A2);
+		bitboards[wPawn] ^= (1ull << B2);
+		bitboards[wPawn] ^= (1ull << C2);
+		bitboards[wPawn] ^= (1ull << D2);
+		bitboards[wPawn] ^= (1ull << E2);
+		bitboards[wPawn] ^= (1ull << F2);
+		bitboards[wPawn] ^= (1ull << G2);
+		bitboards[wPawn] ^= (1ull << H2);
+
+		bitboards[wRook] ^= (1ull << A1);
+		bitboards[wRook] ^= (1ull << H1);
+		bitboards[wKnight] ^= (1ull << B1);
+		bitboards[wKnight] ^= (1ull << G1);
+		bitboards[wBishop] ^= (1ull << C1);
+		bitboards[wBishop] ^= (1ull << F1);
+		bitboards[wQueen] ^= (1ull << D1);
+		bitboards[wKing] ^= (1ull << E1);
+
+		bitboards[bPawn] ^= (1ull << A7);
+		bitboards[bPawn] ^= (1ull << B7);
+		bitboards[bPawn] ^= (1ull << C7);
+		bitboards[bPawn] ^= (1ull << D7);
+		bitboards[bPawn] ^= (1ull << E7);
+		bitboards[bPawn] ^= (1ull << F7);
+		bitboards[bPawn] ^= (1ull << G7);
+		bitboards[bPawn] ^= (1ull << H7);
+
+		bitboards[bRook] ^= (1ull << A8);
+		bitboards[bRook] ^= (1ull << H8);
+		bitboards[bKnight] ^= (1ull << B8);
+		bitboards[bKnight] ^= (1ull << G8);
+		bitboards[bBishop] ^= (1ull << C8);
+		bitboards[bBishop] ^= (1ull << F8);
+		bitboards[bQueen] ^= (1ull << D8);
+		bitboards[bKing] ^= (1ull << E8);
+
 	}
 
 	void loadFEN() {
