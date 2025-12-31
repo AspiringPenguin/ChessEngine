@@ -1,3 +1,4 @@
+#include "bitboards.h"
 #include "engine.h"
 #include "zobrist.h"
 #include <iostream>
@@ -138,5 +139,15 @@ namespace engine {
 
 	void undoMove() {
 
+	}
+
+	void debugPosition() {
+		showPosition();
+		for (piece p : {wPawn, wKnight, wBishop, wRook, wQueen, wKing, bPawn, bKnight, bBishop, bRook, bQueen, bKing}) {
+			std::cout << p << std::endl;
+			std::cout << bitboards[p] << std::endl;
+			bitboards::showBitboard(bitboards[p]);
+		}
+		std::cout << zobrist << std::endl;
 	}
 }

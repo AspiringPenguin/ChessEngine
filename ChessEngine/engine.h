@@ -14,4 +14,6 @@ namespace engine{
 	void makeMove(move& m);
 	void makeMove(move& m, bool reversible);
 	void undoMove();
+
+	void debugPosition();
 }
