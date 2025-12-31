@@ -3,10 +3,11 @@
 #include <tuple>
 
 namespace moves {
-	move encodeMove(square from, square to, piece capture, bool promote, bool special1, bool special2, bool enPassant, bool wkc, bool wqc, bool bkc, bool bqc);
+	move encodeMove(square from, square to, piece p, piece capture, bool promote, bool special1, bool special2, bool enPassant, bool wkc, bool wqc, bool bkc, bool bqc);
 
 	square getFrom(const move& m);
 	square getTo(const move& m);
+	piece getPiece(const move& m);
 	piece getCapture(const move& m);
 	bool getPromoteFlag(const move& m);
 	piece getPromote(const move& m, const color& color); //Interpret special flags
