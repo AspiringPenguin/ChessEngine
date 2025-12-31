@@ -1,8 +1,8 @@
 #include "moves.h"
 
 namespace moves {
-	move encodeMove(square from, square to, piece capture, bool promote, bool special1, bool special2, bool enPassant) {
-		return from | (to << 6) | (capture << 12) | (promote << 16) | (special1 << 17) | (special2 << 18) | (enPassant << 19);
+	move encodeMove(square from, square to, piece capture, bool promote, bool special1, bool special2, bool enPassant, bool wkc, bool wqc, bool bkc, bool bqc) {
+		return from | (to << 6) | (capture << 12) | (promote << 16) | (special1 << 17) | (special2 << 18) | (enPassant << 19) | (wkc << 20) | (wqc << 21) | (bkc << 22) | (bqc << 23);
 	}
 
 	//Special 1 = double pawn push
@@ -42,5 +42,9 @@ namespace moves {
 
 	bool getEnPassant(const move& m) {
 		return (m & 0x80000) >> 19;
+	}
+
+	std::tuple<bool, bool, bool, bool> getCastleChanges(const move& m) {
+		return { (m & 0x100000) >> 20, (m & 0x200000) >> 21, (m & 0x400000) >> 22, (m & 0x800000) >> 23 };
 	}
 }
