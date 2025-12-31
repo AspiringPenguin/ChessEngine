@@ -11,6 +11,13 @@ namespace engine {
 	move moves[maxDepth]{};
 	int moveNum = 0;
 
+	//Castling rights
+	bool wKingside = true;
+	bool wQueenside = true;
+	bool bKingside = true;
+	bool bQueenside = true;
+
+
 	void showPosition(color perspective) {
 		if (perspective == black) {
 			for (int y = 0; y < 8; y++) {
@@ -99,11 +106,22 @@ namespace engine {
 		bitboards[bQueen] ^= (1ull << D8);
 		bitboards[bKing] ^= (1ull << E8);
 
+		//Castling rights
+		wKingside = true;
+		wQueenside = true;
+		bKingside = true;
+		bQueenside = true;
+
 		//Zobrist hashing
 		zobrist = 0;
+		//Pieces
 		zobrist ^= zobrist::zobristPieces(mailbox);
-
-
+		//Castling rights
+		zobrist ^= zobrist::values[768];
+		zobrist ^= zobrist::values[769];
+		zobrist ^= zobrist::values[770];
+		zobrist ^= zobrist::values[771];
+		//No En passant or turn value needed here
 	}
 
 	void loadFEN() {
