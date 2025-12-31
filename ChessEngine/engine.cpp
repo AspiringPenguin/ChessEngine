@@ -1,6 +1,7 @@
 #include "bitboards.h"
 #include "engine.h"
 #include "zobrist.h"
+#include <exception>
 #include <iostream>
 
 namespace engine {
@@ -10,7 +11,7 @@ namespace engine {
 	U64 zobrist = 0;
 
 	move moves[maxDepth]{};
-	int moveNum = 0;
+	int moveNum = -1;
 
 	color toMove;
 
@@ -46,7 +47,7 @@ namespace engine {
 	void reset() {
 		//Status stuff
 		toMove = white;
-		moveNum = 0;
+		moveNum = -1;
 		enPassantSquare = nullSquare;
 		std::fill(std::begin(moves), std::end(moves), 0);
 
@@ -148,7 +149,7 @@ namespace engine {
 		bQueenside = false;
 
 		enPassantSquare = nullSquare;
-		moveNum = 0;
+		moveNum = -1;
 		std::fill(std::begin(moves), std::end(moves), 0);
 
 		//Get info from FEN
@@ -242,7 +243,14 @@ namespace engine {
 	}
 
 	void makeMove(move& m, bool reversible) {
+		if (reversible) {
+			moves[++moveNum] = m;
+		}
+		else if (moveNum == -1) {
+			throw std::out_of_range("Irreversible make move was attempted with temporary moves applied");
+		}
 
+		//Make move here
 	}
 
 	void makeMove(move& m) {
@@ -250,7 +258,11 @@ namespace engine {
 	}
 
 	void undoMove() {
+		if (moveNum == -1) {
+			throw std::out_of_range("Undo move was attempted with no moves to undo.");
+		}
 
+		//Undo move here
 	}
 
 	void debugPosition() {
