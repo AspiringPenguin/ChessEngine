@@ -20,8 +20,8 @@ namespace engine {
 	bool bKingside = true;
 	bool bQueenside = true;
 
-	//For enpassant
-	square enpassantSquare = nullSquare;
+	//For enPassant
+	square enPassantSquare = nullSquare;
 
 
 	void showPosition(color perspective) {
@@ -47,7 +47,7 @@ namespace engine {
 		//Status stuff
 		toMove = white;
 		moveNum = 0;
-		enpassantSquare = nullSquare;
+		enPassantSquare = nullSquare;
 		std::fill(std::begin(moves), std::end(moves), 0);
 
 		//Mailbox
@@ -147,7 +147,7 @@ namespace engine {
 		bKingside = false;
 		bQueenside = false;
 
-		enpassantSquare = nullSquare;
+		enPassantSquare = nullSquare;
 		moveNum = 0;
 		std::fill(std::begin(moves), std::end(moves), 0);
 
@@ -216,7 +216,29 @@ namespace engine {
 			zobrist ^= zobrist::values[771];
 		}
 
+		//Whose move it is
 		toMove = color(_toMove == "b");
+		if (toMove == white) {
+			zobrist ^= zobrist::values[780];
+		}
+
+		//En passant - polyglot standard only adds en-passant hash when a pseudo-legal en passant move is possible
+		if (enPassant != "-") {
+			enPassantSquare = square((enPassant[0] - 97) + (enPassant[1] - 49) * 8);
+			U64 bb = 1ull << enPassantSquare;
+			if (toMove == white) {
+				bb = ((bb << 1) | (bb >> 1)) >> 8;
+				if (bb & bitboards[wPawn]) {
+					zobrist ^= zobrist::values[772 + (enPassantSquare % 8)];
+				}
+			}
+			else {
+				bb = ((bb << 1) | (bb >> 1)) << 8;
+				if (bb & bitboards[bPawn]) {
+					zobrist ^= zobrist::values[772 + (enPassantSquare % 8)];
+				}
+			}
+		}
 	}
 
 	void makeMove(move& m, bool reversible) {
@@ -233,6 +255,8 @@ namespace engine {
 
 	void debugPosition() {
 		std::cout << toMove << std::endl;
+		std::cout << enPassantSquare << std::endl;
+		std::cout << wKingside << " " << wQueenside << " " << bKingside << " " << bQueenside << std::endl;
 		showPosition();
 		for (piece p : {wPawn, wKnight, wBishop, wRook, wQueen, wKing, bPawn, bKnight, bBishop, bRook, bQueen, bKing}) {
 			std::cout << p << std::endl;
