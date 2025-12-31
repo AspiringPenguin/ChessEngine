@@ -1,8 +1,9 @@
 #include "engine.h"
+#include "zobrist.h"
 #include <iostream>
 
 namespace engine {
-	piece mailbox[64]{ }; //Initialise as 0s = empty
+	std::array<piece, 64> mailbox{ }; //Initialise as 0s = empty
 	U64 bitboards[16]{ }; //Initialise as 0s
 
 	U64 zobrist = 0;
@@ -97,6 +98,11 @@ namespace engine {
 		bitboards[bBishop] ^= (1ull << F8);
 		bitboards[bQueen] ^= (1ull << D8);
 		bitboards[bKing] ^= (1ull << E8);
+
+		//Zobrist hashing
+		zobrist = 0;
+		zobrist ^= zobrist::zobristPieces(mailbox);
+
 
 	}
 
