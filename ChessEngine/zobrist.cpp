@@ -5,7 +5,7 @@ U64 zobrist::zobristPieces(const std::array<piece, 64>& mailbox) {
 	int n = 0;
 	for (int i = -1; const piece& p : mailbox) {
 		i++;
-		res ^= values[64 * pieceLookup[p] + i];
+		res ^= (p == 0 ? 0 : values[64 * pieceLookup[p] + i]);
 	}
 	return res;
 }

@@ -122,7 +122,8 @@ namespace engine {
 		zobrist ^= zobrist::values[769];
 		zobrist ^= zobrist::values[770];
 		zobrist ^= zobrist::values[771];
-		//No En passant or turn value needed here
+		//White to move
+		zobrist ^= zobrist::values[780];
 	}
 
 	void loadFEN() {
