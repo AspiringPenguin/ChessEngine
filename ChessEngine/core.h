@@ -68,7 +68,9 @@ enum square {
 	E8 = 60,
 	F8 = 61,
 	G8 = 62,
-	H8 = 63
+	H8 = 63,
+
+	nullSquare = -1,
 };
 
 enum piece {

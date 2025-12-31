@@ -12,11 +12,16 @@ namespace engine {
 	move moves[maxDepth]{};
 	int moveNum = 0;
 
+	color toMove;
+
 	//Castling rights
 	bool wKingside = true;
 	bool wQueenside = true;
 	bool bKingside = true;
 	bool bQueenside = true;
+
+	//For enpassant
+	square enpassantSquare = nullSquare;
 
 
 	void showPosition(color perspective) {
@@ -39,6 +44,12 @@ namespace engine {
 	}
 
 	void reset() {
+		//Status stuff
+		toMove = white;
+		moveNum = 0;
+		enpassantSquare = nullSquare;
+		std::fill(std::begin(moves), std::end(moves), 0);
+
 		//Mailbox
 		mailbox[A1] = wRook;
 		mailbox[B1] = wKnight;
@@ -126,8 +137,86 @@ namespace engine {
 		zobrist ^= zobrist::values[780];
 	}
 
-	void loadFEN() {
+	void loadFEN(std::string fen) {
+		//Reset some stuff
+		std::fill(std::begin(bitboards), std::end(bitboards), 0);
+		std::fill(std::begin(mailbox), std::end(mailbox), nullPiece);
+		zobrist = 0;
+		wKingside = false;
+		wQueenside = false;
+		bKingside = false;
+		bQueenside = false;
 
+		enpassantSquare = nullSquare;
+		moveNum = 0;
+		std::fill(std::begin(moves), std::end(moves), 0);
+
+		//Get info from FEN
+		const auto info = split(fen, " ");
+		std::string board = info[0];
+		std::string _toMove = info[1];
+		std::string castling = info[2];
+		std::string enPassant = info[3];
+
+		//Turn the board into a A1->H8 indexed list of characters representing pieces or empty spaces
+
+		//Numbers to n*'.'
+		for (int i = 0; i < 64; i++) {
+			if (std::isdigit(board[i])) {
+				board = board.substr(0, i) + std::string(std::stoi(std::string(1, board[i])), '.') + board.substr(i+1);
+			}
+		}
+		
+		//Translate the board, flip, then flip each row back
+		std::reverse(board.begin(), board.end());
+
+		auto rows = split(board, "/");
+		for (int i = 0; i < 8; i++) {
+			std::reverse(rows[i].begin(), rows[i].end());
+		}
+
+		//Remake the board from the rows
+		board = "";
+		for (const auto& row : rows) {
+			board += row;
+		}
+
+		//Process the result into board representation now
+		for (int n = -1; char c : board) {
+			n++;
+			//Linear search through char conversion to find value
+			for (int i = -1; char p : pieceChars) {
+				i++;
+				if (p == c) {
+					mailbox[n] = piece(i);
+					bitboards[piece(i)] ^= (1ull << n);
+					break;
+				}
+			}
+		}
+
+		//Update zobrist hash for pieces
+		zobrist = zobrist::zobristPieces(mailbox);
+
+		//Castling
+		if (castling.find("K") != std::string::npos) {
+			wKingside = true;
+			zobrist ^= zobrist::values[768];
+		}
+		if (castling.find("Q") != std::string::npos) {
+			wQueenside = true;
+			zobrist ^= zobrist::values[769];
+		}
+		if (castling.find("k") != std::string::npos) {
+			bKingside = true;
+			zobrist ^= zobrist::values[770];
+		}
+		if (castling.find("q") != std::string::npos) {
+			bQueenside = true;
+			zobrist ^= zobrist::values[771];
+		}
+
+		toMove = color(_toMove == "b");
 	}
 
 	void makeMove(move& m, bool reversible) {
@@ -143,6 +232,7 @@ namespace engine {
 	}
 
 	void debugPosition() {
+		std::cout << toMove << std::endl;
 		showPosition();
 		for (piece p : {wPawn, wKnight, wBishop, wRook, wQueen, wKing, bPawn, bKnight, bBishop, bRook, bQueen, bKing}) {
 			std::cout << p << std::endl;
