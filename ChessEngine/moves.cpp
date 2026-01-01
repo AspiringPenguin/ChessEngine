@@ -25,6 +25,26 @@ namespace moves {
 		return encodeMove(from, to, p, capture, true, special1, special2, wkc, wqc, bkc, bqc);
 	}
 
+	move encodeCastle(color side, bool queenside, bool wkc, bool wqc, bool bkc, bool bqc) {
+		if (side == white) {
+			if (!queenside) {
+				return encodeMove(E1, G1, wKing, nullPiece, false, false, false, wkc, wqc, false, false);
+			}
+			else {
+				return encodeMove(E1, C1, wKing, nullPiece, false, false, false, wkc, wqc, false, false);
+			}
+		}
+		else {
+			if (!queenside) {
+				return encodeMove(E8, G8, bKing, nullPiece, false, false, false, false, false, bkc, bqc);
+			}
+			else {
+				return encodeMove(E8, C8, bKing, nullPiece, false, false, false, false, false, bkc, bqc);
+			}
+
+		}
+	}
+
 	square getFrom(const move& m){
 		return square(m & 0x3F);
 	}

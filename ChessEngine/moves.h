@@ -9,6 +9,8 @@ namespace moves {
 
 	move encodePromote(square from, square to, piece p, piece capture, piece promote, bool wkc, bool wqc, bool bkc, bool bqc);
 
+	move encodeCastle(color side, bool queenside, bool wkc, bool wqc, bool bkc, bool bqc);
+
 	square getFrom(const move& m);
 
 	square getTo(const move& m);
