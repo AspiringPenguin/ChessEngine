@@ -14,6 +14,7 @@ namespace engine {
 	int moveNum = -1;
 
 	color toMove;
+	int toMoveSigned;
 
 	//Castling rights
 	bool wKingside = true;
@@ -47,6 +48,7 @@ namespace engine {
 	void reset() {
 		//Status stuff
 		toMove = white;
+		toMoveSigned = 1;
 		moveNum = -1;
 		enPassantSquare = nullSquare;
 		std::fill(std::begin(moves), std::end(moves), 0);
@@ -220,7 +222,11 @@ namespace engine {
 		//Whose move it is
 		toMove = color(_toMove == "b");
 		if (toMove == white) {
+			toMoveSigned = 1;
 			zobrist ^= zobrist::values[780];
+		}
+		else {
+			toMoveSigned = -1;
 		}
 
 		//En passant - polyglot standard only adds en-passant hash when a pseudo-legal en passant move is possible
