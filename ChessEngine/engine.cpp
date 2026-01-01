@@ -276,11 +276,7 @@ namespace engine {
 		square lTo;
 		move _lastMove = (moveNum == -1 ? lastMove : moves[moveNum - 1]);
 
-		if ((p & 0b0111) == 6&& std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9
-			//Handle castling here
-
-		}
-		else { //Its a normal move
+		//Undo zobrist hashing for last move being double push where en passant was pseudo-legal
 			//This must go here before any bitboards are updated
 			if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
 				lTo = moves::getTo(_lastMove);
@@ -297,7 +293,75 @@ namespace engine {
 						zobrist ^= zobrist::values[772 + (lTo % 8)];
 					}
 				}
+		}
+
+		if ((p & 0b0111) == 6&& std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9
+			if (p == wKing) {
+				if (to == G1) {
+					//Update mailbox
+					mailbox[E1] = nullPiece;
+					mailbox[F1] = wRook;
+					mailbox[G1] = wKing;
+					mailbox[H1] = nullPiece;
+
+					//Update bitboards
+					bitboards[wKing] ^= (1ull << E1) | (1ull << G1);
+					bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] | zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + F1] | zobrist::values[64 * zobrist::pieceLookup[wRook] + H1];
+				}
+				else {
+					//Update mailbox
+					mailbox[E1] = nullPiece;
+					mailbox[D1] = wRook;
+					mailbox[C1] = wKing;
+					mailbox[A1] = nullPiece;
+
+					//Update bitboards
+					bitboards[wKing] ^= (1ull << E1) | (1ull << C1);
+					bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] | zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + A1] | zobrist::values[64 * zobrist::pieceLookup[wRook] + D1];
+				}
 			}
+			else {
+				if (to == G8) {
+					//Update mailbox
+					mailbox[E8] = nullPiece;
+					mailbox[F8] = bRook;
+					mailbox[G8] = bKing;
+					mailbox[H8] = nullPiece;
+
+					//Update bitboards
+					bitboards[bKing] ^= (1ull << E8) | (1ull << G8);
+					bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] | zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + F8] | zobrist::values[64 * zobrist::pieceLookup[bRook] + H8];
+			}
+				else {
+					//Update mailbox
+					mailbox[E8] = nullPiece;
+					mailbox[D8] = bRook;
+					mailbox[C8] = bKing;
+					mailbox[A8] = nullPiece;
+
+					//Update bitboards
+					bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
+					bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] | zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] | zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
+				}
+			}
+		}
+		else { //Its a normal move
 
 			//Update mailbox
 			mailbox[from] = nullPiece;
