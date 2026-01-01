@@ -270,6 +270,24 @@ namespace engine {
 			//Handle castle
 		}
 		else { //Its a normal move
+			//This must go here before any bitboards are updated
+			if (moves::isDoublePush(lastMove)) { //So may need to remove zobrist hash element for en passant
+				lTo = moves::getTo(lastMove);
+				U64 bb = 1ull << lTo; //Get where it went to
+				if (toMove == white) { //White is moving now, and the lastMove was by black
+					bb = ((bb << 1) | (bb >> 1));
+					if (bb & bitboards[wPawn]) {
+						zobrist ^= zobrist::values[772 + (lTo % 8)];
+					}
+				}
+				else {
+					bb = ((bb << 1) | (bb >> 1));
+					if (bb & bitboards[bPawn]) {
+						zobrist ^= zobrist::values[772 + (lTo % 8)];
+					}
+				}
+			}
+
 			//Update mailbox
 			mailbox[from] = nullPiece;
 			mailbox[to] = p;
@@ -288,7 +306,7 @@ namespace engine {
 				bitboards[capture] ^= (1ull << pos);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + pos];
 			}
-			else {
+			else if (capture != nullPiece) {
 				bitboards[capture] ^= (1ull << to);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to];
 			}
@@ -305,22 +323,6 @@ namespace engine {
 					bb = ((bb << 1) | (bb >> 1));
 					if (bb & bitboards[bPawn]) {
 						zobrist ^= zobrist::values[772 + (to % 8)];
-					}
-				}
-			}
-			else if (moves::isDoublePush(lastMove)) { //So may need to remove zobrist hash element for en passant
-				lTo = moves::getTo(lastMove);
-				U64 bb = 1ull << lTo; //Get where it went to
-				if (toMove == white) { //White is moving now, and the lastMove was by black
-					bb = ((bb << 1) | (bb >> 1));
-					if (bb & bitboards[wPawn]) {
-						zobrist ^= zobrist::values[772 + (lTo % 8)];
-					}
-				}
-				else {
-					bb = ((bb << 1) | (bb >> 1));
-					if (bb & bitboards[bPawn]) {
-						zobrist ^= zobrist::values[772 + (lTo % 8)];
 					}
 				}
 			}
@@ -343,6 +345,7 @@ namespace engine {
 
 		toMove = color(1 - toMove); //Flip toMove
 		toMoveSigned = -1 * toMoveSigned;
+		zobrist ^= zobrist::values[780];
 
 		lastMove = m; //Update lastMove
 	}
