@@ -12,7 +12,7 @@ namespace engine {
 	U64 zobrist = 0;
 
 	move moves[maxDepth]{};
-	move lastMove; //Keep the last move here always
+	move lastMove; //Keep the last move at the root here - the last irreversible move
 
 	int moveNum = -1;
 
@@ -55,6 +55,7 @@ namespace engine {
 		moveNum = -1;
 		enPassantSquare = nullSquare;
 		std::fill(std::begin(moves), std::end(moves), 0);
+		lastMove = 0;
 
 		//Mailbox
 		mailbox[A1] = wRook;
@@ -248,6 +249,11 @@ namespace engine {
 					zobrist ^= zobrist::values[772 + (enPassantSquare % 8)];
 				}
 			}
+
+			lastMove = moves::encodeMove(square(enPassantSquare + 8 * toMoveSigned), square(enPassantSquare - 8 * toMoveSigned), piece(wPawn | (toMove << 3)), nullPiece, false, false, true, false, false, false, false);
+		}
+		else {
+			lastMove = 0; 
 		}
 	}
 
@@ -258,6 +264,9 @@ namespace engine {
 		else if (moveNum != -1) {
 			throw std::out_of_range("Irreversible make move was attempted with temporary moves applied");
 		}
+		else {
+			lastMove = m; //Set lastMove to m to deal with returning to root zobrist
+		}
 
 		const square from = moves::getFrom(m);
 		const square to = moves::getTo(m);
@@ -265,14 +274,16 @@ namespace engine {
 		const piece capture = moves::getCapture(m);
 		int pos;
 		square lTo;
+		move _lastMove = (moveNum == -1 ? lastMove : moves[moveNum - 1]);
 
 		if ((p & 0b0111) == 6&& std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9
-			//Handle castle
+			//Handle castling here
+
 		}
 		else { //Its a normal move
 			//This must go here before any bitboards are updated
-			if (moves::isDoublePush(lastMove)) { //So may need to remove zobrist hash element for en passant
-				lTo = moves::getTo(lastMove);
+			if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
+				lTo = moves::getTo(_lastMove);
 				U64 bb = 1ull << lTo; //Get where it went to
 				if (toMove == white) { //White is moving now, and the lastMove was by black
 					bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
@@ -350,7 +361,9 @@ namespace engine {
 		toMoveSigned = -1 * toMoveSigned;
 		zobrist ^= zobrist::values[780];
 
-		lastMove = m; //Update lastMove
+		if (!reversible) {
+			lastMove = m; //Update lastMove
+		}
 	}
 
 	void makeMove(move& m) {
@@ -362,7 +375,8 @@ namespace engine {
 			throw std::out_of_range("Undo move was attempted with no moves to undo.");
 		}
 
-		//Undo move here
+		move m = moves[moveNum--];
+		move _lastMove = moveNum == -1 ? lastMove : moves[moveNum];
 	}
 
 	void debugPosition() {
