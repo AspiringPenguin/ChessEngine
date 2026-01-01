@@ -277,22 +277,22 @@ namespace engine {
 		move _lastMove = (moveNum == -1 ? lastMove : moves[moveNum - 1]);
 
 		//Undo zobrist hashing for last move being double push where en passant was pseudo-legal
-			//This must go here before any bitboards are updated
-			if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
-				lTo = moves::getTo(_lastMove);
-				U64 bb = 1ull << lTo; //Get where it went to
-				if (toMove == white) { //White is moving now, and the lastMove was by black
-					bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
-					if (bb & bitboards[wPawn]) {
-						zobrist ^= zobrist::values[772 + (lTo % 8)];
-					}
+		//This must go here before any bitboards are updated
+		if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
+			lTo = moves::getTo(_lastMove);
+			U64 bb = 1ull << lTo; //Get where it went to
+			if (toMove == white) { //White is moving now, and the lastMove was by black
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+				if (bb & bitboards[wPawn]) {
+					zobrist ^= zobrist::values[772 + (lTo % 8)];
 				}
-				else {
-					bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
-					if (bb & bitboards[bPawn]) {
-						zobrist ^= zobrist::values[772 + (lTo % 8)];
-					}
+			}
+			else {
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+				if (bb & bitboards[bPawn]) {
+					zobrist ^= zobrist::values[772 + (lTo % 8)];
 				}
+			}
 		}
 
 		if ((p & 0b0111) == 6&& std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9
@@ -309,8 +309,8 @@ namespace engine {
 					bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
 
 					//Update zobrist hash for pieces
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] | zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + F1] | zobrist::values[64 * zobrist::pieceLookup[wRook] + H1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + F1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + H1];
 				}
 				else {
 					//Update mailbox
@@ -324,8 +324,8 @@ namespace engine {
 					bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
 
 					//Update zobrist hash for pieces
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] | zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + A1] | zobrist::values[64 * zobrist::pieceLookup[wRook] + D1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + A1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + D1];
 				}
 			}
 			else {
@@ -341,9 +341,9 @@ namespace engine {
 					bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
 
 					//Update zobrist hash for pieces
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] | zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + F8] | zobrist::values[64 * zobrist::pieceLookup[bRook] + H8];
-			}
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + F8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + H8];
+				}
 				else {
 					//Update mailbox
 					mailbox[E8] = nullPiece;
@@ -356,8 +356,8 @@ namespace engine {
 					bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
 
 					//Update zobrist hash for pieces
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] | zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
-					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] | zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
 				}
 			}
 		}
