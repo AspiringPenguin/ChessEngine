@@ -1,5 +1,6 @@
 #include "bitboards.h"
 #include "engine.h"
+#include "moves.h"
 #include "zobrist.h"
 #include <exception>
 #include <iostream>
@@ -11,6 +12,8 @@ namespace engine {
 	U64 zobrist = 0;
 
 	move moves[maxDepth]{};
+	move lastMove; //Keep the last move here always
+
 	int moveNum = -1;
 
 	color toMove;
@@ -252,11 +255,96 @@ namespace engine {
 		if (reversible) {
 			moves[++moveNum] = m;
 		}
-		else if (moveNum == -1) {
+		else if (moveNum != -1) {
 			throw std::out_of_range("Irreversible make move was attempted with temporary moves applied");
 		}
 
-		//Make move here
+		const square from = moves::getFrom(m);
+		const square to = moves::getTo(m);
+		const piece p = moves::getPiece(m);
+		const piece capture = moves::getCapture(m);
+		int pos;
+		square lTo;
+
+		if ((p & 0b0111) == 6&& std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9
+			//Handle castle
+		}
+		else { //Its a normal move
+			//Update mailbox
+			mailbox[from] = nullPiece;
+			mailbox[to] = p;
+
+			//Update zobrist hash
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + to];
+
+			//Update bitboards
+			bitboards[p] ^= ((1ull << from) | (1ull << to));
+
+			//Handle enPassant
+			if (moves::isEnPassant(m)) { 
+				pos = to + (-8 * toMoveSigned); //Calculate square to clear
+				mailbox[pos] = nullPiece; //Mailbox wasn't updated
+				bitboards[capture] ^= (1ull << pos);
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + pos];
+			}
+			else {
+				bitboards[capture] ^= (1ull << to);
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to];
+			}
+
+			if (moves::isDoublePush(m)) { //May need to add zobrist hash element for enPassant
+				U64 bb = 1ull << to;
+				if (toMove == black) { //Will be white next turn, not updated yet
+					bb = ((bb << 1) | (bb >> 1));
+					if (bb & bitboards[wPawn]) {
+						zobrist ^= zobrist::values[772 + (to % 8)];
+					}
+				}
+				else {
+					bb = ((bb << 1) | (bb >> 1));
+					if (bb & bitboards[bPawn]) {
+						zobrist ^= zobrist::values[772 + (to % 8)];
+					}
+				}
+			}
+			else if (moves::isDoublePush(lastMove)) { //So may need to remove zobrist hash element for en passant
+				lTo = moves::getTo(lastMove);
+				U64 bb = 1ull << lTo; //Get where it went to
+				if (toMove == white) { //White is moving now, and the lastMove was by black
+					bb = ((bb << 1) | (bb >> 1));
+					if (bb & bitboards[wPawn]) {
+						zobrist ^= zobrist::values[772 + (lTo % 8)];
+					}
+				}
+				else {
+					bb = ((bb << 1) | (bb >> 1));
+					if (bb & bitboards[bPawn]) {
+						zobrist ^= zobrist::values[772 + (lTo % 8)];
+					}
+				}
+			}
+		}
+
+		//Update castling rights
+		const auto rights = moves::getCastleChanges(m);
+		if (std::get<0>(rights)) {
+			wKingside = false;
+		}
+		if (std::get<1>(rights)) {
+			wQueenside = false;
+		}
+		if (std::get<2>(rights)) {
+			bKingside = false;
+		}
+		if (std::get<3>(rights)) {
+			bQueenside = false;
+		}
+
+		toMove = color(1 - toMove); //Flip toMove
+		toMoveSigned = -1 * toMoveSigned;
+
+		lastMove = m; //Update lastMove
 	}
 
 	void makeMove(move& m) {
