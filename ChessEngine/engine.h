@@ -16,4 +16,8 @@ namespace engine{
 	void undoMove();
 
 	void debugPosition();
+
+	//For testing
+	U64 getZobrist();
+	U64 getBitboard(int n);
 }

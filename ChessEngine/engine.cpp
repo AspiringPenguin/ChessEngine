@@ -277,4 +277,12 @@ namespace engine {
 		}
 		std::cout << zobrist << std::endl;
 	}
+
+	U64 getZobrist() {
+		return zobrist;
+	}
+
+	U64 getBitboard(int n) {
+		return bitboards[n];
+	}
 }
