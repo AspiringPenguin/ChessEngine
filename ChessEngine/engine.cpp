@@ -379,7 +379,7 @@ namespace engine {
 				pos = to + (-8 * toMoveSigned); //Calculate square to clear
 				mailbox[pos] = nullPiece; //Mailbox wasn't updated
 				bitboards[capture] ^= (1ull << pos);
-				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + pos];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos];
 			}
 			else if (capture != nullPiece) {
 				bitboards[capture] ^= (1ull << to);
