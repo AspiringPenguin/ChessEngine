@@ -237,13 +237,13 @@ namespace engine {
 			enPassantSquare = square((enPassant[0] - 97) + (enPassant[1] - 49) * 8);
 			U64 bb = 1ull << enPassantSquare;
 			if (toMove == white) {
-				bb = ((bb << 1) | (bb >> 1)) >> 8;
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1)) >> 8;
 				if (bb & bitboards[wPawn]) {
 					zobrist ^= zobrist::values[772 + (enPassantSquare % 8)];
 				}
 			}
 			else {
-				bb = ((bb << 1) | (bb >> 1)) << 8;
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1)) << 8;
 				if (bb & bitboards[bPawn]) {
 					zobrist ^= zobrist::values[772 + (enPassantSquare % 8)];
 				}
@@ -275,13 +275,13 @@ namespace engine {
 				lTo = moves::getTo(lastMove);
 				U64 bb = 1ull << lTo; //Get where it went to
 				if (toMove == white) { //White is moving now, and the lastMove was by black
-					bb = ((bb << 1) | (bb >> 1));
+					bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
 					if (bb & bitboards[wPawn]) {
 						zobrist ^= zobrist::values[772 + (lTo % 8)];
 					}
 				}
 				else {
-					bb = ((bb << 1) | (bb >> 1));
+					bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
 					if (bb & bitboards[bPawn]) {
 						zobrist ^= zobrist::values[772 + (lTo % 8)];
 					}
@@ -313,14 +313,13 @@ namespace engine {
 
 			if (moves::isDoublePush(m)) { //May need to add zobrist hash element for enPassant
 				U64 bb = 1ull << to;
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
 				if (toMove == black) { //Will be white next turn, not updated yet
-					bb = ((bb << 1) | (bb >> 1));
 					if (bb & bitboards[wPawn]) {
 						zobrist ^= zobrist::values[772 + (to % 8)];
 					}
 				}
 				else {
-					bb = ((bb << 1) | (bb >> 1));
 					if (bb & bitboards[bPawn]) {
 						zobrist ^= zobrist::values[772 + (to % 8)];
 					}
