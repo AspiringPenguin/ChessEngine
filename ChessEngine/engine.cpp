@@ -295,7 +295,7 @@ namespace engine {
 			}
 		}
 
-		if ((p & 0b0111) == 6&& std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9
+		if ((p & 0b0111) == 6&& std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
 			if (p == wKing) {
 				if (to == G1) {
 					//Update mailbox
@@ -440,7 +440,100 @@ namespace engine {
 		}
 
 		move m = moves[moveNum--];
-		move _lastMove = moveNum == -1 ? lastMove : moves[moveNum];
+		move _lastMove = moveNum == -1 ? lastMove : moves[moveNum]; //ie the move before m
+
+		const square from = moves::getFrom(m);
+		const square to = moves::getTo(m);
+		const piece p = moves::getPiece(m);
+		const piece capture = moves::getCapture(m);
+		square lTo;
+		square pos;
+
+		if ((p & 0b0111) == 6 && std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
+			//Castle logic here
+		}
+		else {
+			if (moves::isDoublePush(m)) { //May need to remove zobrist hash element for enPassant
+				U64 bb = 1ull << to;
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+				if (toMove == white) { //The double push was by black, so the capture must be by white
+					if (bb & bitboards[wPawn]) {
+						zobrist ^= zobrist::values[772 + (to % 8)];
+					}
+				}
+				else {
+					if (bb & bitboards[bPawn]) {
+						zobrist ^= zobrist::values[772 + (to % 8)];
+					}
+				}
+			}
+
+			//Update mailbox
+			mailbox[from] = p;
+			mailbox[to] = capture;
+
+			//Update zobrist hash
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + to];
+
+			//Update bitboards
+			bitboards[p] ^= ((1ull << from) | (1ull << to));
+
+			//Handle enPassant
+			if (moves::isEnPassant(m)) {
+				pos = square(to + (8 * toMoveSigned)); //Calculate square to put the pawn back into
+				mailbox[pos] = capture; //Put the captured piece in the right place
+				mailbox[to] = nullPiece; //And remove it from the original place
+				bitboards[capture] ^= (1ull << pos); //Add it back to the bitboard
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos]; //And the zobrist hash
+			}
+			else if (capture != nullPiece) { //If its non en-passant capture
+				bitboards[capture] ^= (1ull << to); //Add it back to the bitboard
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to]; //Add it back to the hash
+			}
+		}
+
+		//Readd zobrist hashing for new last move if its double push where en passant was pseudo-legal
+		//This must go here after bitboards are updated
+		if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
+			lTo = moves::getTo(_lastMove);
+			U64 bb = 1ull << lTo; //Get where it went to
+			if (toMove == black) { //The move we are currently undoing was played by white, so this move before was played by black
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+				if (bb & bitboards[wPawn]) {
+					zobrist ^= zobrist::values[772 + (lTo % 8)];
+				}
+			}
+			else {
+				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+				if (bb & bitboards[bPawn]) {
+					zobrist ^= zobrist::values[772 + (lTo % 8)];
+				}
+			}
+		}
+
+		//Update castling rights
+		const auto rights = moves::getCastleChanges(m);
+		if (std::get<0>(rights)) {
+			wKingside = true;
+			zobrist ^= zobrist::values[768];
+		}
+		if (std::get<1>(rights)) {
+			wQueenside = true;
+			zobrist ^= zobrist::values[769];
+		}
+		if (std::get<2>(rights)) {
+			bKingside = true;
+			zobrist ^= zobrist::values[770];
+		}
+		if (std::get<3>(rights)) {
+			bQueenside = true;
+			zobrist ^= zobrist::values[771];
+		}
+
+		toMove = color(1 - toMove); //Flip toMove
+		toMoveSigned = -1 * toMoveSigned;
+		zobrist ^= zobrist::values[780];
 	}
 
 	void debugPosition() {
