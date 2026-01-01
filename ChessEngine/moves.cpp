@@ -1,14 +1,29 @@
 #include "moves.h"
 
 namespace moves {
-	move encodeMove(square from, square to, piece p, piece capture, bool promote, bool special1, bool special2, bool enPassant, bool wkc, bool wqc, bool bkc, bool bqc) {
-		return from | (to << 6) | (p << 12) | (capture << 16) | (promote << 20) | (special1 << 21) | (special2 << 22) | (enPassant << 23) | (wkc << 24) | (wqc << 25) | (bkc << 26) | (bqc << 27);
+	// A base function not designed for use elsewhere
+	// enPassant and doublePush are used to encode promotion, as follows:
+	// 1 1 queen
+	// 1 0 rook
+	// 0 1 bishop
+	// 0 0 knight
+	// Castling are encoded as per UCI with e1g1, e1c1, e8g8, e8c8
+	// Castling rights changes are true if a move takes them away
+
+	move encodeMove(square from, square to, piece p, piece capture, bool promote, bool enPassant, bool doublePush, bool wkc, bool wqc, bool bkc, bool bqc) {
+		return from | (to << 6) | (p << 12) | (capture << 16) | (promote << 20) | (enPassant << 21) | (doublePush << 22) | (wkc << 23) | (wqc << 24) | (bkc << 25) | (bqc << 26);
 	}
 
-	//No flags = normal, just capture, or promote to knight (with different flags)
-	//Special 1 = double pawn push or promote to rook
-	//Special 2 = king castle or promote to bishop
-	//Special 1 and 2 = queen castle or promote to queen
+	move encodeNormal(square from, square to, piece p, piece capture, bool enPassant, bool doublePush, bool wkc, bool wqc, bool bkc, bool bqc) {
+		return encodeMove(from, to, p, capture, false, enPassant, doublePush, wkc, wqc, bkc, bqc);
+	}
+
+	move encodePromote(square from, square to, piece p, piece capture, piece promote, bool wkc, bool wqc, bool bkc, bool bqc) {
+		bool special1 = (promote == wQueen || promote == bQueen || promote == wRook || promote == bRook);
+		bool special2 = (promote == wQueen || promote == bQueen || promote == wBishop || promote == bBishop);
+
+		return encodeMove(from, to, p, capture, true, special1, special2, wkc, wqc, bkc, bqc);
+	}
 
 	square getFrom(const move& m){
 		return square(m & 0x3F);
@@ -18,13 +33,22 @@ namespace moves {
 		return square((m & 0xFC0) >> 6);
 	}
 
-	piece getPiece(const move& m)
-	{
+	piece getPiece(const move& m) {
 		return piece((m & 0xF000) >> 12);
 	}
 
 	piece getCapture(const move& m){
 		return piece((m & 0xF0000) >> 16);
+	}
+
+	//EnPassant
+	bool getSpecial1(const move& m){
+		return (m & 0x200000) >> 21;
+	}
+
+	//Double push
+	bool getSpecial2(const move& m){
+		return (m & 0x400000) >> 22;
 	}
 
 	bool getPromoteFlag(const move& m){
@@ -38,19 +62,15 @@ namespace moves {
 		return piece(flag1 ? (flag2 ? wQueen : wRook) : (flag2 ? wBishop : wKnight) | (color << 3));
 	}
 
-	bool getSpecial1(const move& m){
-		return (m & 0x200000) >> 21;
+	bool isEnPassant(const move& m) {
+		return getSpecial1(m) && !getPromoteFlag(m);
 	}
 
-	bool getSpecial2(const move& m){
-		return (m & 0x400000) >> 22;
-	}
-
-	bool getEnPassant(const move& m) {
-		return (m & 0x800000) >> 23;
+	bool isDoublePush(const move& m) {
+		return getSpecial2(m) && !getPromoteFlag(m);
 	}
 
 	std::tuple<bool, bool, bool, bool> getCastleChanges(const move& m) {
-		return { (m & 0x1000000) >> 24, (m & 0x2000000) >> 25, (m & 0x4000000) >> 26, (m & 0x8000000) >> 27 };
+		return { (m & 0x800000) >> 23, (m & 0x1000000) >> 24, (m & 0x2000000) >> 25, (m & 0x4000000) >> 26 };
 	}
 }
