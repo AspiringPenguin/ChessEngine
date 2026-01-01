@@ -332,15 +332,19 @@ namespace engine {
 		const auto rights = moves::getCastleChanges(m);
 		if (std::get<0>(rights)) {
 			wKingside = false;
+			zobrist ^= zobrist::values[768];
 		}
 		if (std::get<1>(rights)) {
 			wQueenside = false;
+			zobrist ^= zobrist::values[769];
 		}
 		if (std::get<2>(rights)) {
 			bKingside = false;
+			zobrist ^= zobrist::values[770];
 		}
 		if (std::get<3>(rights)) {
 			bQueenside = false;
+			zobrist ^= zobrist::values[771];
 		}
 
 		toMove = color(1 - toMove); //Flip toMove
