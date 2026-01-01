@@ -79,7 +79,7 @@ namespace moves {
 		bool flag1 = getSpecial1(m);
 		bool flag2 = getSpecial2(m);
 
-		return piece(flag1 ? (flag2 ? wQueen : wRook) : (flag2 ? wBishop : wKnight) | (color << 3));
+		return piece((flag1 ? (flag2 ? wQueen : wRook) : (flag2 ? wBishop : wKnight)) | (color << 3));
 	}
 
 	bool isEnPassant(const move& m) {
