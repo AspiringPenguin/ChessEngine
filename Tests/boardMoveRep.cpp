@@ -209,4 +209,249 @@ namespace boardMoveRep
 			Assert::IsTrue(engine::getZobrist() == 0x5c3f9b829b279560);
 		}
 	};
+
+	TEST_CLASS(MakeUndoMoves) {
+		//Test crudely by checking the zobrist hash after applying multiple moves, and after undoing them all.
+
+		TEST_METHOD(DoublePushOnlyApply) {
+			engine::reset();
+
+			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
+			move m3 = moves::encodeNormal(D2, D4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m4 = moves::encodeNormal(G7, G6, bPawn, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(B1, C3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m6 = moves::encodeNormal(F8, G7, bBishop, nullPiece, false, false, false, false, false, false);
+			move m7 = moves::encodeNormal(G1, F3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m8 = moves::encodeNormal(G8, F6, bKnight, nullPiece, false, false, false, false, false, false);
+			move m9 = moves::encodeNormal(C1, E3, wBishop, nullPiece, false, false, false, false, false, false);
+			move m10 = moves::encodeNormal(C8, G4, bBishop, nullPiece, false, false, false, false, false, false);
+			
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+			engine::makeMove(m8);
+			engine::makeMove(m9);
+			engine::makeMove(m10);
+
+			Assert::IsTrue(engine::getZobrist() == 0x2d7dfd097f29cb4e);
+		}
+
+		TEST_METHOD(DoublePushOnlyUndo) {
+			engine::reset();
+
+			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
+			move m3 = moves::encodeNormal(D2, D4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m4 = moves::encodeNormal(G7, G6, bPawn, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(B1, C3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m6 = moves::encodeNormal(F8, G7, bBishop, nullPiece, false, false, false, false, false, false);
+			move m7 = moves::encodeNormal(G1, F3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m8 = moves::encodeNormal(G8, F6, bKnight, nullPiece, false, false, false, false, false, false);
+			move m9 = moves::encodeNormal(C1, E3, wBishop, nullPiece, false, false, false, false, false, false);
+			move m10 = moves::encodeNormal(C8, G4, bBishop, nullPiece, false, false, false, false, false, false);
+
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+			engine::makeMove(m8);
+			engine::makeMove(m9);
+			engine::makeMove(m10);
+
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+
+			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+		}
+
+		TEST_METHOD(EnPassantApply) {
+			engine::reset();
+			
+			move m1 = moves::encodeNormal(A2, A4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m2 = moves::encodeNormal(B7, B5, bPawn, nullPiece, false, true, false, false, false, false);
+			move m3 = moves::encodeNormal(H2, H4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m4 = moves::encodeNormal(B5, B4, bPawn, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(C2, C4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m6 = moves::encodeNormal(B4, C3, bPawn, wPawn, true, false, false, false, false, false);
+			move m7 = moves::encodeNormal(A1, A3, wRook, nullPiece, false, false, false, true, false, false);
+
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+
+			Assert::IsTrue(engine::getZobrist() == 0x5c3f9b829b279560);
+		}
+
+		TEST_METHOD(EnPassantUndo) {
+			engine::reset();
+
+			move m1 = moves::encodeNormal(A2, A4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m2 = moves::encodeNormal(B7, B5, bPawn, nullPiece, false, true, false, false, false, false);
+			move m3 = moves::encodeNormal(H2, H4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m4 = moves::encodeNormal(B5, B4, bPawn, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(C2, C4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m6 = moves::encodeNormal(B4, C3, bPawn, wPawn, true, false, false, false, false, false);
+			move m7 = moves::encodeNormal(A1, A3, wRook, nullPiece, false, false, false, true, false, false);
+
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+
+			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+		}
+
+		TEST_METHOD(KingsideApply) {
+			engine::reset();
+
+			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m2 = moves::encodeNormal(E7, E5, bPawn, nullPiece, false, true, false, false, false, false);
+			move m3 = moves::encodeNormal(G1, F3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m4 = moves::encodeNormal(G8, F6, bKnight, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(F1, D3, wBishop, nullPiece, false, false, false, false, false, false);
+			move m6 = moves::encodeNormal(F8, D6, bBishop, nullPiece, false, false, false, false, false, false);
+			move m7 = moves::encodeCastle(white, false, true, true, true, true);
+			move m8 = moves::encodeCastle(black, false, false, false, true, true);
+
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+			engine::makeMove(m8);
+
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+
+			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+		}
+
+		TEST_METHOD(KingsideUndo) {
+			engine::reset();
+
+			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
+			move m2 = moves::encodeNormal(E7, E5, bPawn, nullPiece, false, true, false, false, false, false);
+			move m3 = moves::encodeNormal(G1, F3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m4 = moves::encodeNormal(G8, F6, bKnight, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(F1, D3, wBishop, nullPiece, false, false, false, false, false, false);
+			move m6 = moves::encodeNormal(F8, D6, bBishop, nullPiece, false, false, false, false, false, false);
+			move m7 = moves::encodeCastle(white, false, true, true, true, true);
+			move m8 = moves::encodeCastle(black, false, false, false, true, true);
+
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+			engine::makeMove(m8);
+		}
+
+		TEST_METHOD(QueensideApply) {
+			engine::reset();
+
+			move m1 = moves::encodeNormal(D2, D3, wPawn, nullPiece, false, false, false, false, false, false);
+			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
+			move m3 = moves::encodeNormal(C1, E3, wBishop, nullPiece, false, false, false, false, false, false);
+			move m4 = moves::encodeNormal(C8, E6, bBishop, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(D1, D2, wQueen, nullPiece, false, false, false, false, false, false);
+			move m6 = moves::encodeNormal(D8, D7, bQueen, nullPiece, false, false, false, false, false, false);
+			move m7 = moves::encodeNormal(B1, C3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m8 = moves::encodeNormal(B8, C6, bKnight, nullPiece, false, false, false, false, false, false);
+			move m9 = moves::encodeCastle(white, true, true, true, true, true);
+			move m10 = moves::encodeCastle(black, true, false, false, true, true);
+
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+			engine::makeMove(m8);
+			engine::makeMove(m9);
+			engine::makeMove(m10);
+
+			Assert::IsTrue(engine::getZobrist() == 0x987ff0f0beae1834);
+		}
+
+		TEST_METHOD(QueensideUndo) {
+			engine::reset();
+
+			move m1 = moves::encodeNormal(D2, D3, wPawn, nullPiece, false, false, false, false, false, false);
+			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
+			move m3 = moves::encodeNormal(C1, E3, wBishop, nullPiece, false, false, false, false, false, false);
+			move m4 = moves::encodeNormal(C8, E6, bBishop, nullPiece, false, false, false, false, false, false);
+			move m5 = moves::encodeNormal(D1, D2, wQueen, nullPiece, false, false, false, false, false, false);
+			move m6 = moves::encodeNormal(D8, D7, bQueen, nullPiece, false, false, false, false, false, false);
+			move m7 = moves::encodeNormal(B1, C3, wKnight, nullPiece, false, false, false, false, false, false);
+			move m8 = moves::encodeNormal(B8, C6, bKnight, nullPiece, false, false, false, false, false, false);
+			move m9 = moves::encodeCastle(white, true, true, true, true, true);
+			move m10 = moves::encodeCastle(black, true, false, false, true, true);
+
+			engine::makeMove(m1);
+			engine::makeMove(m2);
+			engine::makeMove(m3);
+			engine::makeMove(m4);
+			engine::makeMove(m5);
+			engine::makeMove(m6);
+			engine::makeMove(m7);
+			engine::makeMove(m8);
+			engine::makeMove(m9);
+			engine::makeMove(m10);
+
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+			engine::undoMove();
+
+			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+		}
+	};
 }
