@@ -450,7 +450,70 @@ namespace engine {
 		square pos;
 
 		if ((p & 0b0111) == 6 && std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
-			//Castle logic here
+			if (p == wKing) {
+				if (to == G1) {
+					//Update mailbox
+					mailbox[E1] = wKing;
+					mailbox[F1] = nullPiece;
+					mailbox[G1] = nullPiece;
+					mailbox[H1] = wKing;
+
+					//Update bitboards
+					bitboards[wKing] ^= (1ull << E1) | (1ull << G1);
+					bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + F1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + H1];
+				}
+				else {
+					//Update mailbox
+					mailbox[E1] = wKing;
+					mailbox[D1] = nullPiece;
+					mailbox[C1] = nullPiece;
+					mailbox[A1] = wRook;
+
+					//Update bitboards
+					bitboards[wKing] ^= (1ull << E1) | (1ull << C1);
+					bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + A1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + D1];
+				}
+			}
+			else {
+				if (to == G8) {
+					//Update mailbox
+					mailbox[E8] = bKing;
+					mailbox[F8] = nullPiece;
+					mailbox[G8] = nullPiece;
+					mailbox[H8] = bRook;
+
+					//Update bitboards
+					bitboards[bKing] ^= (1ull << E8) | (1ull << G8);
+					bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + F8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + H8];
+				}
+				else {
+					//Update mailbox
+					mailbox[E8] = bKing;
+					mailbox[D8] = nullPiece;
+					mailbox[C8] = nullPiece;
+					mailbox[A8] = bRook;
+
+					//Update bitboards
+					bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
+					bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
+
+					//Update zobrist hash for pieces
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
+					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
+				}
+			}
 		}
 		else {
 			if (moves::isDoublePush(m)) { //May need to remove zobrist hash element for enPassant
