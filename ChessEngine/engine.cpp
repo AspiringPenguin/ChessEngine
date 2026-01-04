@@ -271,6 +271,7 @@ namespace engine {
 		const square from = moves::getFrom(m);
 		const square to = moves::getTo(m);
 		const piece p = moves::getPiece(m);
+		const piece toPiece = moves::getPromoteFlag(m) ? moves::getPromote(m, toMove) : p;
 		const piece capture = moves::getCapture(m);
 		int pos;
 		square lTo;
@@ -365,14 +366,15 @@ namespace engine {
 
 			//Update mailbox
 			mailbox[from] = nullPiece;
-			mailbox[to] = p;
+			mailbox[to] = toPiece;
 
 			//Update zobrist hash
 			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
-			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + to];
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[toPiece] + to];
 
 			//Update bitboards
-			bitboards[p] ^= ((1ull << from) | (1ull << to));
+			bitboards[p] ^= (1ull << from);
+			bitboards[toPiece] ^= (1ull << to);
 
 			//Handle enPassant
 			if (moves::isEnPassant(m)) { 
@@ -445,6 +447,7 @@ namespace engine {
 		const square from = moves::getFrom(m);
 		const square to = moves::getTo(m);
 		const piece p = moves::getPiece(m);
+		const piece toPiece = moves::getPromoteFlag(m) ? moves::getPromote(m, color(1-toMove)) : p;
 		const piece capture = moves::getCapture(m);
 		square lTo;
 		square pos;
@@ -537,10 +540,11 @@ namespace engine {
 
 			//Update zobrist hash
 			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
-			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + to];
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[toPiece] + to];
 
 			//Update bitboards
-			bitboards[p] ^= ((1ull << from) | (1ull << to));
+			bitboards[p] ^= (1ull << from);
+			bitboards[toPiece] ^= (1ull << to);
 
 			//Handle enPassant
 			if (moves::isEnPassant(m)) {
