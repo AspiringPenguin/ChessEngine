@@ -15,9 +15,10 @@ namespace engine{
 	void makeMove(move& m, bool reversible);
 	void undoMove();
 
-	void debugPosition();
+	bool isDraw();
 
 	//For testing
+	void debugPosition();
 	U64 getZobrist();
 	U64 getBitboard(int n);
 }

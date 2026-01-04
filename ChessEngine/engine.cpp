@@ -603,6 +603,18 @@ namespace engine {
 		zobrist ^= zobrist::values[780];
 	}
 
+	bool isDraw() {
+		//50 move rule
+
+		//Insufficient material
+
+		//Repetition
+
+		//Stalemate will be handled in search.
+	}
+
+	//Debug stuff
+
 	void debugPosition() {
 		std::cout << toMove << std::endl;
 		std::cout << enPassantSquare << std::endl;
