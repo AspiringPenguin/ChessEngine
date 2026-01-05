@@ -8,6 +8,8 @@
 namespace engine {
 	std::array<piece, 64> mailbox{ }; //Initialise as 0s = empty
 	U64 bitboards[16]{ }; //Initialise as 0s
+	U64 colorBitboards[2]{ }; //0 = white, 1 = black
+	U64 allBitboard = 0;
 
 	U64 zobrist = 0;
 
@@ -37,6 +39,12 @@ namespace engine {
 	//For enPassant
 	square enPassantSquare = nullSquare;
 
+	//Set up aggregate bitboards
+	void updateBitboards() {
+		colorBitboards[white] = bitboards[wPawn] | bitboards[wKnight] | bitboards[wBishop] | bitboards[wRook] | bitboards[wQueen] | bitboards[wKing];
+		colorBitboards[black] = bitboards[bPawn] | bitboards[bKnight] | bitboards[bBishop] | bitboards[bRook] | bitboards[bQueen] | bitboards[bKing];
+		allBitboard = colorBitboards[white] | colorBitboards[black];
+	}
 
 	void showPosition(color perspective) {
 		if (perspective == black) {
@@ -142,6 +150,8 @@ namespace engine {
 		bitboards[bQueen] ^= (1ull << D8);
 		bitboards[bKing] ^= (1ull << E8);
 
+		updateBitboards();
+
 		//Castling rights
 		wKingside = true;
 		wQueenside = true;
@@ -228,6 +238,8 @@ namespace engine {
 				}
 			}
 		}
+
+		updateBitboards();
 
 		//Update zobrist hash for pieces
 		zobrist = zobrist::zobristPieces(mailbox);
@@ -349,6 +361,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[wKing] ^= (1ull << E1) | (1ull << G1);
 					bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
+					colorBitboards[white] ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
+					allBitboard ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
@@ -364,6 +378,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[wKing] ^= (1ull << E1) | (1ull << C1);
 					bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
+					colorBitboards[white] ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
+					allBitboard ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
@@ -381,6 +397,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[bKing] ^= (1ull << E8) | (1ull << G8);
 					bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
+					colorBitboards[black] ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
+					allBitboard ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
@@ -396,6 +414,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
 					bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
+					colorBitboards[white] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+					allBitboard ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
@@ -517,6 +537,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[wKing] ^= (1ull << E1) | (1ull << G1);
 					bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
+					colorBitboards[white] ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
+					allBitboard ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
@@ -532,6 +554,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[wKing] ^= (1ull << E1) | (1ull << C1);
 					bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
+					colorBitboards[white] ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
+					allBitboard ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
@@ -549,6 +573,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[bKing] ^= (1ull << E8) | (1ull << G8);
 					bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
+					colorBitboards[black] ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
+					allBitboard ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
@@ -564,6 +590,8 @@ namespace engine {
 					//Update bitboards
 					bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
 					bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
+					colorBitboards[white] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+					allBitboard ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
 
 					//Update zobrist hash for pieces
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];

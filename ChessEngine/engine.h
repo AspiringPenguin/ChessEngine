@@ -6,6 +6,7 @@
 #include <string>
 
 namespace engine{
+	void updateBitboards();
 	void showPosition(color perspective = white);
 
 	void reset();
