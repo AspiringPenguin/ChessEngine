@@ -19,6 +19,7 @@ namespace engine{
 
 	//For testing
 	void debugPosition();
+	void debugPositions();
 	U64 getZobrist();
 	U64 getBitboard(int n);
 }

@@ -19,9 +19,9 @@ namespace engine {
 	
 	constexpr int numPositions = 100 + maxDepth; //So we still have accurate history after making and unmaking lots of moves
 	U64 positions[numPositions]; //Use circularly to store last 100 positions' zobrist hashes
-	int positionsHead = 0; //First position
-	int positionsTail = 0; //Last position
-	//If head == (tail + 1) all mod 100, increment both and overwrite 
+	int positionsHead = 0; //First position, inclusive
+	int positionsTail = 0; //Last position, exclusive
+	//If head == (tail) all mod numPositions increment both and overwrite 
 
 	int moveNum = -1;
 
@@ -159,6 +159,9 @@ namespace engine {
 		zobrist ^= zobrist::values[771];
 		//White to move
 		zobrist ^= zobrist::values[780];
+
+		positions[positionsTail] = zobrist;
+		positionsTail++;
 	}
 
 	void loadFEN(std::string fen) {
@@ -279,6 +282,9 @@ namespace engine {
 		else {
 			lastMove = 0; 
 		}
+
+		positions[positionsTail] = zobrist;
+		positionsTail++;
 	}
 
 	void makeMove(move& m, bool reversible) {
@@ -465,6 +471,17 @@ namespace engine {
 		if (!reversible) {
 			lastMove = m; //Update lastMove
 		}
+
+		//Add position to repetition history
+		positions[positionsTail] = zobrist;
+		positionsHead = (positionsHead == positionsTail) ? (positionsHead + 1): positionsHead; //If we just overwrote the first element, increment positionsHead
+		positionsTail++; //Increment the tail
+
+		//If both greater or equal to numPositions subtract numPositions
+		if (positionsHead >= numPositions && positionsTail >= numPositions) {
+			positionsHead -= numPositions;
+			positionsTail -= numPositions;
+		}
 	}
 
 	void makeMove(move& m) {
@@ -637,6 +654,8 @@ namespace engine {
 		toMove = color(1 - toMove); //Flip toMove
 		toMoveSigned = -1 * toMoveSigned;
 		zobrist ^= zobrist::values[780];
+
+		positionsTail--; //Remove the positions just by decrementing the tail - it will be overwritten when necessary in makeMove
 	}
 
 	bool isDraw() {
@@ -666,6 +685,13 @@ namespace engine {
 			bitboards::showBitboard(bitboards[p]);
 		}
 		std::cout << zobrist << std::endl;
+	}
+
+	void debugPositions() {
+		std::cout << positionsHead << " " << positionsTail << std::endl;
+		for (size_t i = positionsHead; i < positionsTail; i++) {
+			std::cout << positions[i % numPositions] << std::endl;
+		}
 	}
 
 	U64 getZobrist() {
