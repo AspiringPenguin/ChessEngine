@@ -436,6 +436,8 @@ namespace engine {
 			//Update bitboards
 			bitboards[p] ^= (1ull << from);
 			bitboards[toPiece] ^= (1ull << to);
+			colorBitboards[p >> 3] ^= (1ull << from) | (1ull << to);
+			allBitboard ^= (1ull << from) | (1ull << to);
 
 			//Handle enPassant
 			if (moves::isEnPassant(m)) { 
@@ -443,10 +445,14 @@ namespace engine {
 				mailbox[pos] = nullPiece; //Mailbox wasn't updated
 				bitboards[capture] ^= (1ull << pos);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos];
+				colorBitboards[capture >> 3] ^= (1ull << pos);
+				allBitboard ^= (1ull << pos);
 			}
 			else if (capture != nullPiece) {
 				bitboards[capture] ^= (1ull << to);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to];
+				colorBitboards[capture >> 3] ^= (1ull << to);
+				allBitboard ^= (1ull << to);
 			}
 
 			if (moves::isDoublePush(m)) { //May need to add zobrist hash element for enPassant
@@ -626,6 +632,8 @@ namespace engine {
 			//Update bitboards
 			bitboards[p] ^= (1ull << from);
 			bitboards[toPiece] ^= (1ull << to);
+			colorBitboards[p >> 3] ^= (1ull << from) | (1ull << to);
+			allBitboard ^= (1ull << from) | (1ull << to);
 
 			//Handle enPassant
 			if (moves::isEnPassant(m)) {
@@ -633,10 +641,14 @@ namespace engine {
 				mailbox[pos] = capture; //Put the captured piece in the right place
 				mailbox[to] = nullPiece; //And remove it from the original place
 				bitboards[capture] ^= (1ull << pos); //Add it back to the bitboard
+				colorBitboards[capture >> 3] ^= (1ull << pos); //Add it back to the color-specific and main bitboards
+				allBitboard ^= (1ull << pos);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos]; //And the zobrist hash
 			}
 			else if (capture != nullPiece) { //If its non en-passant capture
 				bitboards[capture] ^= (1ull << to); //Add it back to the bitboard
+				colorBitboards[capture >> 3] ^= (1ull << to);
+				allBitboard ^= (1ull << to);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to]; //Add it back to the hash
 			}
 		}
@@ -711,6 +723,11 @@ namespace engine {
 			std::cout << p << std::endl;
 			std::cout << bitboards[p] << std::endl;
 			bitboards::showBitboard(bitboards[p]);
+		}
+		for (color c : {white, black}) {
+			std::cout << c << std::endl;
+			std::cout << colorBitboards[c] << std::endl;
+			bitboards::showBitboard(colorBitboards[c]);
 		}
 		std::cout << zobrist << std::endl;
 	}
