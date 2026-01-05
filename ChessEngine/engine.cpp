@@ -3,6 +3,7 @@
 #include "moves.h"
 #include "zobrist.h"
 #include <exception>
+#include <intrin.h>
 #include <iostream>
 
 namespace engine {
@@ -526,7 +527,7 @@ namespace engine {
 		const square from = moves::getFrom(m);
 		const square to = moves::getTo(m);
 		const piece p = moves::getPiece(m);
-		const piece toPiece = moves::getPromoteFlag(m) ? moves::getPromote(m, color(1-toMove)) : p;
+		const piece toPiece = moves::getPromoteFlag(m) ? moves::getPromote(m, color(1 - toMove)) : p;
 		const piece capture = moves::getCapture(m);
 		square lTo;
 		square pos;
@@ -706,10 +707,28 @@ namespace engine {
 		if (std::count(std::begin(positions), std::end(positions), zobrist) == 3) { //This is the third time the position has occured
 			return true;
 		}
-		
-		//Insufficient material
 
-		//Stalemate will be handled in search.
+		U64 kings = bitboards[wKing] | bitboards[bKing];
+
+		//Insufficient material
+		if ((allBitboard & ~kings) == 0) { //Just kings
+			return true;
+		}
+
+		U64 bishops = bitboards[wBishop] | bitboards[bBishop];
+		U64 minors = bitboards[wKnight] | bitboards[bKnight] | bishops;
+
+		if (allBitboard == (kings | minors) && __popcnt64(minors) == 1) { //Only minor pieces left, only one minor piece left
+			return true;
+		}
+
+		if (allBitboard == (kings | bishops) && __popcnt64(bitboards[wBishop] == 1) && __popcnt64(bitboards[bBishop] == 1)) { //A bishop of each color and kings
+			return sameColor(_BitScanForward64(0, bitboards[wBishop]), _BitScanForward64(0, bitboards[bBishop])); //Is a draw if they are the same colour
+		}
+
+		//There are more pseudo-draws that would require a complex heuristic, something to consider once search and basic eval is written
+
+		return false; //Stalemate is handled in eval
 	}
 
 	//Debug stuff

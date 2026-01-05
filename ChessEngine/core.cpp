@@ -21,3 +21,10 @@ std::vector<std::string> split(std::string string, std::string delimiter) {
 
 	return sections;
 }
+
+bool sameColor(square sq1, square sq2) {
+	return (((sq1 >> 3) + (sq1 & 0b111)) % 2) == (((sq2 >> 3) + (sq2 & 0b111)) % 2);
+}
+bool sameColor(unsigned char sq1, unsigned char sq2) {
+	return (((sq1 >> 3) + (sq1 & 0b111)) % 2) == (((sq2 >> 3) + (sq2 & 0b111)) % 2);
+}

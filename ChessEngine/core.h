@@ -110,3 +110,7 @@ static char pieceChars[16] = { '.', 'P', 'N', 'B', 'R', 'Q', 'K', ' ', ' ', 'p',
 
 //String split
 std::vector<std::string> split(std::string string, std::string delimiter);
+
+bool sameColor(square sq1, square sq2);
+
+bool sameColor(unsigned char sq1, unsigned char sq2);
