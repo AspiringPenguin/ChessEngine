@@ -722,8 +722,13 @@ namespace engine {
 			return true;
 		}
 
-		if (allBitboard == (kings | bishops) && __popcnt64(bitboards[wBishop] == 1) && __popcnt64(bitboards[bBishop] == 1)) { //A bishop of each color and kings
-			return sameColor(_BitScanForward64(0, bitboards[wBishop]), _BitScanForward64(0, bitboards[bBishop])); //Is a draw if they are the same colour
+		unsigned long index1;
+		_BitScanForward64(&index1, bitboards[wBishop]);
+		unsigned long index2;
+		_BitScanForward64(&index2, bitboards[bBishop]);
+
+		if (allBitboard == (kings | bishops) && __popcnt64(bitboards[wBishop]) == 1 && __popcnt64(bitboards[bBishop]) == 1) { //A bishop of each color and kings
+			return sameColor(index1, index2); //Is a draw if they are the same colour
 		}
 
 		//There are more pseudo-draws that would require a complex heuristic, something to consider once search and basic eval is written
