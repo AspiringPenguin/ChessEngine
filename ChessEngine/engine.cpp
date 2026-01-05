@@ -12,7 +12,16 @@ namespace engine {
 	U64 zobrist = 0;
 
 	move moves[maxDepth]{};
+	int counters[maxDepth]{}; //For resetting of 50 move clock - the counter before the matching move was applied
 	move lastMove; //Keep the last move at the root here - the last irreversible move
+
+	int counter = 0; //For the 50-move rule, add/subtract 1 every 'half-move', draw when >= 100
+	
+	constexpr int numPositions = 100 + maxDepth; //So we still have accurate history after making and unmaking lots of moves
+	U64 positions[numPositions]; //Use circularly to store last 100 positions' zobrist hashes
+	int positionsHead = 0; //First position
+	int positionsTail = 0; //Last position
+	//If head == (tail + 1) all mod 100, increment both and overwrite 
 
 	int moveNum = -1;
 
@@ -55,6 +64,14 @@ namespace engine {
 		moveNum = -1;
 		enPassantSquare = nullSquare;
 		std::fill(std::begin(moves), std::end(moves), 0);
+		std::fill(std::begin(counters), std::end(counters), 0);
+		counter = 0; //50 move rule
+
+		//Clear draw position history
+		std::fill(std::begin(positions), std::end(positions), 0); 
+		positionsHead = 0;
+		positionsTail = 0;
+
 		lastMove = 0;
 
 		//Mailbox
@@ -157,6 +174,13 @@ namespace engine {
 		enPassantSquare = nullSquare;
 		moveNum = -1;
 		std::fill(std::begin(moves), std::end(moves), 0);
+		std::fill(std::begin(counters), std::end(counters), 0);
+		counter = 0; //50 move rule
+
+		//Clear draw position history
+		std::fill(std::begin(positions), std::end(positions), 0); 
+		positionsHead = 0;
+		positionsTail = 0;
 
 		//Get info from FEN
 		const auto info = split(fen, " ");
@@ -259,7 +283,14 @@ namespace engine {
 
 	void makeMove(move& m, bool reversible) {
 		if (reversible) {
+			//Store this move at the incremented value of moveNum
 			moves[++moveNum] = m;
+
+			//Also store the current 50-move counter value
+			#pragma warning(push)
+			#pragma warning(disable:6386)
+			counters[moveNum] = counter; //This will never overflow in practice unless my search has a huge bug in it.
+			#pragma warning(pop)
 		}
 		else if (moveNum != -1) {
 			throw std::out_of_range("Irreversible make move was attempted with temporary moves applied");
@@ -267,6 +298,8 @@ namespace engine {
 		else {
 			lastMove = m; //Set lastMove to m to deal with returning to root zobrist
 		}
+
+		counter++; //Increment 50 move counter, reset later
 
 		const square from = moves::getFrom(m);
 		const square to = moves::getTo(m);
@@ -276,6 +309,8 @@ namespace engine {
 		int pos;
 		square lTo;
 		move _lastMove = (moveNum == -1 ? lastMove : moves[moveNum - 1]);
+
+		counter = ((p & 0b0111) == wPawn || capture != nullPiece) ? 0 : counter; //Reset 50 move counter if a pawn move or a capture
 
 		//Undo zobrist hashing for last move being double push where en passant was pseudo-legal
 		//This must go here before any bitboards are updated
@@ -441,7 +476,8 @@ namespace engine {
 			throw std::out_of_range("Undo move was attempted with no moves to undo.");
 		}
 
-		move m = moves[moveNum--];
+		move m = moves[moveNum];
+		counter = counters[moveNum--]; //Get the counter state before the last move and then decrement moveNum
 		move _lastMove = moveNum == -1 ? lastMove : moves[moveNum]; //ie the move before m
 
 		const square from = moves::getFrom(m);
@@ -604,11 +640,15 @@ namespace engine {
 	}
 
 	bool isDraw() {
-		//50 move rule
-
-		//Insufficient material
-
+		if (counter == 100) {
+			return true;
+		}
 		//Repetition
+		if (std::count(std::begin(positions), std::end(positions), zobrist) == 3) { //This is the third time the position has occured
+			return true;
+		}
+		
+		//Insufficient material
 
 		//Stalemate will be handled in search.
 	}
