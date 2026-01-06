@@ -157,7 +157,7 @@ namespace boardMoveRep
 		}
 	};
 
-	TEST_CLASS(BoardSetup) {
+	TEST_CLASS(BoardSetupZobrist) {
 		//Zobrist hashes
 		TEST_METHOD(ResetZobrist) {
 			engine::reset();
@@ -210,7 +210,7 @@ namespace boardMoveRep
 		}
 	};
 
-	TEST_CLASS(MakeUndoMoves) {
+	TEST_CLASS(MakeUndoZobrist) {
 		//Test crudely by checking the zobrist hash after applying multiple moves, and after undoing them all.
 
 		TEST_METHOD(DoublePushOnlyApply) {
