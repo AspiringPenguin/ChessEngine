@@ -704,7 +704,11 @@ namespace engine {
 			return true;
 		}
 		//Repetition
-		if (std::count(std::begin(positions), std::end(positions), zobrist) == 3) { //This is the third time the position has occured
+		int count = 0;
+		for (int i = positionsHead; i <= positionsTail; i++) {
+			count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
+		}
+		if (count == 3) {
 			return true;
 		}
 
