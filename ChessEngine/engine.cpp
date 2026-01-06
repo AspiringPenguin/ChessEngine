@@ -740,6 +740,16 @@ namespace engine {
 		return false; //Stalemate is handled in eval
 	}
 
+	//Move gen!!
+	std::vector<move> generatePseudoLegalMoves() {
+		auto moves = std::vector<move>();
+		moves.reserve(218);
+
+
+
+		return moves;
+	}
+
 	//Debug stuff
 
 	void debugPosition() {

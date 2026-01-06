@@ -18,6 +18,8 @@ namespace engine{
 
 	bool isDraw();
 
+	std::vector<move> generatePseudoLegalMoves();
+
 	//For testing
 	void debugPosition();
 	void debugPositions();
