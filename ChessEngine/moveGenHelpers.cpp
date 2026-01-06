@@ -24,4 +24,22 @@ namespace moveGen {
 
 		return bitboards;
 	}
+
+	std::array<U64, 64> generateKingLookup() {
+		auto bitboards = std::array<U64, 64>();
+
+		U64 bb = 0;
+
+		for (int i = 0; i < 64; i++) {
+			bb = (1ull << i);
+
+			//From https://www.chessprogramming.org/King_Pattern
+
+			bb |= (bb << 1 & bitboards::notAFile) | (bb >> 1 & bitboards::notHFile);
+
+			bitboards[i] = bb | bb >> 8 | bb << 8;
+		}
+
+		return bitboards;
+	}
 }
