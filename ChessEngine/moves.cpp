@@ -93,4 +93,8 @@ namespace moves {
 	std::tuple<bool, bool, bool, bool> getCastleChanges(const move& m) {
 		return { (m & 0x800000) >> 23, (m & 0x1000000) >> 24, (m & 0x2000000) >> 25, (m & 0x4000000) >> 26 };
 	}
+
+	void debugMove(move m) {
+
+	}
 }

@@ -32,4 +32,6 @@ namespace moves {
 	bool isDoublePush(const move& m);
 
 	std::tuple<bool, bool, bool, bool> getCastleChanges(const move& m);
+
+	void debugMove(move m);
 }
