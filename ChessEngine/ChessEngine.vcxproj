@@ -130,6 +130,7 @@
     <ClCompile Include="core.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="moveGenHelpers.cpp" />
     <ClCompile Include="moves.cpp" />
     <ClCompile Include="zobrist.cpp" />
   </ItemGroup>
@@ -137,6 +138,7 @@
     <ClInclude Include="bitboards.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="moveGenHelpers.h" />
     <ClInclude Include="moves.h" />
     <ClInclude Include="zobrist.h" />
   </ItemGroup>

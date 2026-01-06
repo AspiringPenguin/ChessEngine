@@ -33,6 +33,9 @@
     <ClCompile Include="zobrist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="moveGenHelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zobrist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="moveGenHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
