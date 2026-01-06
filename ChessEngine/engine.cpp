@@ -750,8 +750,17 @@ namespace engine {
 		return moves;
 	}
 
-	//Debug stuff
+	//To check if a move was legal
+	bool kingInCheck() {
 
+	}
+
+	//Special case for castling
+	bool castleWasLegal() {
+
+	}
+
+	//Debug stuff
 	void debugPosition() {
 		std::cout << toMove << std::endl;
 		std::cout << enPassantSquare << std::endl;
