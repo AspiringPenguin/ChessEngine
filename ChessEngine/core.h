@@ -4,6 +4,10 @@
 
 //For all the typedefs, constexprs, structs etc.
 
+//https://www.codeproject.com/articles/Worlds-Fastest-Bitboard-Chess-Movegenerator - tzcnt gets the square, bitloop constantly resets the lowest '1' bit to 0 until the number is 0
+#define SquareOf(X) _tzcnt_u64(X) 
+#define Bitloop(X) for(;X; X = _blsr_u64(X))
+
 enum square {
 	A1 = 0,
 	B1 = 1,

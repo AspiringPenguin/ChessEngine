@@ -1,6 +1,7 @@
 #include "bitboards.h"
 #include "engine.h"
 #include "moves.h"
+#include "moveGenHelpers.h"
 #include "zobrist.h"
 #include <exception>
 #include <intrin.h>
@@ -745,7 +746,27 @@ namespace engine {
 		auto moves = std::vector<move>();
 		moves.reserve(218);
 
+		U64 movesBB;
+		
+		//King
+		const square kingPos = square(SquareOf(bitboards[wKing + (toMove << 3)]));
 
+		//Captures
+		movesBB = moveGen::kingLookup[kingPos] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			square sq = square(SquareOf(movesBB));
+			std::cout << sq << std::endl;
+			moves.push_back(moves::encodeMove(kingPos, sq, piece(wKing + (toMove << 3)), mailbox[sq], false, false, false,
+				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
+		}
+
+		//Non-captures
+		movesBB = moveGen::kingLookup[kingPos] & ~allBitboard;
+		Bitloop(movesBB) {
+			square sq = square(SquareOf(movesBB));
+			moves.push_back(moves::encodeMove(kingPos, sq, piece(wKing + (toMove << 3)), nullPiece, false, false, false, 
+				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
+		}
 
 		return moves;
 	}
