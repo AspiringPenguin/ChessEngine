@@ -206,9 +206,9 @@ namespace engine {
 		//Turn the board into a A1->H8 indexed list of characters representing pieces or empty spaces
 
 		//Numbers to n*'.'
-		for (int i = 0; i < 64; i++) {
+		for (int i = 0; i < 71; i++) {
 			if (std::isdigit(board[i])) {
-				board = board.substr(0, i) + std::string(std::stoi(std::string(1, board[i])), '.') + board.substr(i+1);
+				board = board.substr(0, i) + std::string(board[i]-48, '.') + board.substr(i + 1);
 			}
 		}
 		
