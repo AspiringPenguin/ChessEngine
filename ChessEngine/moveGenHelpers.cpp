@@ -37,7 +37,7 @@ namespace moveGen {
 
 			bb |= (bb << 1 & bitboards::notAFile) | (bb >> 1 & bitboards::notHFile);
 
-			bitboards[i] = bb | bb >> 8 | bb << 8;
+			bitboards[i] = (bb | bb >> 8 | bb << 8) & ~(1ull << i);
 		}
 
 		return bitboards;
