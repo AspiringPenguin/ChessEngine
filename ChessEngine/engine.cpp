@@ -768,6 +768,23 @@ namespace engine {
 				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
 		}
 
+		//Castling
+		if ((moveGen::whiteKingCastleMask & allBitboard) == 0 && wKingside && toMove == white) { //Can white kingside castle
+			moves.push_back(moves::encodeCastle(white, false, wKingside, wQueenside, false, false));
+		}
+
+		if ((moveGen::whiteQueenCastleMask & allBitboard) == 0 && wQueenside && toMove == white) { //Can white queenside castle
+			moves.push_back(moves::encodeCastle(white, true, wKingside, wQueenside, false, false));
+		}
+
+		if ((moveGen::blackKingCastleMask & allBitboard) == 0 && wKingside && toMove == black) { //Can black kingside castle
+			moves.push_back(moves::encodeCastle(black, false, false, false, bKingside, bQueenside));
+		}
+
+		if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && wQueenside && toMove == black) { //Can black queenside castle
+			moves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
+		}
+
 		return moves;
 	}
 

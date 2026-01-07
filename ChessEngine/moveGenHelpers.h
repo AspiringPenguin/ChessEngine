@@ -8,4 +8,10 @@ namespace moveGen {
 
 	static std::array<U64, 64> knightLookup = generateKnightLookup();
 	static std::array<U64, 64> kingLookup = generateKingLookup();
+
+	constexpr U64 whiteQueenCastleMask = 0x0E;
+	constexpr U64 whiteKingCastleMask = 0x60;
+
+	constexpr U64 blackQueenCastleMask = 0x0E00000000000000;
+	constexpr U64 blackKingCastleMask = 0x6000000000000000;
 }
