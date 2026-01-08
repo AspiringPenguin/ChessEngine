@@ -747,24 +747,27 @@ namespace engine {
 		moves.reserve(218);
 
 		U64 movesBB;
+		square sq;
+		piece p;
 		
 		//King
-		const square kingPos = square(SquareOf(bitboards[wKing + (toMove << 3)]));
+		p = piece(wKing + (toMove << 3));
+		const square kingPos = square(SquareOf(bitboards[p]));
 
 		//Captures
 		movesBB = moveGen::kingLookup[kingPos] & colorBitboards[1 - toMove];
 		Bitloop(movesBB) {
 			square sq = square(SquareOf(movesBB));
 			std::cout << sq << std::endl;
-			moves.push_back(moves::encodeMove(kingPos, sq, piece(wKing + (toMove << 3)), mailbox[sq], false, false, false,
+			moves.push_back(moves::encodeNormal(kingPos, sq, p, mailbox[sq], false, false,
 				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
 		}
 
 		//Non-captures
 		movesBB = moveGen::kingLookup[kingPos] & ~allBitboard;
 		Bitloop(movesBB) {
-			square sq = square(SquareOf(movesBB));
-			moves.push_back(moves::encodeMove(kingPos, sq, piece(wKing + (toMove << 3)), nullPiece, false, false, false, 
+			sq = square(SquareOf(movesBB));
+			moves.push_back(moves::encodeNormal(kingPos, sq, p, nullPiece, false, false,
 				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
 		}
 
@@ -784,6 +787,54 @@ namespace engine {
 		if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && wQueenside && toMove == black) { //Can black queenside castle
 			moves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
 		}
+
+		//If double check return here?
+
+		//Pawns
+		p = piece(wPawn + (toMove << 3));
+
+		const U64 dpRank = (toMove == white) ? bitboards::rank3 : bitboards::rank6;
+		const U64 prRank = (toMove == white) ? bitboards::rank7 : bitboards::rank2;
+
+		//Single push
+		movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & ~prRank; //Not promotion
+		
+		std::cout << toMoveSigned << std::endl;
+
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			moves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, false, false, false, false, false, false));
+		}
+
+		movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & prRank; //Promotion
+		
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+				moves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, promotePiece, false, false, false, false));
+			}
+		}
+
+		//Double push
+		movesBB = (((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & dpRank); //Get double pushable pawns on 3rd/6th rank
+		movesBB = (((toMove == white) ? movesBB << 8 : movesBB >> 8) & ~allBitboard); //And push again
+
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			moves.push_back(moves::encodeNormal(square(sq - (16*toMoveSigned)), sq, p, nullPiece, false, true, false, false, false, false));
+		}
+
+		//Left captures
+
+		//Right captures
+
+		//Knights
+
+		//Not captures
+
+		//Captures
+
+		//BRQ
 
 		return moves;
 	}
