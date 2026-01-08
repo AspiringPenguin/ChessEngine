@@ -42,4 +42,25 @@ namespace moveGen {
 
 		return bitboards;
 	}
+
+	constexpr U64 nonEdgeFileMask = ~(bitboards::rank1 | bitboards::rank8);
+	constexpr U64 nonEdgeRankMask = ~(bitboards::AFile | bitboards::HFile);
+
+	std::array<U64, 64> generateRookPextMasks() {
+		auto masks = std::array<U64, 64>();
+
+		U64 squareBB;
+		U64 mask;
+
+
+		for (int i = 0; i < 64; i++) {
+			squareBB = (1ull << i);
+			mask = (bitboards::files[i % 8] & nonEdgeFileMask) | (bitboards::ranks[i / 8] & nonEdgeRankMask);
+			mask &= ~squareBB;
+
+			masks[i] = mask;
+		}
+
+		return masks;
+	}
 }
