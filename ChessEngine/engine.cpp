@@ -878,6 +878,33 @@ namespace engine {
 		}
 
 		//Knights
+		p = piece(wKnight + (toMove << 3));
+
+		U64 piecesBB = bitboards[p];
+
+		square pos, to;
+
+		Bitloop(piecesBB) { //For each knight
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures
+			movesBB = moveGen::knightLookup[pos] & colorBitboards[1 - toMove];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
+				//Only way to remove rights is taking rook, so check for castle rook squares
+			}
+
+			//Non-captures
+			movesBB = moveGen::knightLookup[pos] & ~allBitboard; 
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+			}
+		}
 
 		//Not captures
 
