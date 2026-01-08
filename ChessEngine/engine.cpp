@@ -865,9 +865,16 @@ namespace engine {
 		}
 
 		if (moves::isDoublePush((moveNum == -1) ? lastMove : moves[moveNum])) {
-			movesBB = (1ull << (moves::getTo(moves[moveNum]) + (8 * toMoveSigned)));
-			//Add pawn capture logic here
-			showBitboard(movesBB);
+			const square epSquare = square(moves::getTo((moveNum == -1) ? lastMove : moves[moveNum]) + (8 * toMoveSigned));
+			movesBB = (1ull << epSquare);
+			movesBB = (toMove == white) ? (movesBB >> 9) | (movesBB >> 7) : (movesBB << 9) | (movesBB << 7);
+			movesBB &= bitboards[p]; //Get pawns that can attack the square
+
+			Bitloop(movesBB) {
+				square pos = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, epSquare, p, piece(p ^ 0b1000), false, false, false, false, false, false));
+			}
 		}
 
 		//Knights
