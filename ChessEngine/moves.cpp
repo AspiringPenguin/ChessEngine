@@ -1,3 +1,4 @@
+#include "core.h"
 #include "moves.h"
 #include <iostream>
 
@@ -96,7 +97,7 @@ namespace moves {
 	}
 
 	void debugMove(move m) {
-		std::cout << getFrom(m) << " " << getTo(m) << " " << getPiece(m) << " " << getCapture(m) << std::endl;
+		std::cout << pieceNames[getPiece(m)] << " " << squareNames[getFrom(m)] << squareNames[getTo(m)] << ((getCapture(m) != nullPiece) ? " takes " + pieceNames[getCapture(m)] : "") << std::endl;
 		std::cout << isEnPassant(m) << " " << isDoublePush(m) << " " << getPromoteFlag(m) << ((getPromoteFlag(m) == true) ? (" " + getPromote(m, white)) : std::string(" ")) << std::endl;
 		auto castleRights = getCastleChanges(m);
 		std::cout << std::get<0>(castleRights) << std::get<1>(castleRights) << std::get<2>(castleRights) << std::get<3>(castleRights) << std::endl;
