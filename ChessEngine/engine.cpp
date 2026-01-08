@@ -745,8 +745,8 @@ namespace engine {
 
 	//Move gen!!
 	std::vector<move> generatePseudoLegalMoves() {
-		auto moves = std::vector<move>();
-		moves.reserve(218);
+		auto generatedMoves = std::vector<move>();
+		generatedMoves.reserve(218);
 
 		U64 movesBB;
 		square sq;
@@ -761,7 +761,7 @@ namespace engine {
 		Bitloop(movesBB) {
 			square sq = square(SquareOf(movesBB));
 			std::cout << sq << std::endl;
-			moves.push_back(moves::encodeNormal(kingPos, sq, p, mailbox[sq], false, false,
+			generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, mailbox[sq], false, false,
 				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
 		}
 
@@ -769,25 +769,25 @@ namespace engine {
 		movesBB = moveGen::kingLookup[kingPos] & ~allBitboard;
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			moves.push_back(moves::encodeNormal(kingPos, sq, p, nullPiece, false, false,
+			generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, nullPiece, false, false,
 				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
 		}
 
 		//Castling
 		if ((moveGen::whiteKingCastleMask & allBitboard) == 0 && wKingside && toMove == white) { //Can white kingside castle
-			moves.push_back(moves::encodeCastle(white, false, wKingside, wQueenside, false, false));
+			generatedMoves.push_back(moves::encodeCastle(white, false, wKingside, wQueenside, false, false));
 		}
 
 		if ((moveGen::whiteQueenCastleMask & allBitboard) == 0 && wQueenside && toMove == white) { //Can white queenside castle
-			moves.push_back(moves::encodeCastle(white, true, wKingside, wQueenside, false, false));
+			generatedMoves.push_back(moves::encodeCastle(white, true, wKingside, wQueenside, false, false));
 		}
 
 		if ((moveGen::blackKingCastleMask & allBitboard) == 0 && bKingside && toMove == black) { //Can black kingside castle
-			moves.push_back(moves::encodeCastle(black, false, false, false, bKingside, bQueenside));
+			generatedMoves.push_back(moves::encodeCastle(black, false, false, false, bKingside, bQueenside));
 		}
 
 		if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && bQueenside && toMove == black) { //Can black queenside castle
-			moves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
+			generatedMoves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
 		}
 
 		//If double check return here?
@@ -803,7 +803,7 @@ namespace engine {
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			moves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, false, false, false, false, false, false));
+			generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, false, false, false, false, false, false));
 		}
 
 		movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & prRank; //Promotion
@@ -811,7 +811,7 @@ namespace engine {
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
-				moves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, promotePiece, false, false, false, false));
+				generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, promotePiece, false, false, false, false));
 			}
 		}
 
@@ -821,7 +821,7 @@ namespace engine {
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			moves.push_back(moves::encodeNormal(square(sq - (16*toMoveSigned)), sq, p, nullPiece, false, true, false, false, false, false));
+			generatedMoves.push_back(moves::encodeNormal(square(sq - (16*toMoveSigned)), sq, p, nullPiece, false, true, false, false, false, false));
 		}
 
 		//Left captures - white perspective so add 7 for white and subtract 9 for black - (<< (8*toMoveSigned - 1)
@@ -829,7 +829,7 @@ namespace engine {
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			moves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], false, false,
+			generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], false, false,
 				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
 		}
 
@@ -838,7 +838,7 @@ namespace engine {
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
-				moves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], promotePiece,
+				generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], promotePiece,
 					wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
 				//Only way to remove rights is taking rook, so check for castle rook squares
 			}
@@ -849,7 +849,7 @@ namespace engine {
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			moves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], false, false,
+			generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], false, false,
 				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
 		}
 
@@ -858,10 +858,16 @@ namespace engine {
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
-				moves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], promotePiece,
+				generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], promotePiece,
 					wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
 				//Only way to remove rights is taking rook, so check for castle rook squares
 			}
+		}
+
+		if (moves::isDoublePush((moveNum == -1) ? lastMove : moves[moveNum])) {
+			movesBB = (1ull << (moves::getTo(moves[moveNum]) + (8 * toMoveSigned)));
+			//Add pawn capture logic here
+			showBitboard(movesBB);
 		}
 
 		//Knights
@@ -872,7 +878,7 @@ namespace engine {
 
 		//BRQ
 
-		return moves;
+		return generatedMoves;
 	}
 
 	//To check if a move was legal
