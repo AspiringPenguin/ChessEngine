@@ -7,6 +7,8 @@
 #include <intrin.h>
 #include <iostream>
 
+using bitboards::showBitboard;
+
 namespace engine {
 	std::array<piece, 64> mailbox{ }; //Initialise as 0s = empty
 	U64 bitboards[16]{ }; //Initialise as 0s
@@ -780,11 +782,11 @@ namespace engine {
 			moves.push_back(moves::encodeCastle(white, true, wKingside, wQueenside, false, false));
 		}
 
-		if ((moveGen::blackKingCastleMask & allBitboard) == 0 && wKingside && toMove == black) { //Can black kingside castle
+		if ((moveGen::blackKingCastleMask & allBitboard) == 0 && bKingside && toMove == black) { //Can black kingside castle
 			moves.push_back(moves::encodeCastle(black, false, false, false, bKingside, bQueenside));
 		}
 
-		if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && wQueenside && toMove == black) { //Can black queenside castle
+		if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && bQueenside && toMove == black) { //Can black queenside castle
 			moves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
 		}
 
@@ -794,12 +796,10 @@ namespace engine {
 		p = piece(wPawn + (toMove << 3));
 
 		const U64 dpRank = (toMove == white) ? bitboards::rank3 : bitboards::rank6;
-		const U64 prRank = (toMove == white) ? bitboards::rank7 : bitboards::rank2;
+		constexpr U64 prRank = bitboards::rank8 | bitboards::rank1;
 
 		//Single push
 		movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & ~prRank; //Not promotion
-		
-		std::cout << toMoveSigned << std::endl;
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -807,7 +807,7 @@ namespace engine {
 		}
 
 		movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & prRank; //Promotion
-		
+
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
@@ -824,9 +824,45 @@ namespace engine {
 			moves.push_back(moves::encodeNormal(square(sq - (16*toMoveSigned)), sq, p, nullPiece, false, true, false, false, false, false));
 		}
 
-		//Left captures
+		//Left captures - white perspective so add 7 for white and subtract 9 for black - (<< (8*toMoveSigned - 1)
+		movesBB = (((toMove == white) ? bitboards[p] << 7 : bitboards[p] >> 9) & colorBitboards[1-toMove]) & ~prRank; //Not promotion
 
-		//Right captures
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			moves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], false, false,
+				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
+		}
+
+		movesBB = (((toMove == white) ? bitboards[p] << 7 : bitboards[p] >> 9) & colorBitboards[1 - toMove]) & prRank; //Promotion
+
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+				moves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], promotePiece,
+					wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
+				//Only way to remove rights is taking rook, so check for castle rook squares
+			}
+		}
+
+		//Right captures - white perspective so add 9 for white and subtract 7 for black - (<< (8*toMoveSigned + 1)
+		movesBB = (((toMove == white) ? bitboards[p] << 9 : bitboards[p] >> 7) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			moves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], false, false,
+				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
+		}
+
+		movesBB = (((toMove == white) ? bitboards[p] << 9 : bitboards[p] >> 7) & colorBitboards[1 - toMove]) & prRank; //Promotion
+
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+				moves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], promotePiece,
+					wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
+				//Only way to remove rights is taking rook, so check for castle rook squares
+			}
+		}
 
 		//Knights
 
