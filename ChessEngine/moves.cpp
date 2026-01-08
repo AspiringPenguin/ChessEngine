@@ -97,8 +97,10 @@ namespace moves {
 	}
 
 	void debugMove(move m) {
-		std::cout << pieceNames[getPiece(m)] << " " << squareNames[getFrom(m)] << squareNames[getTo(m)] << ((getCapture(m) != nullPiece) ? " takes " + pieceNames[getCapture(m)] : "") << std::endl;
-		std::cout << isEnPassant(m) << " " << isDoublePush(m) << " " << getPromoteFlag(m) << ((getPromoteFlag(m) == true) ? (" " + getPromote(m, white)) : std::string(" ")) << std::endl;
+		std::cout << pieceNames[getPiece(m)] << " " << squareNames[getFrom(m)] << squareNames[getTo(m)];
+		std::cout << ((getCapture(m) != nullPiece) ? " takes " + pieceNames[getCapture(m)] : "");
+		std::cout << ((getPromoteFlag(m) == true) ? (" promotes to " + pieceNames[getPromote(m, white)]) : std::string(" ")) << std::endl;
+		std::cout << isEnPassant(m) << " " << isDoublePush(m) << std::endl;
 		auto castleRights = getCastleChanges(m);
 		std::cout << std::get<0>(castleRights) << std::get<1>(castleRights) << std::get<2>(castleRights) << std::get<3>(castleRights) << std::endl;
 	}
