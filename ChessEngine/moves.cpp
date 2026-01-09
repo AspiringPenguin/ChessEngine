@@ -104,4 +104,9 @@ namespace moves {
 		auto castleRights = getCastleChanges(m);
 		std::cout << std::get<0>(castleRights) << std::get<1>(castleRights) << std::get<2>(castleRights) << std::get<3>(castleRights) << std::endl;
 	}
+
+	void showMove(move m) {
+		std::cout << squareNames[getFrom(m)] << squareNames[getTo(m)];
+		std::cout << ((getPromoteFlag(m) == true) ? (" promotes to " + pieceNames[getPromote(m, white)]) : std::string(" "));
+	}
 }

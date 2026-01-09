@@ -1112,7 +1112,7 @@ namespace engine {
 			if (moveWasLegal()) {
 				_nodes = perft(depth - 1, false);
 				if (top) {
-					moves::debugMove(move);
+					moves::showMove(move);
 					std::cout << _nodes << std::endl;
 				}
 				nodes += _nodes;

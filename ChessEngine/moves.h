@@ -34,4 +34,5 @@ namespace moves {
 	std::tuple<bool, bool, bool, bool> getCastleChanges(const move& m);
 
 	void debugMove(move m);
+	void showMove(move m);
 }
