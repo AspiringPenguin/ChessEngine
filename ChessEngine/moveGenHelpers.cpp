@@ -92,4 +92,14 @@ namespace moveGen {
 
 		return masks;
 	}
+
+	std::array<bool, 64> bitboardToMailbox(U64 bb) {
+		auto mailbox = std::array<bool, 64>();
+
+		for (int i = 0; i < 64; i++) {
+			mailbox[i] = ((bb & (1ull << i)) != 0);
+		}
+
+		return mailbox;
+	}
 }

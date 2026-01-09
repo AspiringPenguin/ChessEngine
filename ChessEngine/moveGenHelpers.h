@@ -8,6 +8,8 @@ namespace moveGen {
 	std::array<U64, 64> generateRookPextMasks();
 	std::array<U64, 64> generateBishopPextMasks();
 
+	std::array<bool, 64> bitboardToMailbox(U64 bb);
+
 	static std::array<U64, 64> knightLookup = generateKnightLookup();
 	static std::array<U64, 64> kingLookup = generateKingLookup();
 	static std::array<U64, 64> rookPextMasks = generateRookPextMasks();
