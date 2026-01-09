@@ -542,7 +542,7 @@ namespace engine {
 					mailbox[E1] = wKing;
 					mailbox[F1] = nullPiece;
 					mailbox[G1] = nullPiece;
-					mailbox[H1] = wKing;
+					mailbox[H1] = wRook;
 
 					//Update bitboards
 					bitboards[wKing] ^= (1ull << E1) | (1ull << G1);
@@ -1107,7 +1107,6 @@ namespace engine {
 
 		for (auto& move : moves) {
 			makeMove(move);
-
 			if (moveWasLegal()) {
 				_nodes = perft(depth - 1, false);
 				if (top) {
