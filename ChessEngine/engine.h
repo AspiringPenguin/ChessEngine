@@ -28,4 +28,5 @@ namespace engine{
 	void debugPositions();
 	U64 getZobrist();
 	U64 getBitboard(int n);
+	U64 getAllBitboard();
 }

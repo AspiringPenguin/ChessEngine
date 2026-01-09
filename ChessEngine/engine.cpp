@@ -958,4 +958,8 @@ namespace engine {
 	U64 getBitboard(int n) {
 		return bitboards[n];
 	}
+
+	U64 getAllBitboard() {
+		return allBitboard;
+	}
 }
