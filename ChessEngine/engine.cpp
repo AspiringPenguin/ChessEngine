@@ -1107,7 +1107,6 @@ namespace engine {
 
 		for (auto& move : moves) {
 			makeMove(move);
-
 			if (moveWasLegal()) {
 				_nodes = perft(depth - 1, false);
 				if (top) {
