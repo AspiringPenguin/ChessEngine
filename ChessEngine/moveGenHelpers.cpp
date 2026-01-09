@@ -119,7 +119,6 @@ namespace moveGen {
 
 	std::vector<U64> generateRookMoveLookupBySquare(square sq, U64 mask) {
 		auto moveBBs = std::vector<U64>();
-		moveBBs.assign((1ull << 12), 0xFFFFFFFFFFFFFFFF); //Fill out the vector so vec[i] works. Use 0xFFFFFF... to easily catch bugs
 
 		U64 moveBB;
 		std::array<bool, 64> mailbox;
@@ -128,7 +127,9 @@ namespace moveGen {
 		int directionX;
 		int directionY;
 
-		for (U64 i = 0; i < (1ull << 12); i++) {
+		int limit = (1ull << __popcnt64(mask));
+
+		for (U64 i = 0; i < limit; i++) {
 			moveBB = 0;
 			mailbox = bitboardToMailbox(_pdep_u64(i, mask));
 
@@ -156,7 +157,7 @@ namespace moveGen {
 				}
 			}
 
-			moveBBs[i] = moveBB;
+			moveBBs.push_back(moveBB);
 		}
 
 		return moveBBs;
@@ -178,7 +179,6 @@ namespace moveGen {
 
 	std::vector<U64> generateBishopMoveLookupBySquare(square sq, U64 mask) {
 		auto moveBBs = std::vector<U64>();
-		moveBBs.assign((1ull << 12), 0xFFFFFFFFFFFFFFFF); //Fill out the vector so vec[i] works. Use 0xFFFFFF... to easily catch bugs
 
 		U64 moveBB;
 		std::array<bool, 64> mailbox;
@@ -187,7 +187,9 @@ namespace moveGen {
 		int directionX;
 		int directionY;
 
-		for (U64 i = 0; i < (1ull << 10); i++) {
+		int limit = (1ull << __popcnt64(mask));
+
+		for (U64 i = 0; i < limit; i++) {
 			moveBB = 0;
 			mailbox = bitboardToMailbox(_pdep_u64(i, mask));
 
@@ -215,7 +217,7 @@ namespace moveGen {
 				}
 			}
 
-			moveBBs[i] = moveBB;
+			moveBBs.push_back(moveBB);
 		}
 
 		return moveBBs;
