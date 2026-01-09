@@ -760,7 +760,6 @@ namespace engine {
 		movesBB = moveGen::kingLookup[kingPos] & colorBitboards[1 - toMove];
 		Bitloop(movesBB) {
 			square sq = square(SquareOf(movesBB));
-			std::cout << sq << std::endl;
 			generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, mailbox[sq], false, false,
 				(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
 		}
@@ -864,10 +863,11 @@ namespace engine {
 			}
 		}
 
+		//En Passant
 		if (moves::isDoublePush((moveNum == -1) ? lastMove : moves[moveNum])) {
 			const square epSquare = square(moves::getTo((moveNum == -1) ? lastMove : moves[moveNum]) + (8 * toMoveSigned));
 			movesBB = (1ull << epSquare);
-			movesBB = (toMove == white) ? (movesBB >> 9) | (movesBB >> 7) : (movesBB << 9) | (movesBB << 7);
+			movesBB = (toMove == white) ? ((movesBB & ~bitboards::AFile) >> 9) | ((movesBB & ~bitboards::HFile) >> 7) : ((movesBB & ~bitboards::HFile) << 9) | ((movesBB & ~bitboards::AFile) << 7);
 			movesBB &= bitboards[p]; //Get pawns that can attack the square
 
 			Bitloop(movesBB) {
