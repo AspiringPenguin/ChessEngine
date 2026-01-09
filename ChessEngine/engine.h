@@ -20,6 +20,8 @@ namespace engine{
 
 	std::vector<move> generatePseudoLegalMoves();
 
+	U64 getAttacked(color by);
+
 	bool moveWasLegal();
 	bool castleWasLegal();
 
