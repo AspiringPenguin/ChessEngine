@@ -3,7 +3,7 @@
 std::vector<std::string> split(std::string string, std::string delimiter) {
 	auto sections = std::vector<std::string>();
 
-	int pos = 0;
+	size_t pos = 0;
 	size_t dl = delimiter.length();
 	size_t l = string.length() - dl + 1;
 
