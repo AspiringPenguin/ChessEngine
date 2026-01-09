@@ -1056,18 +1056,18 @@ namespace engine {
 	}
 
 	//To check if a move was legal
-	bool kingInCheck() {
+	bool moveWasLegal() {
 		const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called
 
 		if ((moves::getPiece(_lastMove) & 0b0111) == 6 && std::abs(moves::getFrom(_lastMove) - moves::getTo(_lastMove)) == 2) {
-			return  !castleWasLegal();
+			return  castleWasLegal();
 			
 		}
 
 		//We want to check if the side that just moved is in check
 		U64 kingBB = bitboards[wKing + ((1 - toMove) << 3)];
 
-		return (getAttacked(toMove) & kingBB) != 0; //Check if intersection between attacked squares and king square is non-zero
+		return (getAttacked(toMove) & kingBB) == 0; //Check if intersection between attacked squares and king square is zero
 	}
 
 	//Special case for castling

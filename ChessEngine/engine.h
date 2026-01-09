@@ -20,7 +20,7 @@ namespace engine{
 
 	std::vector<move> generatePseudoLegalMoves();
 
-	bool kingInCheck();
+	bool moveWasLegal();
 	bool castleWasLegal();
 
 	//For testing
