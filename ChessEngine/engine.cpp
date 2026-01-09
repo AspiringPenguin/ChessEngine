@@ -825,7 +825,7 @@ namespace engine {
 		}
 
 		//Left captures - white perspective so add 7 for white and subtract 9 for black - (<< (8*toMoveSigned - 1)
-		movesBB = (((toMove == white) ? bitboards[p] << 7 : bitboards[p] >> 9) & colorBitboards[1-toMove]) & ~prRank; //Not promotion
+		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -833,7 +833,7 @@ namespace engine {
 				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
 		}
 
-		movesBB = (((toMove == white) ? bitboards[p] << 7 : bitboards[p] >> 9) & colorBitboards[1 - toMove]) & prRank; //Promotion
+		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & prRank; //Promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -845,7 +845,7 @@ namespace engine {
 		}
 
 		//Right captures - white perspective so add 9 for white and subtract 7 for black - (<< (8*toMoveSigned + 1)
-		movesBB = (((toMove == white) ? bitboards[p] << 9 : bitboards[p] >> 7) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -853,7 +853,7 @@ namespace engine {
 				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
 		}
 
-		movesBB = (((toMove == white) ? bitboards[p] << 9 : bitboards[p] >> 7) & colorBitboards[1 - toMove]) & prRank; //Promotion
+		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & prRank; //Promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
