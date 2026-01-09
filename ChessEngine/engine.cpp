@@ -845,7 +845,7 @@ namespace engine {
 
 		//Right captures - white perspective so add 9 for white and subtract 7 for black - (<< (8*toMoveSigned + 1)
 		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
-
+		 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], false, false,
@@ -1061,7 +1061,6 @@ namespace engine {
 
 		if ((moves::getPiece(_lastMove) & 0b0111) == 6 && std::abs(moves::getFrom(_lastMove) - moves::getTo(_lastMove)) == 2) {
 			return  castleWasLegal();
-			
 		}
 
 		//We want to check if the side that just moved is in check
@@ -1093,12 +1092,38 @@ namespace engine {
 			break;
 		}
 
-		std::cout << ((squares & getAttacked(toMove)) == 0) << std::endl;
-
 		return ((squares & getAttacked(toMove)) == 0);
 	}
 
 	//Debug stuff
+	int perft(int depth, bool top) {
+		if (depth == 0) {
+			return 1;
+		}
+
+		int nodes = 0;
+		int _nodes;
+
+		auto moves = generatePseudoLegalMoves();
+
+		for (auto& move : moves) {
+			makeMove(move);
+
+			if (moveWasLegal()) {
+				_nodes = perft(depth - 1, false);
+				if (top) {
+					moves::debugMove(move);
+					std::cout << _nodes << std::endl;
+				}
+				nodes += _nodes;
+			}
+
+			undoMove();
+		}
+
+		return nodes;
+	}
+
 	void debugPosition() {
 		std::cout << toMove << std::endl;
 		std::cout << enPassantSquare << std::endl;

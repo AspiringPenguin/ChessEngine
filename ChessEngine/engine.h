@@ -24,6 +24,7 @@ namespace engine{
 	bool castleWasLegal();
 
 	//For testing
+	int perft(int depth, bool top);
 	void debugPosition();
 	void debugPositions();
 	U64 getZobrist();
