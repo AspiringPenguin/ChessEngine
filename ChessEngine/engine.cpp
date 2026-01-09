@@ -917,12 +917,12 @@ namespace engine {
 
 	//To check if a move was legal
 	bool kingInCheck() {
-
+		return true;
 	}
 
 	//Special case for castling
 	bool castleWasLegal() {
-
+		return false;
 	}
 
 	//Debug stuff
