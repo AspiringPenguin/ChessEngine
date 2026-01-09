@@ -27,4 +27,11 @@ namespace moveGen {
 
 	constexpr U64 blackQueenCastleMask = 0x0E00000000000000;
 	constexpr U64 blackKingCastleMask = 0x6000000000000000;
+
+
+	constexpr U64 whiteQueenCastleCheckMask = 0x1C;
+	constexpr U64 whiteKingCastleCheckMask = 0x70;
+
+	constexpr U64 blackQueenCastleCheckMask = 0x1c00000000000000;
+	constexpr U64 blackKingCastleCheckMask = 0x7000000000000000;
 }

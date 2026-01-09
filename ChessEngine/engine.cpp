@@ -987,7 +987,6 @@ namespace engine {
 
 				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
 					wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
-				//Be careful, rooks can move off castle squares as well as being captured by a rook
 			}
 			//Only way to remove rights is taking rook, so check for castle rook squares
 
@@ -1011,43 +1010,92 @@ namespace engine {
 		return generatedMoves;
 	}
 
-		piecesBB = bitboards[p];
+	U64 getAttacked(color by) {
+		U64 attacks = 0;
+		U64 pieceBB;
+		square from;
+		square pos;
 
-		Bitloop(piecesBB) { //For each queen
-			pos = square(SquareOf(piecesBB)); //Get its square
+		//king
+		pieceBB = bitboards[wKing + (toMove << 3)];
+		Bitloop(pieceBB) {
+			from = square(SquareOf(pieceBB));
 
-			//Captures
-			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
-			Bitloop(movesBB) {
-				to = square(SquareOf(movesBB));
-
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
-				//Only way to remove rights is taking rook, so check for castle rook squares
-			}
-
-			//Non-captures
-			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
-			Bitloop(movesBB) {
-				to = square(SquareOf(movesBB));
-
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-					wKingside && (pos == H1), wQueenside && (pos == A1), bKingside && (pos == H8), bQueenside && (pos == A8)));
-				//Be careful, rooks can move off castle squares 
-			}
+			attacks |= moveGen::kingLookup[from];
 		}
 
-		return generatedMoves;
+		//Pawns
+		attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) << 7 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) >> 9);
+		attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) << 9 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) >> 7);
+
+		//Knights
+		pieceBB = bitboards[wKnight + (toMove << 3)];
+		Bitloop(pieceBB) {
+			from = square(SquareOf(pieceBB));
+
+			attacks |= moveGen::knightLookup[from];
+		}
+
+		//Bishops and queen
+		pieceBB = bitboards[wBishop + (toMove << 3)] | bitboards[wQueen + (toMove << 3)];
+		Bitloop(pieceBB) {
+			from = square(SquareOf(pieceBB));
+
+			attacks |= moveGen::bishopMoveLookup[from][_pext_u64(allBitboard, moveGen::bishopPextMasks[from])];
+		}
+
+		//Rooks and queen
+		pieceBB = bitboards[wRook + (toMove << 3)] | bitboards[wQueen + (toMove << 3)];
+		Bitloop(pieceBB) {
+			from = square(SquareOf(pieceBB));
+
+			attacks |= moveGen::rookMoveLookup[from][_pext_u64(allBitboard, moveGen::rookPextMasks[from])];
+		}
+
+		return attacks;
 	}
 
 	//To check if a move was legal
 	bool kingInCheck() {
-		return true;
+		const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called
+
+		if ((moves::getPiece(_lastMove) & 0b0111) == 6 && std::abs(moves::getFrom(_lastMove) - moves::getTo(_lastMove)) == 2) {
+			return  !castleWasLegal();
+			
+		}
+
+		//We want to check if the side that just moved is in check
+		U64 kingBB = bitboards[wKing + ((1 - toMove) << 3)];
+
+		return (getAttacked(toMove) & kingBB) != 0; //Check if intersection between attacked squares and king square is non-zero
 	}
 
 	//Special case for castling
+	//Use if ((p & 0b0111) == 6 && std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
+	//To detect
 	bool castleWasLegal() {
-		return false;
+		const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called
+
+		U64 squares = 0xFFFFFFFFFFFFFFFF;
+
+		switch (moves::getTo(_lastMove)) {
+		case C1:
+			squares = moveGen::whiteQueenCastleCheckMask;
+			break;
+		case G1:
+			squares = moveGen::whiteKingCastleCheckMask;
+			break;
+		case C8:
+			squares = moveGen::blackQueenCastleCheckMask;
+			break;
+		case G8:
+			squares = moveGen::blackKingCastleCheckMask;
+			break;
+		}
+
+		std::cout << ((squares & getAttacked(toMove)) == 0) << std::endl;
+
+		return ((squares & getAttacked(toMove)) == 0);
 	}
 
 	//Debug stuff
