@@ -418,7 +418,7 @@ namespace engine {
 					//Update bitboards
 					bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
 					bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
-					colorBitboards[white] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+					colorBitboards[black] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
 					allBitboard ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
 
 					//Update zobrist hash for pieces
@@ -600,7 +600,7 @@ namespace engine {
 					//Update bitboards
 					bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
 					bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
-					colorBitboards[white] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+					colorBitboards[black] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
 					allBitboard ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
 
 					//Update zobrist hash for pieces
@@ -1014,7 +1014,6 @@ namespace engine {
 		U64 attacks = 0;
 		U64 pieceBB;
 		square from;
-		square pos;
 
 		//king
 		pieceBB = bitboards[wKing + (toMove << 3)];
