@@ -873,7 +873,7 @@ namespace engine {
 			Bitloop(movesBB) {
 				square pos = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, epSquare, p, piece(p ^ 0b1000), false, false, false, false, false, false));
+				generatedMoves.push_back(moves::encodeNormal(pos, epSquare, p, piece(p ^ 0b1000), true, false, false, false, false, false));
 			}
 		}
 
