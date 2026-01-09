@@ -938,7 +938,52 @@ namespace engine {
 
 		piecesBB = bitboards[p];
 
-		Bitloop(piecesBB) { //For each rook
+		Bitloop(piecesBB) { //For each queen
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures like rook
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+					wKingside && (to == H1 || pos == H1), wQueenside && (to == A1 || pos == A1), bKingside && (to == H8 || pos == H8), bQueenside && (to == A8 || pos == A8)));
+				//Be careful, rooks can move off castle squares as well as being captured by a rook
+			}
+
+			//Captures like bishop
+			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+					wKingside && (to == H1 || pos == H1), wQueenside && (to == A1 || pos == A1), bKingside && (to == H8 || pos == H8), bQueenside && (to == A8 || pos == A8)));
+				//Be careful, rooks can move off castle squares as well as being captured by a rook
+			}
+
+			//Non-captures like rook
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+			}
+
+			//Non-captures like bishop
+			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+			}
+		}
+
+		//Queen
+		p = piece(wQueen + (toMove << 3));
+
+		piecesBB = bitboards[p];
+
+		Bitloop(piecesBB) { //For each queen
 			pos = square(SquareOf(piecesBB)); //Get its square
 
 			//Captures
@@ -947,8 +992,8 @@ namespace engine {
 				to = square(SquareOf(movesBB));
 
 				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-					wKingside && (to == H1 || pos == H1), wQueenside && (to == A1 || pos == A1), bKingside && (to == H8 || pos == H8), bQueenside && (to == A8 || pos == A8)));
-				//Be careful, rooks can move off castle squares as well as being captured by a rook
+					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
+				//Only way to remove rights is taking rook, so check for castle rook squares
 			}
 
 			//Non-captures
@@ -961,8 +1006,6 @@ namespace engine {
 				//Be careful, rooks can move off castle squares 
 			}
 		}
-
-		//Queen
 
 		return generatedMoves;
 	}
