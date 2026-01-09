@@ -906,9 +906,32 @@ namespace engine {
 			}
 		}
 
-		//Not captures
+		//Bishop
+		p = piece(wBishop + (toMove << 3));
 
-		//Captures
+		piecesBB = bitboards[p];
+
+		Bitloop(piecesBB) { //For each bishop
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures
+			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
+				//Only way to remove rights is taking rook, so check for castle rook squares
+			}
+
+			//Non-captures
+			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+			}
+		}
 
 		//BRQ
 
