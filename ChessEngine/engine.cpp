@@ -1096,13 +1096,13 @@ namespace engine {
 	}
 
 	//Debug stuff
-	int perft(int depth, bool top) {
+	U64 perft(int depth, bool top) {
 		if (depth == 0) {
 			return 1;
 		}
 
-		int nodes = 0;
-		int _nodes;
+		U64 nodes = 0;
+		U64 _nodes;
 
 		auto moves = generatePseudoLegalMoves();
 
