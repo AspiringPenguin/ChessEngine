@@ -10,10 +10,14 @@ namespace moveGen {
 
 	std::array<bool, 64> bitboardToMailbox(U64 bb);
 
+	std::vector<std::vector<U64>> generateRookMoveLookup(std::array<U64, 64> pextMasks);
+	std::vector<U64> generateRookMoveLookupBySquare(square sq, U64 mask);
+
 	static std::array<U64, 64> knightLookup = generateKnightLookup();
 	static std::array<U64, 64> kingLookup = generateKingLookup();
 	static std::array<U64, 64> rookPextMasks = generateRookPextMasks();
 	static std::array<U64, 64> bishopPextMasks = generateBishopPextMasks();
+	static std::vector<std::vector<U64>> rookMoveLookup = generateRookMoveLookup(rookPextMasks);
 
 	constexpr U64 whiteQueenCastleMask = 0x0E;
 	constexpr U64 whiteKingCastleMask = 0x60;
