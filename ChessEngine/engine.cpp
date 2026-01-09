@@ -933,7 +933,36 @@ namespace engine {
 			}
 		}
 
-		//BRQ
+		//Rook
+		p = piece(wRook + (toMove << 3));
+
+		piecesBB = bitboards[p];
+
+		Bitloop(piecesBB) { //For each rook
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+					wKingside && (to == H1 || pos == H1), wQueenside && (to == A1 || pos == A1), bKingside && (to == H8 || pos == H8), bQueenside && (to == A8 || pos == A8)));
+				//Be careful, rooks can move off castle squares as well as being captured by a rook
+			}
+
+			//Non-captures
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+					wKingside && (pos == H1), wQueenside && (pos == A1), bKingside && (pos == H8), bQueenside && (pos == A8)));
+				//Be careful, rooks can move off castle squares 
+			}
+		}
+
+		//Queen
 
 		return generatedMoves;
 	}
