@@ -1025,8 +1025,8 @@ namespace engine {
 		}
 
 		//Pawns
-		attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) << 7 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) >> 9);
-		attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) << 9 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) >> 7);
+		attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) << 7 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) >> 9);
+		attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) << 9 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) >> 7);
 
 		//Knights
 		pieceBB = bitboards[wKnight + (toMove << 3)];
