@@ -107,6 +107,6 @@ namespace moves {
 
 	void showMove(move m) {
 		std::cout << squareNames[getFrom(m)] << squareNames[getTo(m)];
-		std::cout << ((getPromoteFlag(m) == true) ? (" promotes to " + pieceNames[getPromote(m, white)]) : std::string(" "));
+		std::cout << ((getPromoteFlag(m) == true) ? (" promotes to " + pieceNames[getPromote(m, white)] + " ") : std::string(" "));
 	}
 }
