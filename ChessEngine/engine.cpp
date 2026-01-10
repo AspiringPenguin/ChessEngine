@@ -1064,8 +1064,20 @@ namespace engine {
 
 		//We want to check if the side that just moved is in check
 		U64 kingBB = bitboards[wKing + ((1 - toMove) << 3)];
+		square kingPos = square(SquareOf(kingBB));
 
-		return (getAttacked(toMove) & kingBB) == 0; //Check if intersection between attacked squares and king square is zero
+		//Check for each enemy piece type here
+		bool pawn = ((toMove == white) ? (((kingBB & ~bitboards::AFile) >> 7) | ((kingBB & ~bitboards::HFile) >> 9)) : (((kingBB & ~bitboards::HFile) << 7) | ((kingBB & ~bitboards::AFile) << 9))) & bitboards[wPawn + (toMove << 3)];
+
+		bool knight = moveGen::knightLookup[kingPos] & bitboards[wKnight + (toMove << 3)];
+
+		bool bishopQueen = moveGen::bishopMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::bishopPextMasks[kingPos])] & (bitboards[wBishop + (toMove << 3)] | bitboards[wQueen + (toMove << 3)]);
+
+		bool rookQueen = moveGen::rookMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::rookPextMasks[kingPos])] & (bitboards[wRook + (toMove << 3)] | bitboards[wQueen + (toMove << 3)]);
+
+		bool king = moveGen::kingLookup[kingPos] & bitboards[wKing + (toMove << 3)];
+
+		return !(pawn || knight || bishopQueen || rookQueen || king);
 	}
 
 	//Special case for castling
