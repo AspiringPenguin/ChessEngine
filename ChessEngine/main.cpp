@@ -150,18 +150,6 @@ int main() {
 }
 #endif
 
-#ifdef UCI
-int main() {
-    return 0;
-}
-#endif
-
-#ifdef TEST
-int main() {
-    return 0;
-}
-#endif
-
 //Todo:
 // Eval with material and psq tables - https://www.chessprogramming.org/Simplified_Evaluation_Function
 // Move ordering
