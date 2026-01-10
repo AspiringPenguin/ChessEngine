@@ -40,8 +40,31 @@ try:
         print("Closed: game-data/" + file)
 
 except KeyboardInterrupt:
-    print(f"Exited with {counter} games added.")
+    print(f"Exited with {counter} games added. Continuing...")
 
+with open("book.txt", mode="w") as f:
+    for zHash in positions.keys():
+        if len(positions[zHash]) < 100: #Skip rare positions
+            continue
+
+        first = True
+        
+        for move in sorted(set(positions[zHash]), key=lambda x: positions[zHash].count(x), reverse=True): #For each move in that position
+            if positions[zHash].count(move) < 100: #Ignore rare moves
+                break
+            
+            if first:
+                f.write(str(zHash))
+                first = False
+            
+            f.write(";" + move.uci() + "," + str(positions[zHash].count(move)))
+
+        if not first: #ie a move has been written
+            f.write("\n")
+
+
+
+#For my own curiosity, a polyglot-hash based explorer exists here
 while True:
     inp = int(input("> "), 16)
     for move in sorted(set(positions[inp]), key=lambda x: positions[inp].count(x), reverse=True):
