@@ -14,7 +14,7 @@ int main() {
 
     std::cout << "Starting position:" << std::endl;
     engine::reset();
-    for (int i = 1; i < 8; i++) {
+    for (int i = 1; i < 7; i++) {
         auto start = std::chrono::high_resolution_clock::now();
         res = engine::perft(i, false);
         auto end = std::chrono::high_resolution_clock::now();
