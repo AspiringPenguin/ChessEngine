@@ -365,3 +365,6 @@ FodyWeavers.xsd
 # Chess data
 lichess-data/
 game-data/
+
+# Generated book
+bookGenerator/book.txt
