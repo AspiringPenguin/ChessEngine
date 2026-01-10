@@ -25,6 +25,8 @@ namespace engine{
 	bool moveWasLegal();
 	bool castleWasLegal();
 
+	move UCIMoveAsInternal(std::string m);
+
 	//For testing
 	U64 perft(int depth, bool top);
 	void debugPosition();

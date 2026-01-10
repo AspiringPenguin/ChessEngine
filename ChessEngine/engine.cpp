@@ -1106,6 +1106,11 @@ namespace engine {
 		return ((squares & getAttacked(toMove)) == 0);
 	}
 
+	//For UCI
+	move UCIMoveAsInternal(std::string m) {
+		return 0;
+	}
+
 	//Debug stuff
 	U64 perft(int depth, bool top) {
 		if (depth == 0) {
