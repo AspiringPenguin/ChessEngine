@@ -482,6 +482,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bitboards.cpp" />
+    <ClCompile Include="book.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="main.cpp" />
@@ -491,6 +492,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitboards.h" />
+    <ClInclude Include="book.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="moveGenHelpers.h" />
