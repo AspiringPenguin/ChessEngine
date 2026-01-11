@@ -1108,7 +1108,51 @@ namespace engine {
 
 	//For UCI
 	move UCIMoveAsInternal(std::string m) {
-		return 0;
+		square from = stringToSquare(m.substr(0, 2));
+		square to = stringToSquare(m.substr(2, 2));
+
+		piece p = mailbox[from];
+		piece capture = mailbox[to];
+
+		if ((p & 0b0111) == wPawn && capture == nullPiece && std::abs(from-to) != 8 && std::abs(from - to) != 16) { //Is a pawn, capture is null, not a normal push
+			return moves::encodeNormal(from, to, p, piece(p ^ 0b1000), true, false, false, false, false, false);
+		}
+		else if ((p & 0b0111) == wPawn && std::abs(from - to) == 16) { //Is a pawn, is a double push
+			return moves::encodeNormal(from, to, p, nullPiece, false, true, false, false, false, false);
+		}
+		else if (m.length() == 5) { //Is a promotion
+			switch (m[4]) {
+			case 'q':
+				return moves::encodePromote(from, to, p, capture, wQueen,
+					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+
+			case 'r':
+				return moves::encodePromote(from, to, p, capture, wRook,
+					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+			case 'b':
+				return moves::encodePromote(from, to, p, capture, wBishop,
+					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+			case 'n':
+				return moves::encodePromote(from, to, p, capture, wKnight,
+					wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+			}
+		}
+		else if ((p & 0b0111) == wKing && std::abs(from - to) == 2) { //Is a king move and it moved by 2 or -2 so is a castling move
+			if (m == "e1g1") { //W Kingside
+				return moves::encodeCastle(white, false, wKingside, wQueenside, false, false);
+			}
+			if (m == "e1c1") { //W Queenside
+				return moves::encodeCastle(white, true, wKingside, wQueenside, false, false);
+			}
+			if (m == "e8g8") { //Queenside
+				return moves::encodeCastle(black, false, false, false, bKingside, bQueenside);
+			}
+			if (m == "e8c8") { //B Queenside
+				return moves::encodeCastle(black, true, false, false, bKingside, bQueenside);
+			}
+		}
+
+		return moves::encodeNormal(from, to, p, capture, false, false, wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
 	}
 
 	//Debug stuff
