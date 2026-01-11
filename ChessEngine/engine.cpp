@@ -1136,9 +1136,6 @@ namespace engine {
 		calculateBonusesStart();
 		calculateBonusesEnd();
 
-		std::cout << materialStart << " " << materialEnd << std::endl;
-		std::cout << whiteBonusesStart << " " << blackBonusesStart << std::endl;
-
 		//Actual calculation
 		return (phase * (materialStart + (whiteBonusesStart - blackBonusesStart)) + (eval::maxPhase - phase) * (materialEnd + (whiteBonusesEnd - blackBonusesEnd))) / eval::maxPhase;
 	}
