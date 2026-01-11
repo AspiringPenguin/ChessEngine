@@ -1173,7 +1173,7 @@ namespace engine {
 				whiteBonusesStart += eval::pieceBonusesStart[p & 0b111][i];
 			}
 			else {
-				blackBonusesStart += eval::pieceBonusesStart[p & 0b111][i];
+				blackBonusesStart += eval::pieceBonusesStart[p & 0b111][i ^ 56];
 			}
 		}
 	}
@@ -1188,7 +1188,7 @@ namespace engine {
 				whiteBonusesEnd += eval::pieceBonusesEnd[p & 0b111][i];
 			}
 			else {
-				blackBonusesEnd += eval::pieceBonusesEnd[p & 0b111][i];
+				blackBonusesEnd += eval::pieceBonusesEnd[p & 0b111][i ^ 56];
 			}
 		}
 	}
