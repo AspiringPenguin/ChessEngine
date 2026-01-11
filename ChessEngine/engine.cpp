@@ -1136,6 +1136,9 @@ namespace engine {
 		calculateBonusesStart();
 		calculateBonusesEnd();
 
+		std::cout << materialStart << " " << materialEnd << std::endl;
+		std::cout << whiteBonusesStart << " " << blackBonusesStart << std::endl;
+
 		//Actual calculation
 		return (phase * (materialStart + (whiteBonusesStart - blackBonusesStart)) + (eval::maxPhase - phase) * (materialEnd + (whiteBonusesEnd - blackBonusesEnd))) / eval::maxPhase;
 	}
@@ -1169,11 +1172,14 @@ namespace engine {
 
 		for (int i = -1; const piece& p : mailbox) {
 			i++;
+			if (p == nullPiece) {
+				continue;
+			}
 			if ((p >> 3) == white) {
-				whiteBonusesStart += eval::pieceBonusesStart[p & 0b111][i];
+				whiteBonusesStart += eval::pieceBonusesStart[p & 0b111 - 1][i ^ 56];
 			}
 			else {
-				blackBonusesStart += eval::pieceBonusesStart[p & 0b111][i ^ 56];
+				blackBonusesStart += eval::pieceBonusesStart[p & 0b111 - 1][i];
 			}
 		}
 	}
@@ -1184,11 +1190,14 @@ namespace engine {
 
 		for (int i = -1; const piece& p : mailbox) {
 			i++;
+			if (p == nullPiece) {
+				continue;
+			}
 			if ((p >> 3) == white) {
-				whiteBonusesEnd += eval::pieceBonusesEnd[p & 0b111][i];
+				whiteBonusesEnd += eval::pieceBonusesEnd[p & 0b111 - 1][i ^ 56];
 			}
 			else {
-				blackBonusesEnd += eval::pieceBonusesEnd[p & 0b111][i ^ 56];
+				blackBonusesEnd += eval::pieceBonusesEnd[p & 0b111 - 1][i];
 			}
 		}
 	}

@@ -21,6 +21,8 @@ namespace eval {
 							   0, -pawnValueEnd, -knightValueEnd, -bishopValueEnd, -rookValueEnd, -queenValueEnd, 0, 0 };
 
 	//psqs - https://www.chessprogramming.org/Simplified_Evaluation_Function
+	//These are A8 = 0, H8=7, A1=56, H1=63
+
 	static std::array<int, 64> pawnBonusesStart = { 0,  0,  0,  0,  0,  0,  0,  0,
 													50, 50, 50, 50, 50, 50, 50, 50,
 													10, 10, 20, 30, 30, 20, 10, 10,
