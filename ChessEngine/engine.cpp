@@ -1,5 +1,6 @@
 #include "bitboards.h"
 #include "engine.h"
+#include "eval.h"
 #include "moves.h"
 #include "moveGenHelpers.h"
 #include "zobrist.h"
@@ -33,6 +34,15 @@ namespace engine {
 
 	color toMove;
 	int toMoveSigned;
+
+	//Eval stuff
+	int phase;
+	int materialStart;
+	int materialEnd;
+	int whiteBonusesStart;
+	int blackBonusesStart;
+	int whiteBonusesEnd;
+	int blackBonusesEnd;
 
 	//Castling rights
 	bool wKingside = true;
@@ -1107,27 +1117,60 @@ namespace engine {
 	}
 
 	int evaluate() { //In centipawns
-		return 0;
+		return (phase * (materialStart + (whiteBonusesStart - blackBonusesStart)) + (eval::maxPhase - phase) * (materialEnd + (whiteBonusesEnd - blackBonusesEnd))) / eval::maxPhase;
 	}
 
 	int calculatePhase() { //For FEN loading and reset - incrementally update the rest
-
+		phase = 0;
+		for (const piece& p : mailbox) {
+			phase += eval::piecePhases[p];
+		}
 	}
 
 	int calculateMaterialStart() {
+		materialStart = 0;
 
+		for (const piece& p : mailbox) {
+			materialStart += eval::pieceValuesStart[p];
+		}
 	}
 
 	int calculateMaterialEnd() {
+		materialEnd = 0;
 
+		for (const piece& p : mailbox) {
+			materialEnd += eval::pieceValuesEnd[p];
+		}
 	}
 
 	int calculateBonusesStart() {
+		whiteBonusesStart = 0;
+		blackBonusesStart = 0;
 
+		for (int i = -1; const piece& p : mailbox) {
+			i++;
+			if ((p >> 3) == white) {
+				whiteBonusesStart += eval::pieceBonusesStart[p & 0b111][i];
+			}
+			else {
+				blackBonusesStart += eval::pieceBonusesStart[p & 0b111][i];
+			}
+		}
 	}
 
 	int calculateBonusesEnd() {
+		whiteBonusesEnd = 0;
+		blackBonusesEnd = 0;
 
+		for (int i = -1; const piece& p : mailbox) {
+			i++;
+			if ((p >> 3) == white) {
+				whiteBonusesEnd += eval::pieceBonusesEnd[p & 0b111][i];
+			}
+			else {
+				blackBonusesEnd += eval::pieceBonusesEnd[p & 0b111][i];
+			}
+		}
 	}
 
 	//For UCI
