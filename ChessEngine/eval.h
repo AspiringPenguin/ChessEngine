@@ -14,10 +14,10 @@ namespace eval {
 	constexpr int queenValueEnd = 900;
 
 	int pieceValuesStart[16] = { 0, pawnValueStart, knightValueStart, bishopValueStart, rookValueStart, queenValueStart, 0, 0,
-								 0, pawnValueStart, knightValueStart, bishopValueStart, rookValueStart, queenValueStart, 0, 0 };
+								 0, -pawnValueStart, -knightValueStart, -bishopValueStart, -rookValueStart, -queenValueStart, 0, 0 };
 
 	int pieceValuesEnd[16] = { 0, pawnValueEnd, knightValueEnd, bishopValueEnd, rookValueEnd, queenValueEnd, 0, 0,
-							   0, pawnValueEnd, knightValueEnd, bishopValueEnd, rookValueEnd, queenValueEnd, 0, 0 };
+							   0, -pawnValueEnd, -knightValueEnd, -bishopValueEnd, -rookValueEnd, -queenValueEnd, 0, 0 };
 
 	//psqs - https://www.chessprogramming.org/Simplified_Evaluation_Function
 	int pawnBonusesStart[64] = { 0,  0,  0,  0,  0,  0,  0,  0,
