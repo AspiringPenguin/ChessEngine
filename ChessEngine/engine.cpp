@@ -1102,6 +1102,25 @@ namespace engine {
 		return !(pawn || knight || bishopQueen || rookQueen || king);
 	}
 
+	bool inCheck() {
+		//We want to check if the side to move
+		U64 kingBB = bitboards[wKing + (toMove << 3)];
+		square kingPos = square(SquareOf(kingBB));
+
+		//Check for each enemy piece type here
+		bool pawn = ((toMove == white) ? (((kingBB & ~bitboards::HFile) >> 7) | ((kingBB & ~bitboards::AFile) >> 9)) : (((kingBB & ~bitboards::AFile) << 7) | ((kingBB & ~bitboards::HFile) << 9))) & bitboards[wPawn + ((1-toMove) << 3)];
+
+		bool knight = moveGen::knightLookup[kingPos] & bitboards[wKnight + ((1 - toMove) << 3)];
+
+		bool bishopQueen = moveGen::bishopMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::bishopPextMasks[kingPos])] & (bitboards[wBishop + ((1 - toMove) << 3)] | bitboards[wQueen + ((1 - toMove) << 3)]);
+
+		bool rookQueen = moveGen::rookMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::rookPextMasks[kingPos])] & (bitboards[wRook + ((1 - toMove) << 3)] | bitboards[wQueen + ((1 - toMove) << 3)]);
+
+		bool king = moveGen::kingLookup[kingPos] & bitboards[wKing + ((1 - toMove) << 3)];
+
+		return !(pawn || knight || bishopQueen || rookQueen || king);
+	}
+
 	//Special case for castling
 	//Use if ((p & 0b0111) == 6 && std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
 	//To detect
@@ -1137,7 +1156,8 @@ namespace engine {
 		calculateBonusesEnd();
 
 		//Actual calculation
-		return (phase * (materialStart + (whiteBonusesStart - blackBonusesStart)) + (eval::maxPhase - phase) * (materialEnd + (whiteBonusesEnd - blackBonusesEnd))) / eval::maxPhase;
+		int tempo = (20 * toMoveSigned) * inCheck(); //Replace for in-check
+		return ((phase * (materialStart + (whiteBonusesStart - blackBonusesStart)) + (eval::maxPhase - phase) * (materialEnd + (whiteBonusesEnd - blackBonusesEnd))) / eval::maxPhase) + tempo;
 	}
 
 	void calculatePhase() { //For FEN loading and reset - incrementally update the rest
