@@ -692,6 +692,15 @@ namespace engine {
 			mailbox[from] = p;
 			mailbox[to] = capture;
 
+			//Update psq values
+			#pragma warning(push)
+			#pragma warning(disable:6385)
+			bonusesStart += (eval::pieceBonusesStart[(p & 0b111) - 1][from ^ 56 * toMove]) * toMoveSigned * -1;
+			bonusesStart -= (eval::pieceBonusesStart[(toPiece & 0b111) - 1][to ^ 56 * toMove]) * toMoveSigned * -1;
+			bonusesEnd += (eval::pieceBonusesEnd[(p & 0b111) - 1][from ^ 56 * toMove]) * toMoveSigned * -1;
+			bonusesEnd -= (eval::pieceBonusesEnd[(toPiece & 0b111) - 1][to ^ 56 * toMove]) * toMoveSigned * -1;
+			#pragma warning(pop)
+
 			//Update zobrist hash
 			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
 			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[toPiece] + to];
@@ -1202,7 +1211,7 @@ namespace engine {
 
 		//Actual calculation
 		int tempo = (20 * toMoveSigned) * inCheck();
-		return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase) + tempo;
+		return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase); // +tempo;
 	}
 
 	void calculatePhase() { //For FEN loading and reset - incrementally update the rest
