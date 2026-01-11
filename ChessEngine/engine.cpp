@@ -39,10 +39,8 @@ namespace engine {
 	int phase;
 	int materialStart;
 	int materialEnd;
-	int whiteBonusesStart;
-	int blackBonusesStart;
-	int whiteBonusesEnd;
-	int blackBonusesEnd;
+	int bonusesStart;
+	int bonusesEnd;
 
 	//Castling rights
 	bool wKingside = true;
@@ -1180,8 +1178,8 @@ namespace engine {
 		calculateBonusesEnd();
 
 		//Actual calculation
-		int tempo = (20 * toMoveSigned) * inCheck(); //Replace for in-check
-		return ((phase * (materialStart + (whiteBonusesStart - blackBonusesStart)) + (eval::maxPhase - phase) * (materialEnd + (whiteBonusesEnd - blackBonusesEnd))) / eval::maxPhase) + tempo;
+		int tempo = (20 * toMoveSigned) * inCheck();
+		return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase) + tempo;
 	}
 
 	void calculatePhase() { //For FEN loading and reset - incrementally update the rest
@@ -1208,8 +1206,7 @@ namespace engine {
 	}
 
 	void calculateBonusesStart() {
-		whiteBonusesStart = 0;
-		blackBonusesStart = 0;
+		bonusesStart = 0;
 
 		for (int i = -1; const piece& p : mailbox) {
 			i++;
@@ -1217,20 +1214,19 @@ namespace engine {
 				continue;
 			}
 			if ((p >> 3) == white) {
-				whiteBonusesStart += eval::pieceBonusesStart[(p & 0b111) - 1][i ^ 56];
+				bonusesStart += eval::pieceBonusesStart[(p & 0b111) - 1][i ^ 56];
 			}
 			else {
 				#pragma warning(push)
 				#pragma warning(disable:6385)
-				blackBonusesStart += eval::pieceBonusesStart[(p & 0b111) - 1][i];
+				bonusesStart -= eval::pieceBonusesStart[(p & 0b111) - 1][i];
 				#pragma warning(pop)
 			}
 		}
 	}
 
 	void calculateBonusesEnd() {
-		whiteBonusesEnd = 0;
-		blackBonusesEnd = 0;
+		bonusesEnd = 0;
 
 		for (int i = -1; const piece& p : mailbox) {
 			i++;
@@ -1238,12 +1234,12 @@ namespace engine {
 				continue;
 			}
 			if ((p >> 3) == white) {
-				whiteBonusesEnd += eval::pieceBonusesEnd[(p & 0b111) - 1][i ^ 56];
+				bonusesEnd += eval::pieceBonusesEnd[(p & 0b111) - 1][i ^ 56];
 			}
 			else {
 				#pragma warning(push)
 				#pragma warning(disable:6385)
-				blackBonusesEnd += eval::pieceBonusesEnd[(p & 0b111) - 1][i];
+				bonusesEnd -= eval::pieceBonusesEnd[(p & 0b111) - 1][i];
 				#pragma warning(pop)
 			}
 		}
