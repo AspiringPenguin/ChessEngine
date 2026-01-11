@@ -278,7 +278,7 @@ namespace engine {
 
 		//En passant - polyglot standard only adds en-passant hash when a pseudo-legal en passant move is possible
 		if (enPassant != "-") {
-			enPassantSquare = square((enPassant[0] - 97) + (enPassant[1] - 49) * 8);
+			enPassantSquare = stringToSquare(enPassant);
 			U64 bb = 1ull << enPassantSquare;
 			if (toMove == white) {
 				bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1)) >> 8;

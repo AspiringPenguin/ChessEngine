@@ -28,3 +28,7 @@ bool sameColor(square sq1, square sq2) {
 bool sameColor(unsigned char sq1, unsigned char sq2) {
 	return (((sq1 >> 3) + (sq1 & 0b111)) % 2) == (((sq2 >> 3) + (sq2 & 0b111)) % 2);
 }
+
+square stringToSquare(std::string sq) {
+	return square((sq[0] - 97) + (sq[1] - 49) * 8);
+}
