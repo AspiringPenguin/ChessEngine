@@ -485,6 +485,7 @@
     <ClCompile Include="book.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="eval.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="moveGenHelpers.cpp" />
     <ClCompile Include="moves.cpp" />
@@ -495,6 +496,7 @@
     <ClInclude Include="book.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="eval.h" />
     <ClInclude Include="moveGenHelpers.h" />
     <ClInclude Include="moves.h" />
     <ClInclude Include="zobrist.h" />
