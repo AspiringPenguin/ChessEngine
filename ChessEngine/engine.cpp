@@ -1106,6 +1106,30 @@ namespace engine {
 		return ((squares & getAttacked(toMove)) == 0);
 	}
 
+	int evaluate() { //In centipawns
+		return 0;
+	}
+
+	int calculatePhase() { //For FEN loading and reset - incrementally update the rest
+
+	}
+
+	int calculateMaterialStart() {
+
+	}
+
+	int calculateMaterialEnd() {
+
+	}
+
+	int calculateBonusesStart() {
+
+	}
+
+	int calculateBonusesEnd() {
+
+	}
+
 	//For UCI
 	move UCIMoveAsInternal(std::string m) {
 		square from = stringToSquare(m.substr(0, 2));

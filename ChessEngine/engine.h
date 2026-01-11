@@ -25,6 +25,15 @@ namespace engine{
 	bool moveWasLegal();
 	bool castleWasLegal();
 
+	int evaluate();
+
+	int calculatePhase();
+	int calculateMaterialStart();
+	int calculateMaterialEnd();
+
+	int calculateBonusesStart();
+	int calculateBonusesEnd();
+
 	move UCIMoveAsInternal(std::string m);
 
 	//For testing
