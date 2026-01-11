@@ -460,6 +460,15 @@ namespace engine {
 			mailbox[from] = nullPiece;
 			mailbox[to] = toPiece;
 
+			//Update psq values
+			#pragma warning(push)
+			#pragma warning(disable:6385)
+			bonusesStart -= (eval::pieceBonusesStart[(p & 0b111) - 1][from ^ 56 * (1 - toMove)]) * toMoveSigned;
+			bonusesStart += (eval::pieceBonusesStart[(toPiece & 0b111) - 1][to ^ 56 * (1 - toMove)]) * toMoveSigned;
+			bonusesEnd -= (eval::pieceBonusesEnd[(p & 0b111) - 1][from ^ 56 * (1 - toMove)]) * toMoveSigned;
+			bonusesEnd += (eval::pieceBonusesEnd[(toPiece & 0b111) - 1][to ^ 56 * (1 - toMove)]) * toMoveSigned;
+			#pragma warning(pop)
+
 			//Update zobrist hash
 			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
 			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[toPiece] + to];
@@ -481,11 +490,25 @@ namespace engine {
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos];
 				colorBitboards[capture >> 3] ^= (1ull << pos);
 				allBitboard ^= (1ull << pos);
+
+				//Update start and end psq values
+				#pragma warning(push)
+				#pragma warning(disable:6385)
+				bonusesStart -= (eval::pieceBonusesStart[(p & 0b111) - 1][pos ^ (56 * toMove)]) * toMoveSigned * -1;
+				bonusesEnd -= (eval::pieceBonusesEnd[(p & 0b111) - 1][pos ^ (56 * toMove)]) * toMoveSigned * -1;
+				#pragma warning(pop)
 			}
 			else if (capture != nullPiece) {
 				phase -= eval::piecePhases[capture];
 				materialStart -= eval::pieceValuesStart[capture];
 				materialEnd -= eval::pieceValuesEnd[capture];
+
+				//Update start and end psq values
+				#pragma warning(push)
+				#pragma warning(disable:6385)
+				bonusesStart -= (eval::pieceBonusesStart[(p & 0b111) - 1][to ^ (56 * toMove)]) * toMoveSigned * -1;
+				bonusesEnd -= (eval::pieceBonusesEnd[(p & 0b111) - 1][to ^ (56 * toMove)]) * toMoveSigned * -1;
+				#pragma warning(pop)
 
 				bitboards[capture] ^= (1ull << to);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to];
@@ -1174,8 +1197,8 @@ namespace engine {
 
 	int evaluate() { //In centipawns
 		//Do these for now as they are not incrementally updated
-		calculateBonusesStart();
-		calculateBonusesEnd();
+		//calculateBonusesStart();
+		//calculateBonusesEnd();
 
 		//Actual calculation
 		int tempo = (20 * toMoveSigned) * inCheck();
