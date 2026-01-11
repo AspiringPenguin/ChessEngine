@@ -453,6 +453,8 @@ namespace engine {
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
 				}
 			}
+			calculateBonusesStart();
+			calculateBonusesEnd();
 		}
 		else { //Its a normal move
 
@@ -671,6 +673,8 @@ namespace engine {
 					zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
 				}
 			}
+			calculateBonusesStart();
+			calculateBonusesEnd();
 		}
 		else {
 			if (moves::isDoublePush(m)) { //May need to remove zobrist hash element for enPassant
@@ -723,16 +727,30 @@ namespace engine {
 				colorBitboards[capture >> 3] ^= (1ull << pos); //Add it back to the color-specific and main bitboards
 				allBitboard ^= (1ull << pos);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos]; //And the zobrist hash
+
+				//Update start and end psq values
+				#pragma warning(push)
+				#pragma warning(disable:6385)
+				bonusesStart += (eval::pieceBonusesStart[(p & 0b111) - 1][pos ^ (56 * (1 - toMove))]) * toMoveSigned;
+				bonusesEnd += (eval::pieceBonusesEnd[(p & 0b111) - 1][pos ^ (56 * (1 - toMove))]) * toMoveSigned;
+				#pragma warning(pop)
 			}
 			else if (capture != nullPiece) { //If its non en-passant capture
 				phase += eval::piecePhases[capture];
-				materialStart -= eval::pieceValuesStart[capture];
-				materialEnd -= eval::pieceValuesEnd[capture];
+				materialStart += eval::pieceValuesStart[capture];
+				materialEnd += eval::pieceValuesEnd[capture];
 
 				bitboards[capture] ^= (1ull << to); //Add it back to the bitboard
 				colorBitboards[capture >> 3] ^= (1ull << to);
 				allBitboard ^= (1ull << to);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to]; //Add it back to the hash
+
+				//Update start and end psq values
+				#pragma warning(push)
+				#pragma warning(disable:6385)
+				bonusesStart += (eval::pieceBonusesStart[(p & 0b111) - 1][to ^ (56 * (1 - toMove))]) * toMoveSigned;
+				bonusesEnd += (eval::pieceBonusesEnd[(p & 0b111) - 1][to ^ (56 * (1 - toMove))]) * toMoveSigned;
+				#pragma warning(pop)
 			}
 		}
 
@@ -1211,6 +1229,7 @@ namespace engine {
 
 		//Actual calculation
 		int tempo = (20 * toMoveSigned) * inCheck();
+		std::cout << bonusesStart << " " << bonusesEnd << std::endl;
 		return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase); // +tempo;
 	}
 
