@@ -1176,10 +1176,13 @@ namespace engine {
 				continue;
 			}
 			if ((p >> 3) == white) {
-				whiteBonusesStart += eval::pieceBonusesStart[p & 0b111 - 1][i ^ 56];
+				whiteBonusesStart += eval::pieceBonusesStart[(p & 0b111) - 1][i ^ 56];
 			}
 			else {
-				blackBonusesStart += eval::pieceBonusesStart[p & 0b111 - 1][i];
+				#pragma warning(push)
+				#pragma warning(disable:6385)
+				blackBonusesStart += eval::pieceBonusesStart[(p & 0b111) - 1][i];
+				#pragma warning(pop)
 			}
 		}
 	}
@@ -1194,10 +1197,13 @@ namespace engine {
 				continue;
 			}
 			if ((p >> 3) == white) {
-				whiteBonusesEnd += eval::pieceBonusesEnd[p & 0b111 - 1][i ^ 56];
+				whiteBonusesEnd += eval::pieceBonusesEnd[(p & 0b111) - 1][i ^ 56];
 			}
 			else {
-				blackBonusesEnd += eval::pieceBonusesEnd[p & 0b111 - 1][i];
+				#pragma warning(push)
+				#pragma warning(disable:6385)
+				blackBonusesEnd += eval::pieceBonusesEnd[(p & 0b111) - 1][i];
+				#pragma warning(pop)
 			}
 		}
 	}
