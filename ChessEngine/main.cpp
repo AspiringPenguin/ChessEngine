@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "bitboards.h"
+#include "book.h"
 #include "engine.h"
 #include "moves.h"
 #include "moveGenHelpers.h"
@@ -84,7 +85,77 @@ int main() {
 
 #ifdef TEST
 int main() {
-    return 0;
+    engine::reset();
+
+    std::string userMove;
+    move move;
+    int counter = 0;
+
+    while (true) {
+        std::cin >> userMove;
+
+        if (userMove == "end") {
+            while (counter > 0) {
+                engine::undoMove();
+                engine::showPosition();
+                std::cout << engine::evaluate() << std::endl;
+                std::cout << engine::getZobrist() << std::endl << std::endl;
+                counter--;
+            }
+            continue;
+        }
+
+        move = engine::UCIMoveAsInternal(userMove);
+        engine::makeMove(move);
+        engine::showPosition();
+        std::cout << engine::evaluate() << std::endl;
+        std::cout << engine::getZobrist() << std::endl << std::endl;
+        counter++;
+    }
+
+
+    /*std::string m;
+    std::string userMove;
+    move move;
+    int counter;
+
+    while (true) {
+        counter = 0;
+
+        engine::showPosition();
+        std::cout << engine::evaluate() << std::endl;
+        std::cout << engine::getZobrist() << std::endl << std::endl;
+
+        for (int j = 0; j < 5; j++) {
+            std::cin >> userMove;
+            move = engine::UCIMoveAsInternal(userMove);
+            engine::makeMove(move);
+            engine::showPosition();
+            std::cout << engine::evaluate() << std::endl;
+            std::cout << engine::getZobrist() << std::endl << std::endl;
+            counter++;
+
+            if (!book::book.contains(engine::getZobrist())) {
+                break;
+            }
+            m = book::chooseMove(book::book[engine::getZobrist()]);
+            move = engine::UCIMoveAsInternal(m);
+            std::cout << m << std::endl;
+            engine::makeMove(move);
+            engine::showPosition();
+            std::cout << engine::evaluate() << std::endl;
+            std::cout << engine::getZobrist() << std::endl << std::endl;
+            counter++;
+        }
+        std::cout << std::endl << std::endl;
+        for (int j = 0; j < counter; j++) {
+            engine::undoMove();
+            engine::showPosition();
+            std::cout << engine::evaluate() << std::endl;
+        }
+    }
+
+    return 0;*/
 }
 #endif
 
@@ -93,4 +164,4 @@ int main() {
 // Move ordering
 // Search
 // UCI
-// Book
+// Book - WIP - need to compute it
