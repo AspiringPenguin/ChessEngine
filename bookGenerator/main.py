@@ -31,7 +31,7 @@ try:
         pgnFile = open("game-data/" + file)
 
         while game := chess.pgn.read_game(pgnFile):
-            if (int(game.headers["WhiteElo"]) > 1800) and (int(game.headers["BlackElo"]) > 1800):
+            if (int(game.headers["WhiteElo"]) > 2400) and (int(game.headers["BlackElo"]) > 2400):
                 counter += 1
                 processNode(game, None)
 
@@ -44,13 +44,10 @@ except KeyboardInterrupt:
 
 with open("book.txt", mode="w") as f:
     for zHash in positions.keys():
-        if len(positions[zHash]) < 100: #Skip rare positions
-            continue
-
         first = True
         
         for move in sorted(set(positions[zHash]), key=lambda x: positions[zHash].count(x), reverse=True): #For each move in that position
-            if positions[zHash].count(move) < 100: #Ignore rare moves
+            if positions[zHash].count(move) < 1000: #Ignore rare moves
                 break
             
             if first:
