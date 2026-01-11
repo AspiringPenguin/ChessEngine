@@ -475,6 +475,7 @@ namespace engine {
 				allBitboard ^= (1ull << pos);
 			}
 			else if (capture != nullPiece) {
+				phase -= eval::piecePhases[capture];
 				bitboards[capture] ^= (1ull << to);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to];
 				colorBitboards[capture >> 3] ^= (1ull << to);
@@ -672,6 +673,7 @@ namespace engine {
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos]; //And the zobrist hash
 			}
 			else if (capture != nullPiece) { //If its non en-passant capture
+				phase += eval::piecePhases[capture];
 				bitboards[capture] ^= (1ull << to); //Add it back to the bitboard
 				colorBitboards[capture >> 3] ^= (1ull << to);
 				allBitboard ^= (1ull << to);
@@ -1149,7 +1151,6 @@ namespace engine {
 
 	int evaluate() { //In centipawns
 		//Do these for now as they are not incrementally updated
-		calculatePhase();
 		calculateMaterialStart();
 		calculateMaterialEnd();
 		calculateBonusesStart();
