@@ -349,6 +349,13 @@ namespace engine {
 		const square to = moves::getTo(m);
 		const piece p = moves::getPiece(m);
 		const piece toPiece = moves::getPromoteFlag(m) ? moves::getPromote(m, toMove) : p;
+
+		//Handle promotions by adding and removing
+		materialStart -= eval::pieceValuesStart[p];
+		materialStart += eval::pieceValuesStart[toPiece];
+		materialEnd -= eval::pieceValuesEnd[p];
+		materialEnd += eval::pieceValuesEnd[toPiece];
+
 		const piece capture = moves::getCapture(m);
 		int pos;
 		square lTo;
@@ -466,7 +473,10 @@ namespace engine {
 			allBitboard ^= (1ull << from) | (1ull << to);
 
 			//Handle enPassant
-			if (moves::isEnPassant(m)) { 
+			if (moves::isEnPassant(m)) {
+				materialStart -= eval::pieceValuesStart[capture];
+				materialEnd -= eval::pieceValuesEnd[capture];
+
 				pos = to + (-8 * toMoveSigned); //Calculate square to clear
 				mailbox[pos] = nullPiece; //Mailbox wasn't updated
 				bitboards[capture] ^= (1ull << pos);
@@ -476,6 +486,9 @@ namespace engine {
 			}
 			else if (capture != nullPiece) {
 				phase -= eval::piecePhases[capture];
+				materialStart -= eval::pieceValuesStart[capture];
+				materialEnd -= eval::pieceValuesEnd[capture];
+
 				bitboards[capture] ^= (1ull << to);
 				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to];
 				colorBitboards[capture >> 3] ^= (1ull << to);
@@ -557,6 +570,12 @@ namespace engine {
 		const piece capture = moves::getCapture(m);
 		square lTo;
 		square pos;
+
+		//Handle promotions by removing and adding
+		materialStart += eval::pieceValuesStart[p];
+		materialStart -= eval::pieceValuesStart[toPiece];
+		materialEnd += eval::pieceValuesEnd[p];
+		materialEnd -= eval::pieceValuesEnd[toPiece];
 
 		if ((p & 0b0111) == 6 && std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
 			if (p == wKing) {
@@ -664,6 +683,9 @@ namespace engine {
 
 			//Handle enPassant
 			if (moves::isEnPassant(m)) {
+				materialStart += eval::pieceValuesStart[capture];
+				materialEnd += eval::pieceValuesEnd[capture];
+
 				pos = square(to + (8 * toMoveSigned)); //Calculate square to put the pawn back into
 				mailbox[pos] = capture; //Put the captured piece in the right place
 				mailbox[to] = nullPiece; //And remove it from the original place
@@ -674,6 +696,9 @@ namespace engine {
 			}
 			else if (capture != nullPiece) { //If its non en-passant capture
 				phase += eval::piecePhases[capture];
+				materialStart -= eval::pieceValuesStart[capture];
+				materialEnd -= eval::pieceValuesEnd[capture];
+
 				bitboards[capture] ^= (1ull << to); //Add it back to the bitboard
 				colorBitboards[capture >> 3] ^= (1ull << to);
 				allBitboard ^= (1ull << to);
@@ -1151,8 +1176,6 @@ namespace engine {
 
 	int evaluate() { //In centipawns
 		//Do these for now as they are not incrementally updated
-		calculateMaterialStart();
-		calculateMaterialEnd();
 		calculateBonusesStart();
 		calculateBonusesEnd();
 
