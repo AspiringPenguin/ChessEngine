@@ -186,6 +186,12 @@ namespace engine {
 
 		positions[positionsTail] = zobrist;
 		positionsTail++;
+
+		calculatePhase();
+		calculateMaterialStart();
+		calculateMaterialEnd();
+		calculateBonusesStart();
+		calculateBonusesEnd();
 	}
 
 	void loadFEN(std::string fen) {
@@ -311,6 +317,12 @@ namespace engine {
 
 		positions[positionsTail] = zobrist;
 		positionsTail++;
+
+		calculatePhase();
+		calculateMaterialStart();
+		calculateMaterialEnd();
+		calculateBonusesStart();
+		calculateBonusesEnd();
 	}
 
 	void makeMove(move& m, bool reversible) {
@@ -1117,17 +1129,25 @@ namespace engine {
 	}
 
 	int evaluate() { //In centipawns
+		//Do these for now as they are not incrementally updated
+		calculatePhase();
+		calculateMaterialStart();
+		calculateMaterialEnd();
+		calculateBonusesStart();
+		calculateBonusesEnd();
+
+		//Actual calculation
 		return (phase * (materialStart + (whiteBonusesStart - blackBonusesStart)) + (eval::maxPhase - phase) * (materialEnd + (whiteBonusesEnd - blackBonusesEnd))) / eval::maxPhase;
 	}
 
-	int calculatePhase() { //For FEN loading and reset - incrementally update the rest
+	void calculatePhase() { //For FEN loading and reset - incrementally update the rest
 		phase = 0;
 		for (const piece& p : mailbox) {
 			phase += eval::piecePhases[p];
 		}
 	}
 
-	int calculateMaterialStart() {
+	void calculateMaterialStart() {
 		materialStart = 0;
 
 		for (const piece& p : mailbox) {
@@ -1135,7 +1155,7 @@ namespace engine {
 		}
 	}
 
-	int calculateMaterialEnd() {
+	void calculateMaterialEnd() {
 		materialEnd = 0;
 
 		for (const piece& p : mailbox) {
@@ -1143,7 +1163,7 @@ namespace engine {
 		}
 	}
 
-	int calculateBonusesStart() {
+	void calculateBonusesStart() {
 		whiteBonusesStart = 0;
 		blackBonusesStart = 0;
 
@@ -1158,7 +1178,7 @@ namespace engine {
 		}
 	}
 
-	int calculateBonusesEnd() {
+	void calculateBonusesEnd() {
 		whiteBonusesEnd = 0;
 		blackBonusesEnd = 0;
 

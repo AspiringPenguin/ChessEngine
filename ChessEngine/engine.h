@@ -27,12 +27,12 @@ namespace engine{
 
 	int evaluate();
 
-	int calculatePhase();
-	int calculateMaterialStart();
-	int calculateMaterialEnd();
+	void calculatePhase();
+	void calculateMaterialStart();
+	void calculateMaterialEnd();
 
-	int calculateBonusesStart();
-	int calculateBonusesEnd();
+	void calculateBonusesStart();
+	void calculateBonusesEnd();
 
 	move UCIMoveAsInternal(std::string m);
 

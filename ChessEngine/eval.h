@@ -139,7 +139,7 @@ namespace eval {
 	constexpr int rookPhase = 2;
 	constexpr int queenPhase = 4;
 
-	consteval int maxPhase = 16 * pawnPhase + 4 * knightPhase + 4 * bishopPhase + 4 * rookPhase + 2 * queenPhase;
+	static int maxPhase = 16 * pawnPhase + 4 * knightPhase + 4 * bishopPhase + 4 * rookPhase + 2 * queenPhase;
 
 	static int piecePhases[16] = { 0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0,
 							0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0 };
