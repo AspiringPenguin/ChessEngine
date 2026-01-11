@@ -44,10 +44,8 @@ except KeyboardInterrupt:
 with open("book.txt", mode="w") as f:
     for zHash in positions.keys():
         occurences = len(positions[zHash])
-        if occurences < 5000: #Skip rare positions
-            continue
 
-        minCount = int(occurences * 0.05)
+        minCount = min(int(occurences * 0.05), 1000)
 
         first = True
         
