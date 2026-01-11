@@ -31,23 +31,28 @@ try:
         pgnFile = open("game-data/" + file)
 
         while game := chess.pgn.read_game(pgnFile):
-            if (int(game.headers["WhiteElo"]) > 2400) and (int(game.headers["BlackElo"]) > 2400):
-                counter += 1
-                processNode(game, None)
+            counter += 1
+            processNode(game, None)
 
 
         pgnFile.close()
         print("Closed: game-data/" + file)
 
 except KeyboardInterrupt:
-    print(f"Exited with {counter} games added. Continuing...")
+    print(f"Exited with {counter} games added. Generating book...")
 
 with open("book.txt", mode="w") as f:
     for zHash in positions.keys():
+        occurences = len(positions[zHash])
+        if occurences < 10000: #Skip rare positions
+            continue
+
+        minCount = int(occurences * 0.05)
+
         first = True
         
         for move in sorted(set(positions[zHash]), key=lambda x: positions[zHash].count(x), reverse=True): #For each move in that position
-            if positions[zHash].count(move) < 1000: #Ignore rare moves
+            if positions[zHash].count(move) < minCount: #Ignore rare moves
                 break
             
             if first:
