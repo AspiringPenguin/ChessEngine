@@ -1298,7 +1298,7 @@ namespace engine {
 	int negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
 			nodes++;
-			return evaluate() * toMoveSigned * -1; //Replace with quiescence search
+			return evaluate() * toMoveSigned; //Replace with quiescence search
 		}
 		else if (isDraw()) {
 			nodes++;
