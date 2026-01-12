@@ -1223,13 +1223,6 @@ namespace engine {
 	}
 
 	int evaluate() { //In centipawns
-		//Do these for now as they are not incrementally updated
-		//calculateBonusesStart();
-		//calculateBonusesEnd();
-
-		//Actual calculation
-		int tempo = (20 * toMoveSigned) * inCheck();
-		std::cout << bonusesStart << " " << bonusesEnd << std::endl;
 		return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase); // +tempo;
 	}
 
