@@ -1358,6 +1358,9 @@ namespace engine {
 			score = -negamax(-beta, -alpha, 1, depth);
 			undoMove();
 
+			moves::showMove(move);
+			std::cout << score << std::endl;
+
 			if (score > bestVal) {
 				bestVal = score;
 				bestMove = move;
