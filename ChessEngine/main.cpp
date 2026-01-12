@@ -79,7 +79,23 @@ int main() {
 
 #ifdef UCI
 int main() {
-    return 0;
+    engine::loadFEN("8/1Kn1p3/1p5N/4p1q1/4k1N1/3R2p1/Qn2B3/7R w - - 0 1");
+
+    std::string userMove;
+    move m;
+
+    while (true){
+        m = engine::negamaxSearch(6);
+        engine::makeMove(m);
+        moves::showMove(m);
+        engine::showPosition();
+        std::cout << engine::getNodes() << std::endl;
+        engine::resetNodes();
+        std::cout << "> ";
+        std::cin >> userMove;
+        m = engine::UCIMoveAsInternal(userMove);
+        engine::makeMove(m);
+    }
 }
 #endif
 
