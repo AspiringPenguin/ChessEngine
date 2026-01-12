@@ -1222,6 +1222,8 @@ namespace engine {
 		return ((squares & getAttacked(toMove)) == 0);
 	}
 
+	//Eval
+	//Use (-100000 + depth) for mate?
 	int evaluate() { //In centipawns
 		return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase); // +tempo;
 	}
@@ -1287,6 +1289,46 @@ namespace engine {
 				#pragma warning(pop)
 			}
 		}
+	}
+
+	//Search
+	int negamax(int alpha, int beta, int depth, int depthRemaining) {
+		if (depthRemaining == 0) {
+			return evaluate() * toMoveSigned; //Replace with quiescence search
+		}
+		int bestVal = -100000;
+		int score;
+		int legalMoves = 0;
+		auto moves = generatePseudoLegalMoves();
+		for (auto& move : moves) {
+			makeMove(move);
+			if (!moveWasLegal()) {
+				undoMove();
+				continue;
+			}
+			legalMoves++;
+			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1);
+			if (score > bestVal) {
+				bestVal = score;
+				if (score > alpha) {
+					alpha = score;
+				}
+			}
+			if (score >= beta) {
+				return bestVal;
+			}
+
+			undoMove();
+		}
+
+		if (legalMoves == 0) {
+			if (inCheck()) { //Checkmate
+				return (-100000 + depth);
+			}
+			return 0; //Stalemate
+		}
+
+		return bestVal;
 	}
 
 	//For UCI

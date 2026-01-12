@@ -35,6 +35,8 @@ namespace engine{
 	void calculateBonusesStart();
 	void calculateBonusesEnd();
 
+	int negamax(int alpha, int beta, int depth, int depthRemaining);
+
 	move UCIMoveAsInternal(std::string m);
 
 	//For testing
