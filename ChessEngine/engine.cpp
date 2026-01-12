@@ -1186,7 +1186,7 @@ namespace engine {
 		square kingPos = square(SquareOf(kingBB));
 
 		//Check for each enemy piece type here
-		bool pawn = ((toMove == white) ? (((kingBB & ~bitboards::HFile) >> 7) | ((kingBB & ~bitboards::AFile) >> 9)) : (((kingBB & ~bitboards::AFile) << 7) | ((kingBB & ~bitboards::HFile) << 9))) & bitboards[wPawn + ((1-toMove) << 3)];
+		bool pawn = ((toMove == white) ? (((kingBB & ~bitboards::HFile) << 7) | ((kingBB & ~bitboards::AFile) << 9)) : (((kingBB & ~bitboards::AFile) >> 7) | ((kingBB & ~bitboards::HFile) >> 9))) & bitboards[wPawn + ((1-toMove) << 3)];
 
 		bool knight = moveGen::knightLookup[kingPos] & bitboards[wKnight + ((1 - toMove) << 3)];
 
