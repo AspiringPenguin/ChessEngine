@@ -87,7 +87,7 @@ int main() {
 int main() {
     engine::reset();
 
-    std::string userMove;
+    /*std::string userMove;
     move move;
     int counter = 0;
 
@@ -111,22 +111,36 @@ int main() {
         std::cout << engine::evaluate() << std::endl;
         std::cout << engine::getZobrist() << std::endl << std::endl;
         counter++;
-    }
+    }*/
 
 
-    /*std::string m;
+    std::string m;
     std::string userMove;
     move move;
     int counter;
 
-    while (true) {
-        counter = 0;
+    bool white = true;
 
-        engine::showPosition();
-        std::cout << engine::evaluate() << std::endl;
-        std::cout << engine::getZobrist() << std::endl << std::endl;
+    while (true) {
+        counter = 1;
+
+        if (white) {
+            m = book::chooseMove(book::book[engine::getZobrist()]);
+            move = engine::UCIMoveAsInternal(m);
+            std::cout << m << std::endl;
+            engine::makeMove(move);
+            engine::showPosition();
+            std::cout << engine::evaluate() << std::endl;
+            std::cout << engine::getZobrist() << std::endl << std::endl;
+
+            white = false;
+        }
+        else {
+            white = true;
+        }
 
         for (int j = 0; j < 5; j++) {
+            std::cout << "> ";
             std::cin >> userMove;
             move = engine::UCIMoveAsInternal(userMove);
             engine::makeMove(move);
@@ -148,20 +162,12 @@ int main() {
             counter++;
         }
         std::cout << std::endl << std::endl;
-        for (int j = 0; j < counter; j++) {
-            engine::undoMove();
-            engine::showPosition();
-            std::cout << engine::evaluate() << std::endl;
-        }
     }
 
-    return 0;*/
+    return 0;
 }
 #endif
 
 //Todo:
-// Eval with material and psq tables - https://www.chessprogramming.org/Simplified_Evaluation_Function
-// Move ordering
-// Search
+// Transposition table, move ordering & search search
 // UCI
-// Book - WIP - need to compute it
