@@ -88,8 +88,8 @@ int main() {
         m = engine::negamaxSearch(6);
         engine::makeMove(m);
         moves::showMove(m);
-        engine::showPosition();
         std::cout << engine::getNodes() << std::endl;
+        engine::showPosition();
         engine::resetNodes();
         std::cout << "> ";
         std::cin >> userMove;
