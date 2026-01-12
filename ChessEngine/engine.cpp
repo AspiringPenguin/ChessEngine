@@ -1196,7 +1196,7 @@ namespace engine {
 
 		bool king = moveGen::kingLookup[kingPos] & bitboards[wKing + ((1 - toMove) << 3)];
 
-		return !(pawn || knight || bishopQueen || rookQueen || king);
+		return (pawn || knight || bishopQueen || rookQueen || king);
 	}
 
 	//Special case for castling
@@ -1298,7 +1298,7 @@ namespace engine {
 	int negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
 			nodes++;
-			return evaluate() * toMoveSigned; //Replace with quiescence search
+			return evaluate() * toMoveSigned * -1; //Replace with quiescence search
 		}
 		else if (isDraw()) {
 			nodes++;
@@ -1316,6 +1316,8 @@ namespace engine {
 			}
 			legalMoves++;
 			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1);
+			undoMove();
+
 			if (score > bestVal) {
 				bestVal = score;
 				if (score > alpha) {
@@ -1325,8 +1327,6 @@ namespace engine {
 			if (score >= beta) {
 				return bestVal;
 			}
-
-			undoMove();
 		}
 
 		if (legalMoves == 0) {
