@@ -66,11 +66,3 @@ with open("book.txt", mode="w") as f:
 
         if not first: #ie a move has been written
             f.write("\n")
-
-
-
-#For my own curiosity, a polyglot-hash based explorer exists here
-while True:
-    inp = int(input("> "), 16)
-    for move in sorted(set(positions[inp]), key=lambda x: positions[inp].count(x), reverse=True):
-        print(move.uci(), positions[inp].count(move))
