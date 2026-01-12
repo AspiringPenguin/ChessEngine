@@ -45,7 +45,12 @@ with open("book.txt", mode="w") as f:
     for zHash in positions.keys():
         occurences = len(positions[zHash])
 
-        minCount = min(int(occurences * 0.05), 1000)
+        if zHash == 0x463b96181691fc9c: #Start position
+            minCount = min(int(occurences * 0.01), 1000)
+        elif zHash in [0x823c9b50fd114196, 0x830eb9b20758d1de, 0x9d5f7aee7e779da1, 0xca18093c559e579b]: #After 1. e4, d4, Nf3, c4 - black can play many different options here - don't suppress
+            minCount = min(int(occurences * 0.02), 1000)
+        else:
+            minCount = min(int(occurences * 0.05), 1000)
 
         first = True
         
