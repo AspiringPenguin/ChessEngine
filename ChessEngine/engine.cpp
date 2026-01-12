@@ -48,6 +48,9 @@ namespace engine {
 	bool bKingside = true;
 	bool bQueenside = true;
 
+	//For tracking in search
+	int nodes = 0;
+
 	//For enPassant
 	square enPassantSquare = nullSquare;
 
@@ -1294,7 +1297,12 @@ namespace engine {
 	//Search
 	int negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
+			nodes++;
 			return evaluate() * toMoveSigned; //Replace with quiescence search
+		}
+		else if (isDraw()) {
+			nodes++;
+			return 0;
 		}
 		int bestVal = -100000;
 		int score;
@@ -1322,6 +1330,7 @@ namespace engine {
 		}
 
 		if (legalMoves == 0) {
+			nodes++;
 			if (inCheck()) { //Checkmate
 				return (-100000 + depth);
 			}
@@ -1329,6 +1338,54 @@ namespace engine {
 		}
 
 		return bestVal;
+	}
+
+	move negamaxSearch(int depth) {
+		int bestVal = -100000;
+		move bestMove = -1;
+		int alpha = -100000;
+		int beta = 100000;
+		int score;
+		int legalMoves = 0;
+		auto moves = generatePseudoLegalMoves();
+		for (auto& move : moves) {
+			makeMove(move);
+			if (!moveWasLegal()) {
+				undoMove();
+				continue;
+			}
+			legalMoves++;
+			score = -negamax(-beta, -alpha, 1, depth);
+			undoMove();
+
+			if (score > bestVal) {
+				bestVal = score;
+				bestMove = move;
+				if (score > alpha) {
+					alpha = score;
+				}
+			}
+			if (score >= beta) {
+				return bestMove;
+			}
+		}
+
+		if (legalMoves == 0) {
+			if (inCheck()) { //Checkmate
+				return -1;
+			}
+			return -1; //Stalemate
+		}
+
+		return bestMove;
+	}
+
+	void resetNodes() {
+		nodes = 0;
+	}
+
+	int getNodes() {
+		return nodes;
 	}
 
 	//For UCI
