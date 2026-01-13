@@ -1479,7 +1479,7 @@ namespace engine {
 	int negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
 			nodes++;
-			return evaluate() * toMoveSigned; //Replace with quiescence search
+			return negamaxQuiescence(alpha, beta, depth);
 		}
 		else if (isDraw()) {
 			nodes++;
@@ -1516,6 +1516,44 @@ namespace engine {
 				return (-100000 + depth);
 			}
 			return 0; //Stalemate
+		}
+
+		return bestVal;
+	}
+
+	int negamaxQuiescence(int alpha, int beta, int depth) {
+		if (isDraw()) {
+			nodes++;
+			return 0;
+		}
+		int bestVal = -100000;
+		int score;
+		int captureMoves = 0;
+		auto moves = generatePseudoLegalQuiescenceMoves();
+		for (auto& move : moves) {
+			makeMove(move);
+			if (!moveWasLegal()) {
+				undoMove();
+				continue;
+			}
+			captureMoves++;
+			score = -negamaxQuiescence(-beta, -alpha, depth + 1);
+			undoMove();
+
+			if (score > bestVal) {
+				bestVal = score;
+				if (score > alpha) {
+					alpha = score;
+				}
+			}
+			if (score >= beta) {
+				return bestVal;
+			}
+		}
+
+		if (captureMoves == 0) {
+			nodes++;
+			return evaluate() * toMoveSigned;
 		}
 
 		return bestVal;

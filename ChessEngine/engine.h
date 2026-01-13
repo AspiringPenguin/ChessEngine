@@ -37,6 +37,7 @@ namespace engine{
 	void calculateBonusesEnd();
 
 	int negamax(int alpha, int beta, int depth, int depthRemaining);
+	int negamaxQuiescence(int alpha, int beta, int depth);
 	move negamaxSearch(int depth);
 
 	void resetNodes();
