@@ -79,22 +79,43 @@ int main() {
 
 #ifdef UCI
 int main() {
-    engine::loadFEN("8/1Kn1p3/1p5N/4p1q1/4k1N1/3R2p1/Qn2B3/7R w - - 0 1");
+    engine::loadFEN("r1bqk2r/p1p2ppp/2p2n2/3P4/1b6/2NB4/PPP2PPP/R1BQK2R b KQkq - 0 8");
 
-    std::string userMove;
+    std::string stringMove;
     move m;
 
     while (true){
-        m = engine::negamaxSearch(6);
+        if (book::book.contains(engine::getZobrist())) {
+            stringMove = book::chooseMove(book::book[engine::getZobrist()]);
+            m = engine::UCIMoveAsInternal(stringMove);
+        }
+        else {
+            m = engine::negamaxSearch(5);
+            moves::showMove(m);
+            std::cout << engine::getNodes() << std::endl;
+            engine::resetNodes();
+           /* for (int i = 1; i < 8; i++) {
+                m = engine::negamaxSearch(i);
+                std::cout << i << " ";
+                moves::showMove(m);
+                std::cout << engine::getNodes() << std::endl;
+                engine::resetNodes();
+                std::cin >> stringMove;
+            }*/
+        }
+        if (m == -1) {
+            std::cout << "no legal moves for computer" << std::endl;
+            break;
+        }
         engine::makeMove(m);
         moves::showMove(m);
-        std::cout << engine::getNodes() << std::endl;
+        std::cout << std::endl;
         engine::showPosition();
-        engine::resetNodes();
         std::cout << "> ";
-        std::cin >> userMove;
-        m = engine::UCIMoveAsInternal(userMove);
+        std::cin >> stringMove;
+        m = engine::UCIMoveAsInternal(stringMove);
         engine::makeMove(m);
+        engine::showPosition();
     }
 }
 #endif
@@ -184,6 +205,13 @@ int main() {
 }
 #endif
 
-//Todo:
-// Transposition table, move ordering & search search
+// Todo - search and eval:
+// Transposition table and updates to move ordering
+// Enhanced move ordering - use bubble sort passes
+// Proper search routine based on time limit with iterative deepening
 // UCI
+
+// Todo - longer term core aims:
+// Improve board representation by removing if and conditionals in make/unmake move by using more of the 32 move bits?
+// and adding some padding to eval
+// Remove move gen conditionals by making it templated and constexpr if for toMove, with matching perft and searches
