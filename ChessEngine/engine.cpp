@@ -1574,7 +1574,7 @@ namespace engine {
 				continue;
 			}
 			legalMoves++;
-			score = -negamax(-beta, -alpha, 1, depth);
+			score = -negamax(-beta, -alpha, 1, depth-1);
 			undoMove();
 
 			moves::showMove(move);
