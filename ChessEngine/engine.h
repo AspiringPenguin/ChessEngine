@@ -36,6 +36,8 @@ namespace engine{
 	void calculateBonusesStart();
 	void calculateBonusesEnd();
 
+	int scoreMove(const move& m);
+
 	int negamax(int alpha, int beta, int depth, int depthRemaining);
 	int negamaxQuiescence(int alpha, int beta, int depth);
 	move negamaxSearch(int depth);

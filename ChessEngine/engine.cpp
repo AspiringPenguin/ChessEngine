@@ -4,6 +4,7 @@
 #include "moves.h"
 #include "moveGenHelpers.h"
 #include "zobrist.h"
+#include <algorithm>
 #include <exception>
 #include <intrin.h>
 #include <iostream>
@@ -1476,6 +1477,10 @@ namespace engine {
 	}
 
 	//Search
+	int scoreMove(const move& m) {
+		return moves::getMVVLVAScore(m);
+	}
+
 	int negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
 			nodes++;
@@ -1489,6 +1494,11 @@ namespace engine {
 		int score;
 		int legalMoves = 0;
 		auto moves = generatePseudoLegalMoves();
+
+		std::sort(moves.begin(), moves.end(), [](const move& m1, const move& m2) {
+			return moves::getMVVLVAScore(m1) > moves::getMVVLVAScore(m2);
+		});
+
 		for (auto& move : moves) {
 			makeMove(move);
 			if (!moveWasLegal()) {
@@ -1530,6 +1540,11 @@ namespace engine {
 		int score;
 		int captureMoves = 0;
 		auto moves = generatePseudoLegalQuiescenceMoves();
+
+		std::sort(moves.begin(), moves.end(), [](const move& m1, const move& m2) {
+			return moves::getMVVLVAScore(m1) > moves::getMVVLVAScore(m2);
+		});
+
 		for (auto& move : moves) {
 			makeMove(move);
 			if (!moveWasLegal()) {
@@ -1567,6 +1582,11 @@ namespace engine {
 		int score;
 		int legalMoves = 0;
 		auto moves = generatePseudoLegalMoves();
+
+		std::sort(moves.begin(), moves.end(), [](const move& m1, const move& m2) {
+			return moves::getMVVLVAScore(m1) > moves::getMVVLVAScore(m2);
+		});
+
 		for (auto& move : moves) {
 			makeMove(move);
 			if (!moveWasLegal()) {

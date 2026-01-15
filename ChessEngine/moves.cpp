@@ -96,6 +96,10 @@ namespace moves {
 		return { (m & 0x800000) >> 23, (m & 0x1000000) >> 24, (m & 0x2000000) >> 25, (m & 0x4000000) >> 26 };
 	}
 
+	int getMVVLVAScore(const move& m) {
+		return (m & 0xFF000) >> 12;
+	}
+
 	void debugMove(move m) {
 		std::cout << pieceNames[getPiece(m)] << " " << squareNames[getFrom(m)] << squareNames[getTo(m)];
 		std::cout << ((getCapture(m) != nullPiece) ? " takes " + pieceNames[getCapture(m)] : "");
