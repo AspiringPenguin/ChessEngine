@@ -5,6 +5,11 @@ VisualStudioVersion = 17.14.36623.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChessEngine", "ChessEngine\ChessEngine.vcxproj", "{6011E359-EEA9-463D-9FA5-311AB8BD14D5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcxproj", "{325ECB3A-23DB-C347-4BB0-D4DBF98485C4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6011E359-EEA9-463D-9FA5-311AB8BD14D5} = {6011E359-EEA9-463D-9FA5-311AB8BD14D5}
+	EndProjectSection
+EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "bookGenerator", "bookGenerator\bookGenerator.pyproj", "{331D503E-CD62-4C14-821E-0E1073A4A02A}"
 EndProject
 Global
