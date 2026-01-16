@@ -205,6 +205,16 @@ int main() {
 }
 #endif
 
+#ifndef UCI
+#ifndef PERFT
+#ifndef TEST
+int main() {
+    return 0;
+}
+#endif
+#endif
+#endif
+
 // Todo - search and eval:
 // Transposition table and updates to move ordering
 // Enhanced move ordering - use bubble sort passes
