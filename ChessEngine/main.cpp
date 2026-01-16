@@ -83,6 +83,7 @@ int main() {
 
     std::string stringMove;
     move m;
+    int nodes;
 
     while (true){
         if (book::book.contains(engine::getZobrist())) {
@@ -90,18 +91,17 @@ int main() {
             m = engine::UCIMoveAsInternal(stringMove);
         }
         else {
-            m = engine::negamaxSearch(5);
-            moves::showMove(m);
-            std::cout << engine::getNodes() << std::endl;
-            engine::resetNodes();
-           /* for (int i = 1; i < 8; i++) {
+            for (int i = 1; i < 8; i++) {
+                auto start = std::chrono::high_resolution_clock::now();
                 m = engine::negamaxSearch(i);
+                auto end = std::chrono::high_resolution_clock::now();
+                auto ms_int = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
                 std::cout << i << " ";
                 moves::showMove(m);
-                std::cout << engine::getNodes() << std::endl;
+                nodes = engine::getNodes();
+                std::cout << nodes << " " << static_cast<int>(nodes / (ms_int.count() / (1000000.0f))) << "nps" << std::endl;
                 engine::resetNodes();
-                std::cin >> stringMove;
-            }*/
+            }
         }
         if (m == -1) {
             std::cout << "no legal moves for computer" << std::endl;
