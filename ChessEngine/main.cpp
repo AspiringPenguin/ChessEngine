@@ -75,9 +75,8 @@ int main() {
 
     return 0;
 }
-#endif
 
-#ifdef UCI
+#elifdef UCI
 int main() {
     engine::loadFEN("r1bqk2r/p1p2ppp/2p2n2/3P4/1b6/2NB4/PPP2PPP/R1BQK2R b KQkq - 0 8");
 
@@ -118,9 +117,8 @@ int main() {
         engine::showPosition();
     }
 }
-#endif
 
-#ifdef TEST
+#elifdef TEST
 int main() {
     engine::reset();
 
@@ -203,6 +201,12 @@ int main() {
 
     return 0;
 }
+#else
+
+int main() {
+    return 0;
+}
+
 #endif
 
 // Todo - search and eval:
