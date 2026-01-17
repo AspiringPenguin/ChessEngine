@@ -80,46 +80,7 @@ int main() {
 
 #ifdef UCI
 int main() {
-    //engine::loadFEN("r1bqk2r/p1p2ppp/2p2n2/3P4/1b6/2NB4/PPP2PPP/R1BQK2R b KQkq - 0 8");
-    engine::reset();
-    tt::setSize(128);
-
-    std::string stringMove;
-    move m;
-    int nodes;
-
-    while (true){
-        if (book::book.contains(engine::getZobrist())) {
-            stringMove = book::chooseMove(book::book[engine::getZobrist()]);
-            m = engine::UCIMoveAsInternal(stringMove);
-        }
-        else {
-            for (int i = 1; i < 8; i++) {
-                auto start = std::chrono::high_resolution_clock::now();
-                m = engine::negamaxSearch(i);
-                auto end = std::chrono::high_resolution_clock::now();
-                auto ms_int = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-                std::cout << i << " ";
-                moves::showMove(m);
-                nodes = engine::getNodes();
-                std::cout << nodes << " " << static_cast<int>(nodes / (ms_int.count() / (1000000.0f))) << "nps" << std::endl;
-                engine::resetNodes();
-            }
-        }
-        if (m == -1) {
-            std::cout << "no legal moves for computer" << std::endl;
-            break;
-        }
-        engine::makeMove(m);
-        moves::showMove(m);
-        std::cout << std::endl;
-        engine::showPosition();
-        std::cout << "> ";
-        std::cin >> stringMove;
-        m = engine::UCIMoveAsInternal(stringMove);
-        engine::makeMove(m);
-        engine::showPosition();
-    }
+    
 }
 #endif
 
@@ -204,6 +165,47 @@ int main() {
         }
         std::cout << std::endl << std::endl;
     }
+
+    /*engine::loadFEN("8/8/6q1/8/8/4k3/7K/8 b - - 0 1");
+    //engine::reset();
+    tt::setSize(128);
+
+    std::string stringMove;
+    move m;
+    int nodes;
+
+    while (true){
+        if (book::book.contains(engine::getZobrist())) {
+            stringMove = book::chooseMove(book::book[engine::getZobrist()]);
+            m = engine::UCIMoveAsInternal(stringMove);
+        }
+        else {
+            for (int i = 1; i < 12; i++) {
+                auto start = std::chrono::high_resolution_clock::now();
+                m = engine::negamaxSearch(i);
+                auto end = std::chrono::high_resolution_clock::now();
+                auto ms_int = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+                std::cout << i << " ";
+                moves::showMove(m);
+                nodes = engine::getNodes();
+                std::cout << nodes << " " << ms_int.count() / (1000000.0f) << "s " << static_cast<int>(nodes / (ms_int.count() / (1000000.0f))) << "nps" << std::endl;
+                engine::resetNodes();
+            }
+        }
+        if (m == -1) {
+            std::cout << "no legal moves for computer" << std::endl;
+            break;
+        }
+        engine::makeMove(m);
+        moves::showMove(m);
+        std::cout << std::endl;
+        engine::showPosition();
+        std::cout << "> ";
+        std::cin >> stringMove;
+        m = engine::UCIMoveAsInternal(stringMove);
+        engine::makeMove(m);
+        engine::showPosition();
+    }*/
 
     return 0;
 }
