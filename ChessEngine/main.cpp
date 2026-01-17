@@ -8,6 +8,7 @@
 #include "engine.h"
 #include "moves.h"
 #include "moveGenHelpers.h"
+#include "tt.h"
 
 #ifdef PERFT
 int main() {
@@ -81,6 +82,7 @@ int main() {
 int main() {
     //engine::loadFEN("r1bqk2r/p1p2ppp/2p2n2/3P4/1b6/2NB4/PPP2PPP/R1BQK2R b KQkq - 0 8");
     engine::reset();
+    tt::setSize(128);
 
     std::string stringMove;
     move m;
@@ -124,6 +126,7 @@ int main() {
 #ifdef TEST
 int main() {
     engine::reset();
+    tt::setSize(128);
 
     /*std::string userMove;
     move move;
