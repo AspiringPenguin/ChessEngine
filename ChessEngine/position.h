@@ -5,6 +5,7 @@
 constexpr int numPositions = 100 + maxDepth; //So we still have accurate history after making and unmaking lots of moves
 
 class position {
+protected:
 	std::array<piece, 64> mailbox{ }; //Initialise as 0s = empty
 	U64 bitboards[16]{ }; //Initialise as 0s
 	U64 colorBitboards[2]{ }; //0 = white, 1 = black
@@ -45,6 +46,7 @@ class position {
 	square enPassantSquare = nullSquare;
 
 	void updateBitboards();
+public:
 	void showPosition(color perspective = white);
 
 	void loadStart();
