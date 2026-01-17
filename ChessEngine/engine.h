@@ -54,4 +54,5 @@ namespace engine{
 	U64 getZobrist();
 	U64 getBitboard(int n);
 	U64 getAllBitboard();
+	color getToMove();
 }

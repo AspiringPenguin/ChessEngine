@@ -1778,4 +1778,8 @@ namespace engine {
 	U64 getAllBitboard() {
 		return allBitboard;
 	}
+
+	color getToMove() {
+		return toMove;
+	}
 }

@@ -80,7 +80,48 @@ int main() {
 
 #ifdef UCI
 move runSearch(unsigned int wtime, unsigned int btime, unsigned int winc, unsigned int binc) {
+    U64 nodes;
+    move m;
+    std::string stringMove;
 
+    if (book::book.contains(engine::getZobrist())) {
+        stringMove = book::chooseMove(book::book[engine::getZobrist()]);
+        m = engine::UCIMoveAsInternal(stringMove);
+    }
+    else {
+        auto outerStart = std::chrono::high_resolution_clock::now();
+
+        int idealTime, limitTime;
+
+        if (engine::getToMove() == white) {
+            idealTime = 0.03 * wtime + 0.5 * winc;
+            limitTime = 0.05 * wtime + winc;
+        }
+        else {
+            idealTime = 0.03 * btime + 0.5 * binc;
+            limitTime = 0.05 * btime + binc;
+        }
+
+        for (int i = 1; i < maxDepth; i++) {
+            std::cout << "info depth " << i << std::endl;
+            auto start = std::chrono::high_resolution_clock::now();
+            m = engine::negamaxSearch(i);
+            auto end = std::chrono::high_resolution_clock::now();
+            auto ms_int = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+            std::cout << i << " ";
+            moves::showMove(m);
+            nodes = engine::getNodes();
+            std::cout << "info nodes" << nodes << " nps " << static_cast<int>(nodes / (ms_int.count() / (1000000.0f))) << std::endl;
+            engine::resetNodes();
+            
+            ms_int = std::chrono::duration_cast<std::chrono::microseconds>(end - outerStart);
+            if (ms_int.count() > idealTime) {
+                break;
+            }
+        }
+    }
+
+    return m;
 }
 
 int main() {
@@ -175,6 +216,8 @@ int main() {
                     engine::makeMove(m);
                     chunkPos++;
                 }
+
+                engine::showPosition();
             }
         }
     }
