@@ -112,7 +112,7 @@ enum color {
 };
 
 //Move type
-typedef unsigned int move;
+typedef int move;
 
 //Bitboards
 typedef unsigned __int64 U64;
