@@ -1478,18 +1478,21 @@ namespace engine {
 	}
 
 	//Search
-	int scoreMove(const move& m) {
+	int scoreMove(const move& m, const move& ttMove) {
+		if (m == ttMove) {
+			return 255;
+		}
 		return moves::getMVVLVAScore(m);
 	}
 
-	move getNextMove(std::vector<move>& moves, int& moveN) {
+	move getNextMove(std::vector<move>& moves, int& moveN, const move& ttMove) {
 		if (moveN == moves.size()) {
 			return -1;
 		}
 
 		move _;
 		for (int i = 0; i < (moves.size() - 1 - moveN); i++) {
-			if (scoreMove(moves[i]) > scoreMove(moves[i + 1])) {
+			if (scoreMove(moves[i], ttMove) > scoreMove(moves[i + 1], ttMove)) {
 				_ = moves[i + 1];
 				moves[i + 1] = moves[i];
 				moves[i] = _;
@@ -1507,6 +1510,16 @@ namespace engine {
 			nodes++;
 			return 0;
 		}
+
+		auto ttResult = tt::ttProbe(zobrist, alpha, beta, depthRemaining);
+		auto resultType = std::get<0>(ttResult);
+
+		if (resultType == tt::ttScore) {
+			return std::get<1>(ttResult);
+		}
+		
+		const move ttMove = std::get<1>(ttResult);
+
 		int bestVal = -100000;
 		int score;
 		int legalMoves = 0;
@@ -1514,7 +1527,10 @@ namespace engine {
 
 		int moveN = 0;
 
-		for (move move = getNextMove(moves, moveN); move != -1; move = getNextMove(moves, moveN)){
+		bool firstMove = true;
+		bool raisedAlpha = false;
+
+		for (move move = getNextMove(moves, moveN, ttMove); move != -1; move = getNextMove(moves, moveN, ttMove)){
 			makeMove(move);
 			if (!moveWasLegal()) {
 				undoMove();
@@ -1528,11 +1544,15 @@ namespace engine {
 				bestVal = score;
 				if (score > alpha) {
 					alpha = score;
+					raisedAlpha = true;
 				}
 			}
 			if (score >= beta) {
+				tt::ttStore(zobrist, score, move, depthRemaining, tt::lowerBound, firstMove);
 				return bestVal;
 			}
+
+			firstMove = false;
 		}
 
 		if (legalMoves == 0) {
@@ -1541,6 +1561,13 @@ namespace engine {
 				return (-100000 + depth);
 			}
 			return 0; //Stalemate
+		}
+
+		if (raisedAlpha) { //Exact
+			tt::ttStore(zobrist, score, -1, depthRemaining, tt::exact, false);
+		}
+		else { //Upper bound
+			tt::ttStore(zobrist, score, -1, depthRemaining, tt::upperBound, false);
 		}
 
 		return bestVal;
@@ -1558,7 +1585,7 @@ namespace engine {
 
 		int moveN = 0;
 
-		for (move move = getNextMove(moves, moveN); move != -1; move = getNextMove(moves, moveN)) {
+		for (move move = getNextMove(moves, moveN, -1); move != -1; move = getNextMove(moves, moveN, -1)) {
 			makeMove(move);
 			if (!moveWasLegal()) {
 				undoMove();
@@ -1598,7 +1625,7 @@ namespace engine {
 
 		int moveN = 0;
 
-		for (move move = getNextMove(moves, moveN); move != -1; move = getNextMove(moves, moveN)) {
+		for (move move = getNextMove(moves, moveN, -1); move != -1; move = getNextMove(moves, moveN, -1)) {
 			makeMove(move);
 			if (!moveWasLegal()) {
 				undoMove();
