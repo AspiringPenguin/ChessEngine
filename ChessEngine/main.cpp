@@ -79,6 +79,10 @@ int main() {
 #endif
 
 #ifdef UCI
+move runSearch(unsigned int wtime, unsigned int btime, unsigned int winc, unsigned int binc) {
+
+}
+
 int main() {
     std::string cliInput;
     std::vector<std::string> chunks;
@@ -133,7 +137,11 @@ int main() {
                 chunkPos += 2;
             }
 
-            //Start search here
+            m = runSearch(wtime, btime, winc, binc);
+
+            std::cout << "bestmove ";
+            moves::showMove(m);
+            std::cout << std::endl;
         }
         else if (cliInput.substr(0, 8) == "position") {
             chunks = split(cliInput, " ");
