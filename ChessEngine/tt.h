@@ -12,7 +12,8 @@ namespace tt {
 	enum ttEntryType : char {
 		exact = 0,
 		lowerBound = 1,
-		upperBound = 2
+		upperBound = 2,
+		empty = 3
 	};
 
 	#pragma pack(push)
