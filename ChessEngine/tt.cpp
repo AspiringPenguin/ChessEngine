@@ -19,8 +19,10 @@ namespace tt {
 		if (entry.m == -1) { //No stored value
 			return { ttNull, -1 };
 		}
-		if (entry.type == exact || (entry.type == lowerBound && entry.score > beta) || (entry.type == upperBound && entry.score < alpha)) {
-			return { ttScore, entry.score };
+		if (entry.depth >= depth) {
+			if (entry.type == exact || (entry.type == lowerBound && entry.score > beta) || (entry.type == upperBound && entry.score < alpha)) {
+				return { ttScore, entry.score };
+			}
 		}
 		return { ttMove, entry.m };
 	}
@@ -31,7 +33,7 @@ namespace tt {
 			tt[index] = ttEntry{ move, static_cast<short>(eval), entryType, depth };
 		}
 		//Always replace (if exact, if is upper bound (no improvements over alpha, all would otherwise be searched) or if best move not ordered first) and depth >= existing entry
-		else if (depth >= tt[index].depth) {
+		else if (tt[index].depth >= depth) {
 			if (entryType != lowerBound || !firstMove) { 
 				tt[index] = ttEntry{ move, static_cast<short>(eval), entryType, depth };
 			}

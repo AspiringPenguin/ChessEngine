@@ -4,11 +4,15 @@
 
 namespace tt {
 	enum ttResult {
-		ttScore, ttMove, ttNull
+		ttNull = 0,
+		ttScore = 1,
+		ttMove = 2,
 	};
 
 	enum ttEntryType : char {
-		exact, lowerBound, upperBound
+		exact = 0,
+		lowerBound = 1,
+		upperBound = 2
 	};
 
 	#pragma pack(push)
@@ -25,5 +29,5 @@ namespace tt {
 
 	std::tuple<ttResult, int> ttProbe(const U64& zobrist, const int& alpha, const int& beta, const int& depth);
 
-	void ttStore(const U64& zobrist, const int& eval, const move& move, const unsigned char& depth, const ttEntryType& entryType);
+	void ttStore(const U64& zobrist, const int& eval, const move& move, const unsigned char& depth, const ttEntryType& entryType, bool firstMove);
 }
