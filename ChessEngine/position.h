@@ -55,4 +55,14 @@ class position {
 	void undoMove();
 
 	bool isDraw();
+
+	std::vector<move> generatePseudoLegalMoves();
+	std::vector<move> generatePseudoLegalQuiescenceMoves();
+
+	U64 getAttacked(color by);
+
+	bool moveWasLegal();
+	bool castleWasLegal();
+
+	move UCIMoveAsInternal(std::string m);
 };

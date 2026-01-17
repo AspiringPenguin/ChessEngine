@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "eval.h"
 #include "moves.h"
+#include "moveGenHelpers.h"
 #include "zobrist.h"
 #include <iostream>
 #include <intrin.h>
@@ -794,4 +795,592 @@ bool position::isDraw() {
 	//There are more pseudo-draws that would require a complex heuristic, something to consider once search and basic eval is written
 
 	return false; //Stalemate is handled in eval
+}
+
+std::vector<move> position::generatePseudoLegalMoves() {
+	auto generatedMoves = std::vector<move>();
+	generatedMoves.reserve(218);
+
+	U64 movesBB;
+	square sq;
+	piece p;
+
+	//King
+	p = piece(wKing + (toMove << 3));
+	const square kingPos = square(SquareOf(bitboards[p]));
+
+	//Captures
+	movesBB = moveGen::kingLookup[kingPos] & colorBitboards[1 - toMove];
+	Bitloop(movesBB) {
+		square sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, mailbox[sq], false, false,
+			(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
+	}
+
+	//Non-captures
+	movesBB = moveGen::kingLookup[kingPos] & ~allBitboard;
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, nullPiece, false, false,
+			(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
+	}
+
+	//Castling
+	if ((moveGen::whiteKingCastleMask & allBitboard) == 0 && wKingside && toMove == white) { //Can white kingside castle
+		generatedMoves.push_back(moves::encodeCastle(white, false, wKingside, wQueenside, false, false));
+	}
+
+	if ((moveGen::whiteQueenCastleMask & allBitboard) == 0 && wQueenside && toMove == white) { //Can white queenside castle
+		generatedMoves.push_back(moves::encodeCastle(white, true, wKingside, wQueenside, false, false));
+	}
+
+	if ((moveGen::blackKingCastleMask & allBitboard) == 0 && bKingside && toMove == black) { //Can black kingside castle
+		generatedMoves.push_back(moves::encodeCastle(black, false, false, false, bKingside, bQueenside));
+	}
+
+	if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && bQueenside && toMove == black) { //Can black queenside castle
+		generatedMoves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
+	}
+
+	//If double check return here?
+
+	//Pawns
+	p = piece(wPawn + (toMove << 3));
+
+	const U64 dpRank = (toMove == white) ? bitboards::rank3 : bitboards::rank6;
+	constexpr U64 prRank = bitboards::rank8 | bitboards::rank1;
+
+	//Single push
+	movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & ~prRank; //Not promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, false, false, false, false, false, false));
+	}
+
+	movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & prRank; //Promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+			generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, promotePiece, false, false, false, false));
+		}
+	}
+
+	//Double push
+	movesBB = (((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & dpRank); //Get double pushable pawns on 3rd/6th rank
+	movesBB = (((toMove == white) ? movesBB << 8 : movesBB >> 8) & ~allBitboard); //And push again
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(square(sq - (16 * toMoveSigned)), sq, p, nullPiece, false, true, false, false, false, false));
+	}
+
+	//Left captures - white perspective so add 7 for white and subtract 9 for black - (<< (8*toMoveSigned - 1)
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], false, false,
+			false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
+	}
+
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & prRank; //Promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+			generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], promotePiece,
+				wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+	}
+
+	//Right captures - white perspective so add 9 for white and subtract 7 for black - (<< (8*toMoveSigned + 1)
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], false, false,
+			false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
+	}
+
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & prRank; //Promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+			generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], promotePiece,
+				wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+	}
+
+	//En Passant
+	if (moves::isDoublePush((moveNum == -1) ? lastMove : moves[moveNum])) {
+		const square epSquare = square(moves::getTo((moveNum == -1) ? lastMove : moves[moveNum]) + (8 * toMoveSigned));
+		movesBB = (1ull << epSquare);
+		movesBB = (toMove == white) ? ((movesBB & ~bitboards::AFile) >> 9) | ((movesBB & ~bitboards::HFile) >> 7) : ((movesBB & ~bitboards::HFile) << 9) | ((movesBB & ~bitboards::AFile) << 7);
+		movesBB &= bitboards[p]; //Get pawns that can attack the square
+
+		Bitloop(movesBB) {
+			square pos = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, epSquare, p, piece(p ^ 0b1000), true, false, false, false, false, false));
+		}
+	}
+
+	//Knights
+	p = piece(wKnight + (toMove << 3));
+
+	U64 piecesBB = bitboards[p];
+
+	square pos, to;
+
+	Bitloop(piecesBB) { //For each knight
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures
+		movesBB = moveGen::knightLookup[pos] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+
+		//Non-captures
+		movesBB = moveGen::knightLookup[pos] & ~allBitboard;
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+		}
+	}
+
+	//Bishop
+	p = piece(wBishop + (toMove << 3));
+
+	piecesBB = bitboards[p];
+
+	Bitloop(piecesBB) { //For each bishop
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures
+		movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+
+		//Non-captures
+		movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & ~allBitboard;
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+		}
+	}
+
+	//Rook
+	p = piece(wRook + (toMove << 3));
+
+	piecesBB = bitboards[p];
+
+	Bitloop(piecesBB) { //For each rook
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures
+		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && (to == H1 || pos == H1), wQueenside && (to == A1 || pos == A1), bKingside && (to == H8 || pos == H8), bQueenside && (to == A8 || pos == A8)));
+			//Be careful, rooks can move off castle squares as well as being captured by a rook
+		}
+
+		//Non-captures
+		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && (pos == H1), wQueenside && (pos == A1), bKingside && (pos == H8), bQueenside && (pos == A8)));
+			//Be careful, rooks can move off castle squares 
+		}
+	}
+
+	//Queen
+	p = piece(wQueen + (toMove << 3));
+
+	piecesBB = bitboards[p];
+
+	Bitloop(piecesBB) { //For each queen
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures like rook
+		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+		}
+		//Only way to remove rights is taking rook, so check for castle rook squares
+
+		//Captures like bishop
+		movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+		}
+		//Only way to remove rights is taking rook, so check for castle rook squares
+
+		//Non-captures like rook
+		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+		}
+
+		//Non-captures like bishop
+		movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & ~allBitboard;
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+		}
+	}
+
+	return generatedMoves;
+}
+
+std::vector<move> position::generatePseudoLegalQuiescenceMoves() {
+	auto generatedMoves = std::vector<move>();
+	generatedMoves.reserve(218);
+
+	U64 movesBB;
+	square sq;
+	piece p;
+
+	//King
+	p = piece(wKing + (toMove << 3));
+	const square kingPos = square(SquareOf(bitboards[p]));
+
+	//Captures
+	movesBB = moveGen::kingLookup[kingPos] & colorBitboards[1 - toMove];
+	Bitloop(movesBB) {
+		square sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, mailbox[sq], false, false,
+			(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
+	}
+
+	//Pawns
+	p = piece(wPawn + (toMove << 3));
+
+	const U64 dpRank = (toMove == white) ? bitboards::rank3 : bitboards::rank6;
+	constexpr U64 prRank = bitboards::rank8 | bitboards::rank1;
+
+	//Single push
+	movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & prRank; //Promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+			generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, promotePiece, false, false, false, false));
+		}
+	}
+
+	//Left captures - white perspective so add 7 for white and subtract 9 for black - (<< (8*toMoveSigned - 1)
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], false, false,
+			false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
+	}
+
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & prRank; //Promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+			generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], promotePiece,
+				wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+	}
+
+	//Right captures - white perspective so add 9 for white and subtract 7 for black - (<< (8*toMoveSigned + 1)
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], false, false,
+			false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
+	}
+
+	movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & prRank; //Promotion
+
+	Bitloop(movesBB) {
+		sq = square(SquareOf(movesBB));
+		for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
+			generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], promotePiece,
+				wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+	}
+
+	//En Passant
+	if (moves::isDoublePush((moveNum == -1) ? lastMove : moves[moveNum])) {
+		const square epSquare = square(moves::getTo((moveNum == -1) ? lastMove : moves[moveNum]) + (8 * toMoveSigned));
+		movesBB = (1ull << epSquare);
+		movesBB = (toMove == white) ? ((movesBB & ~bitboards::AFile) >> 9) | ((movesBB & ~bitboards::HFile) >> 7) : ((movesBB & ~bitboards::HFile) << 9) | ((movesBB & ~bitboards::AFile) << 7);
+		movesBB &= bitboards[p]; //Get pawns that can attack the square
+
+		Bitloop(movesBB) {
+			square pos = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, epSquare, p, piece(p ^ 0b1000), true, false, false, false, false, false));
+		}
+	}
+
+	//Knights
+	p = piece(wKnight + (toMove << 3));
+
+	U64 piecesBB = bitboards[p];
+
+	square pos, to;
+
+	Bitloop(piecesBB) { //For each knight
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures
+		movesBB = moveGen::knightLookup[pos] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+	}
+
+	//Bishop
+	p = piece(wBishop + (toMove << 3));
+
+	piecesBB = bitboards[p];
+
+	Bitloop(piecesBB) { //For each bishop
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures
+		movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
+			//Only way to remove rights is taking rook, so check for castle rook squares
+		}
+	}
+
+	//Rook
+	p = piece(wRook + (toMove << 3));
+
+	piecesBB = bitboards[p];
+
+	Bitloop(piecesBB) { //For each rook
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures
+		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && (to == H1 || pos == H1), wQueenside && (to == A1 || pos == A1), bKingside && (to == H8 || pos == H8), bQueenside && (to == A8 || pos == A8)));
+			//Be careful, rooks can move off castle squares as well as being captured by a rook
+		}
+	}
+
+	//Queen
+	p = piece(wQueen + (toMove << 3));
+
+	piecesBB = bitboards[p];
+
+	Bitloop(piecesBB) { //For each queen
+		pos = square(SquareOf(piecesBB)); //Get its square
+
+		//Captures like rook
+		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+		}
+		//Only way to remove rights is taking rook, so check for castle rook squares
+
+		//Captures like bishop
+		movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+		Bitloop(movesBB) {
+			to = square(SquareOf(movesBB));
+
+			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
+				wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+		}
+		//Only way to remove rights is taking rook, so check for castle rook squares
+	}
+
+	return generatedMoves;
+}
+
+U64 position::getAttacked(color by) {
+	U64 attacks = 0;
+	U64 pieceBB;
+	square from;
+
+	//king
+	pieceBB = bitboards[wKing + (toMove << 3)];
+	Bitloop(pieceBB) {
+		from = square(SquareOf(pieceBB));
+
+		attacks |= moveGen::kingLookup[from];
+	}
+
+	//Pawns
+	attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) << 7 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::AFile) >> 9);
+	attacks |= ((by == white) ? (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) << 9 : (bitboards[wPawn + (toMove << 3)] & ~bitboards::HFile) >> 7);
+
+	//Knights
+	pieceBB = bitboards[wKnight + (toMove << 3)];
+	Bitloop(pieceBB) {
+		from = square(SquareOf(pieceBB));
+
+		attacks |= moveGen::knightLookup[from];
+	}
+
+	//Bishops and queen
+	pieceBB = bitboards[wBishop + (toMove << 3)] | bitboards[wQueen + (toMove << 3)];
+	Bitloop(pieceBB) {
+		from = square(SquareOf(pieceBB));
+
+		attacks |= moveGen::bishopMoveLookup[from][_pext_u64(allBitboard, moveGen::bishopPextMasks[from])];
+	}
+
+	//Rooks and queen
+	pieceBB = bitboards[wRook + (toMove << 3)] | bitboards[wQueen + (toMove << 3)];
+	Bitloop(pieceBB) {
+		from = square(SquareOf(pieceBB));
+
+		attacks |= moveGen::rookMoveLookup[from][_pext_u64(allBitboard, moveGen::rookPextMasks[from])];
+	}
+
+	return attacks;
+}
+
+bool position::moveWasLegal() {
+	const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called
+
+	if ((moves::getPiece(_lastMove) & 0b0111) == 6 && std::abs(moves::getFrom(_lastMove) - moves::getTo(_lastMove)) == 2) {
+		return  castleWasLegal();
+	}
+
+	//We want to check if the side that just moved is in check
+	U64 kingBB = bitboards[wKing + ((1 - toMove) << 3)];
+	square kingPos = square(SquareOf(kingBB));
+
+	//Check for each enemy piece type here
+	bool pawn = ((toMove == white) ? (((kingBB & ~bitboards::HFile) >> 7) | ((kingBB & ~bitboards::AFile) >> 9)) : (((kingBB & ~bitboards::AFile) << 7) | ((kingBB & ~bitboards::HFile) << 9))) & bitboards[wPawn + (toMove << 3)];
+
+	bool knight = moveGen::knightLookup[kingPos] & bitboards[wKnight + (toMove << 3)];
+
+	bool bishopQueen = moveGen::bishopMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::bishopPextMasks[kingPos])] & (bitboards[wBishop + (toMove << 3)] | bitboards[wQueen + (toMove << 3)]);
+
+	bool rookQueen = moveGen::rookMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::rookPextMasks[kingPos])] & (bitboards[wRook + (toMove << 3)] | bitboards[wQueen + (toMove << 3)]);
+
+	bool king = moveGen::kingLookup[kingPos] & bitboards[wKing + (toMove << 3)];
+
+	return !(pawn || knight || bishopQueen || rookQueen || king);
+}
+
+//Specialised version for castling
+bool position::castleWasLegal() {
+	const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called
+
+	U64 squares = 0xFFFFFFFFFFFFFFFF;
+
+	switch (moves::getTo(_lastMove)) {
+	case C1:
+		squares = moveGen::whiteQueenCastleCheckMask;
+		break;
+	case G1:
+		squares = moveGen::whiteKingCastleCheckMask;
+		break;
+	case C8:
+		squares = moveGen::blackQueenCastleCheckMask;
+		break;
+	case G8:
+		squares = moveGen::blackKingCastleCheckMask;
+		break;
+	}
+
+	return ((squares & getAttacked(toMove)) == 0);
+}
+
+move position::UCIMoveAsInternal(std::string m) {
+	square from = stringToSquare(m.substr(0, 2));
+	square to = stringToSquare(m.substr(2, 2));
+
+	piece p = mailbox[from];
+	piece capture = mailbox[to];
+
+	if ((p & 0b0111) == wPawn && capture == nullPiece && std::abs(from - to) != 8 && std::abs(from - to) != 16) { //Is a pawn, capture is null, not a normal push
+		return moves::encodeNormal(from, to, p, piece(p ^ 0b1000), true, false, false, false, false, false);
+	}
+	else if ((p & 0b0111) == wPawn && std::abs(from - to) == 16) { //Is a pawn, is a double push
+		return moves::encodeNormal(from, to, p, nullPiece, false, true, false, false, false, false);
+	}
+	else if (m.length() == 5) { //Is a promotion
+		switch (m[4]) {
+		case 'q':
+			return moves::encodePromote(from, to, p, capture, wQueen,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+
+		case 'r':
+			return moves::encodePromote(from, to, p, capture, wRook,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+		case 'b':
+			return moves::encodePromote(from, to, p, capture, wBishop,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+		case 'n':
+			return moves::encodePromote(from, to, p, capture, wKnight,
+				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+		}
+	}
+	else if ((p & 0b0111) == wKing && std::abs(from - to) == 2) { //Is a king move and it moved by 2 or -2 so is a castling move
+		if (m == "e1g1") { //W Kingside
+			return moves::encodeCastle(white, false, wKingside, wQueenside, false, false);
+		}
+		if (m == "e1c1") { //W Queenside
+			return moves::encodeCastle(white, true, wKingside, wQueenside, false, false);
+		}
+		if (m == "e8g8") { //Queenside
+			return moves::encodeCastle(black, false, false, false, bKingside, bQueenside);
+		}
+		if (m == "e8c8") { //B Queenside
+			return moves::encodeCastle(black, true, false, false, bKingside, bQueenside);
+		}
+	}
+
+	return moves::encodeNormal(from, to, p, capture, false, false, wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
 }
