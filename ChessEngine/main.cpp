@@ -362,7 +362,7 @@ int main() {
 #endif
 
 // Todo - search and eval:
-// Proper search routine based on time limit with iterative deepening
+// Refactor to a position class, with search separately so this actually works!
 
 // Todo - longer term core aims:
 // Improve board representation by removing if and conditionals in make/unmake move by using more of the 32 move bits?
