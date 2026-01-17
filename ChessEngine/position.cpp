@@ -1,1 +1,797 @@
 #include "position.h"
+#include "bitboards.h"
+#include "engine.h"
+#include "eval.h"
+#include "moves.h"
+#include "zobrist.h"
+#include <iostream>
+#include <intrin.h>
+
+//Set up aggregate bitboards
+void position::updateBitboards() {
+	colorBitboards[white] = bitboards[wPawn] | bitboards[wKnight] | bitboards[wBishop] | bitboards[wRook] | bitboards[wQueen] | bitboards[wKing];
+	colorBitboards[black] = bitboards[bPawn] | bitboards[bKnight] | bitboards[bBishop] | bitboards[bRook] | bitboards[bQueen] | bitboards[bKing];
+	allBitboard = colorBitboards[white] | colorBitboards[black];
+}
+
+void position::showPosition(color perspective) {
+	if (perspective == black) {
+		for (int y = 0; y < 8; y++) {
+			for (int x = 7; x >= 0; x--) {
+				std::cout << pieceChars[mailbox[y * 8 + x]];
+			}
+			std::cout << std::endl;
+		}
+	}
+	else {
+		for (int y = 7; y >= 0; y--) {
+			for (int x = 0; x < 8; x++) {
+				std::cout << pieceChars[mailbox[y * 8 + x]];
+			}
+			std::cout << std::endl;
+		}
+	}
+}
+
+void position::loadStart() {
+	//Status stuff
+	toMove = white;
+	toMoveSigned = 1;
+	moveNum = -1;
+	enPassantSquare = nullSquare;
+	std::fill(std::begin(moves), std::end(moves), 0);
+	std::fill(std::begin(counters), std::end(counters), 0);
+	counter = 0; //50 move rule
+
+	//Clear draw position history
+	std::fill(std::begin(positions), std::end(positions), 0);
+	positionsHead = 0;
+	positionsTail = 0;
+
+	lastMove = 0;
+
+	//Mailbox
+	mailbox[A1] = wRook;
+	mailbox[B1] = wKnight;
+	mailbox[C1] = wBishop;
+	mailbox[D1] = wQueen;
+	mailbox[E1] = wKing;
+	mailbox[F1] = wBishop;
+	mailbox[G1] = wKnight;
+	mailbox[H1] = wRook;
+
+	for (int n = A2; n <= H2; n++) {
+		mailbox[n] = wPawn;
+	}
+
+	for (int n = A3; n <= H6; n++) {
+		mailbox[n] = nullPiece;
+	}
+
+	for (int n = A7; n <= H7; n++) {
+		mailbox[n] = bPawn;
+	}
+
+	mailbox[A8] = bRook;
+	mailbox[B8] = bKnight;
+	mailbox[C8] = bBishop;
+	mailbox[D8] = bQueen;
+	mailbox[E8] = bKing;
+	mailbox[F8] = bBishop;
+	mailbox[G8] = bKnight;
+	mailbox[H8] = bRook;
+
+	//Bitboards
+	bitboards[wPawn] ^= (1ull << A2);
+	bitboards[wPawn] ^= (1ull << B2);
+	bitboards[wPawn] ^= (1ull << C2);
+	bitboards[wPawn] ^= (1ull << D2);
+	bitboards[wPawn] ^= (1ull << E2);
+	bitboards[wPawn] ^= (1ull << F2);
+	bitboards[wPawn] ^= (1ull << G2);
+	bitboards[wPawn] ^= (1ull << H2);
+
+	bitboards[wRook] ^= (1ull << A1);
+	bitboards[wRook] ^= (1ull << H1);
+	bitboards[wKnight] ^= (1ull << B1);
+	bitboards[wKnight] ^= (1ull << G1);
+	bitboards[wBishop] ^= (1ull << C1);
+	bitboards[wBishop] ^= (1ull << F1);
+	bitboards[wQueen] ^= (1ull << D1);
+	bitboards[wKing] ^= (1ull << E1);
+
+	bitboards[bPawn] ^= (1ull << A7);
+	bitboards[bPawn] ^= (1ull << B7);
+	bitboards[bPawn] ^= (1ull << C7);
+	bitboards[bPawn] ^= (1ull << D7);
+	bitboards[bPawn] ^= (1ull << E7);
+	bitboards[bPawn] ^= (1ull << F7);
+	bitboards[bPawn] ^= (1ull << G7);
+	bitboards[bPawn] ^= (1ull << H7);
+
+	bitboards[bRook] ^= (1ull << A8);
+	bitboards[bRook] ^= (1ull << H8);
+	bitboards[bKnight] ^= (1ull << B8);
+	bitboards[bKnight] ^= (1ull << G8);
+	bitboards[bBishop] ^= (1ull << C8);
+	bitboards[bBishop] ^= (1ull << F8);
+	bitboards[bQueen] ^= (1ull << D8);
+	bitboards[bKing] ^= (1ull << E8);
+
+	updateBitboards();
+
+	//Castling rights
+	wKingside = true;
+	wQueenside = true;
+	bKingside = true;
+	bQueenside = true;
+
+	//Zobrist hashing
+	zobrist = 0;
+	//Pieces
+	zobrist ^= zobrist::zobristPieces(mailbox);
+	//Castling rights
+	zobrist ^= zobrist::values[768];
+	zobrist ^= zobrist::values[769];
+	zobrist ^= zobrist::values[770];
+	zobrist ^= zobrist::values[771];
+	//White to move
+	zobrist ^= zobrist::values[780];
+
+	positions[positionsTail] = zobrist;
+	positionsTail++;
+
+	calculatePhase();
+	calculateMaterialStart();
+	calculateMaterialEnd();
+	calculateBonusesStart();
+	calculateBonusesEnd();
+}
+
+void position::loadFEN(std::string fen) {
+	//Reset some stuff
+	std::fill(std::begin(bitboards), std::end(bitboards), 0);
+	std::fill(std::begin(mailbox), std::end(mailbox), nullPiece);
+	zobrist = 0;
+	wKingside = false;
+	wQueenside = false;
+	bKingside = false;
+	bQueenside = false;
+
+	enPassantSquare = nullSquare;
+	moveNum = -1;
+	std::fill(std::begin(moves), std::end(moves), 0);
+	std::fill(std::begin(counters), std::end(counters), 0);
+	counter = 0; //50 move rule
+
+	//Clear draw position history
+	std::fill(std::begin(positions), std::end(positions), 0);
+	positionsHead = 0;
+	positionsTail = 0;
+
+	//Get info from FEN
+	const auto info = split(fen, " ");
+	std::string board = info[0];
+	std::string _toMove = info[1];
+	std::string castling = info[2];
+	std::string enPassant = info[3];
+
+	//Turn the board into a A1->H8 indexed list of characters representing pieces or empty spaces
+
+	//Numbers to n*'.'
+	for (int i = 0; i < 71; i++) {
+		if (std::isdigit(board[i])) {
+			board = board.substr(0, i) + std::string(board[i] - 48, '.') + board.substr(i + 1);
+		}
+	}
+
+	//Translate the board, flip, then flip each row back
+	std::reverse(board.begin(), board.end());
+
+	auto rows = split(board, "/");
+	for (int i = 0; i < 8; i++) {
+		std::reverse(rows[i].begin(), rows[i].end());
+	}
+
+	//Remake the board from the rows
+	board = "";
+	for (const auto& row : rows) {
+		board += row;
+	}
+
+	//Process the result into board representation now
+	for (int n = -1; char c : board) {
+		n++;
+		//Linear search through char conversion to find value
+		for (int i = -1; char p : pieceChars) {
+			i++;
+			if (p == c) {
+				mailbox[n] = piece(i);
+				bitboards[piece(i)] ^= (1ull << n);
+				break;
+			}
+		}
+	}
+
+	updateBitboards();
+
+	//Update zobrist hash for pieces
+	zobrist = zobrist::zobristPieces(mailbox);
+
+	//Castling
+	if (castling.find("K") != std::string::npos) {
+		wKingside = true;
+		zobrist ^= zobrist::values[768];
+	}
+	if (castling.find("Q") != std::string::npos) {
+		wQueenside = true;
+		zobrist ^= zobrist::values[769];
+	}
+	if (castling.find("k") != std::string::npos) {
+		bKingside = true;
+		zobrist ^= zobrist::values[770];
+	}
+	if (castling.find("q") != std::string::npos) {
+		bQueenside = true;
+		zobrist ^= zobrist::values[771];
+	}
+
+	//Whose move it is
+	toMove = color(_toMove == "b");
+	if (toMove == white) {
+		toMoveSigned = 1;
+		zobrist ^= zobrist::values[780];
+	}
+	else {
+		toMoveSigned = -1;
+	}
+
+	//En passant - polyglot standard only adds en-passant hash when a pseudo-legal en passant move is possible
+	if (enPassant != "-") {
+		enPassantSquare = stringToSquare(enPassant);
+		U64 bb = 1ull << enPassantSquare;
+		if (toMove == white) {
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1)) >> 8;
+			if (bb & bitboards[wPawn]) {
+				zobrist ^= zobrist::values[772 + (enPassantSquare % 8)];
+			}
+		}
+		else {
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1)) << 8;
+			if (bb & bitboards[bPawn]) {
+				zobrist ^= zobrist::values[772 + (enPassantSquare % 8)];
+			}
+		}
+
+		lastMove = moves::encodeMove(square(enPassantSquare + 8 * toMoveSigned), square(enPassantSquare - 8 * toMoveSigned), piece(wPawn | (toMove << 3)), nullPiece, false, false, true, false, false, false, false);
+	}
+	else {
+		lastMove = 0;
+	}
+
+	positions[positionsTail] = zobrist;
+	positionsTail++;
+
+	calculatePhase();
+	calculateMaterialStart();
+	calculateMaterialEnd();
+	calculateBonusesStart();
+	calculateBonusesEnd();
+}
+
+void position::makeMove(move& m, bool reversible) {
+	if (reversible) {
+		//Store this move at the incremented value of moveNum
+		moves[++moveNum] = m;
+
+		//Also store the current 50-move counter value
+		#pragma warning(push)
+		#pragma warning(disable:6386)
+		counters[moveNum] = counter; //This will never overflow in practice unless my search has a huge bug in it.
+		#pragma warning(pop)
+	}
+	else if (moveNum != -1) {
+		throw std::out_of_range("Irreversible make move was attempted with temporary moves applied");
+	}
+	else {
+		lastMove = m; //Set lastMove to m to deal with returning to root zobrist
+	}
+
+	counter++; //Increment 50 move counter, reset later
+
+	const square from = moves::getFrom(m);
+	const square to = moves::getTo(m);
+	const piece p = moves::getPiece(m);
+	const piece toPiece = moves::getPromoteFlag(m) ? moves::getPromote(m, toMove) : p;
+
+	//Handle promotions by adding and removing
+	materialStart -= eval::pieceValuesStart[p];
+	materialStart += eval::pieceValuesStart[toPiece];
+	materialEnd -= eval::pieceValuesEnd[p];
+	materialEnd += eval::pieceValuesEnd[toPiece];
+
+	const piece capture = moves::getCapture(m);
+	int pos;
+	square lTo;
+	move _lastMove = (moveNum == -1 ? lastMove : moves[moveNum - 1]);
+
+	counter = ((p & 0b0111) == wPawn || capture != nullPiece) ? 0 : counter; //Reset 50 move counter if a pawn move or a capture
+
+	//Undo zobrist hashing for last move being double push where en passant was pseudo-legal
+	//This must go here before any bitboards are updated
+	if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
+		lTo = moves::getTo(_lastMove);
+		U64 bb = 1ull << lTo; //Get where it went to
+		if (toMove == white) { //White is moving now, and the lastMove was by black
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (bb & bitboards[wPawn]) {
+				zobrist ^= zobrist::values[772 + (lTo % 8)];
+			}
+		}
+		else {
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (bb & bitboards[bPawn]) {
+				zobrist ^= zobrist::values[772 + (lTo % 8)];
+			}
+		}
+	}
+
+	if ((p & 0b0111) == 6 && std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
+		if (p == wKing) {
+			if (to == G1) {
+				//Update mailbox
+				mailbox[E1] = nullPiece;
+				mailbox[F1] = wRook;
+				mailbox[G1] = wKing;
+				mailbox[H1] = nullPiece;
+
+				//Update bitboards
+				bitboards[wKing] ^= (1ull << E1) | (1ull << G1);
+				bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
+				colorBitboards[white] ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
+				allBitboard ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + F1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + H1];
+			}
+			else {
+				//Update mailbox
+				mailbox[E1] = nullPiece;
+				mailbox[D1] = wRook;
+				mailbox[C1] = wKing;
+				mailbox[A1] = nullPiece;
+
+				//Update bitboards
+				bitboards[wKing] ^= (1ull << E1) | (1ull << C1);
+				bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
+				colorBitboards[white] ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
+				allBitboard ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + A1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + D1];
+			}
+		}
+		else {
+			if (to == G8) {
+				//Update mailbox
+				mailbox[E8] = nullPiece;
+				mailbox[F8] = bRook;
+				mailbox[G8] = bKing;
+				mailbox[H8] = nullPiece;
+
+				//Update bitboards
+				bitboards[bKing] ^= (1ull << E8) | (1ull << G8);
+				bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
+				colorBitboards[black] ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
+				allBitboard ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + F8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + H8];
+			}
+			else {
+				//Update mailbox
+				mailbox[E8] = nullPiece;
+				mailbox[D8] = bRook;
+				mailbox[C8] = bKing;
+				mailbox[A8] = nullPiece;
+
+				//Update bitboards
+				bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
+				bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
+				colorBitboards[black] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+				allBitboard ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
+			}
+		}
+		calculateBonusesStart();
+		calculateBonusesEnd();
+	}
+	else { //Its a normal move
+
+		//Update mailbox
+		mailbox[from] = nullPiece;
+		mailbox[to] = toPiece;
+
+		//Update psq values
+#pragma warning(push)
+#pragma warning(disable:6385)
+		bonusesStart -= (eval::pieceBonusesStart[(p & 0b111) - 1][from ^ 56 * (1 - toMove)]) * toMoveSigned;
+		bonusesStart += (eval::pieceBonusesStart[(toPiece & 0b111) - 1][to ^ 56 * (1 - toMove)]) * toMoveSigned;
+		bonusesEnd -= (eval::pieceBonusesEnd[(p & 0b111) - 1][from ^ 56 * (1 - toMove)]) * toMoveSigned;
+		bonusesEnd += (eval::pieceBonusesEnd[(toPiece & 0b111) - 1][to ^ 56 * (1 - toMove)]) * toMoveSigned;
+#pragma warning(pop)
+
+		//Update zobrist hash
+		zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
+		zobrist ^= zobrist::values[64 * zobrist::pieceLookup[toPiece] + to];
+
+		//Update bitboards
+		bitboards[p] ^= (1ull << from);
+		bitboards[toPiece] ^= (1ull << to);
+		colorBitboards[p >> 3] ^= (1ull << from) | (1ull << to);
+		allBitboard ^= (1ull << from) | (1ull << to);
+
+		//Handle enPassant
+		if (moves::isEnPassant(m)) {
+			materialStart -= eval::pieceValuesStart[capture];
+			materialEnd -= eval::pieceValuesEnd[capture];
+
+			pos = to + (-8 * toMoveSigned); //Calculate square to clear
+			mailbox[pos] = nullPiece; //Mailbox wasn't updated
+			bitboards[capture] ^= (1ull << pos);
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos];
+			colorBitboards[capture >> 3] ^= (1ull << pos);
+			allBitboard ^= (1ull << pos);
+
+			//Update start and end psq values
+#pragma warning(push)
+#pragma warning(disable:6385)
+			bonusesStart -= (eval::pieceBonusesStart[(p & 0b111) - 1][pos ^ (56 * toMove)]) * toMoveSigned * -1;
+			bonusesEnd -= (eval::pieceBonusesEnd[(p & 0b111) - 1][pos ^ (56 * toMove)]) * toMoveSigned * -1;
+#pragma warning(pop)
+		}
+		else if (capture != nullPiece) {
+			phase -= eval::piecePhases[capture];
+			materialStart -= eval::pieceValuesStart[capture];
+			materialEnd -= eval::pieceValuesEnd[capture];
+
+			//Update start and end psq values
+#pragma warning(push)
+#pragma warning(disable:6385)
+			bonusesStart -= (eval::pieceBonusesStart[(p & 0b111) - 1][to ^ (56 * toMove)]) * toMoveSigned * -1;
+			bonusesEnd -= (eval::pieceBonusesEnd[(p & 0b111) - 1][to ^ (56 * toMove)]) * toMoveSigned * -1;
+#pragma warning(pop)
+
+			bitboards[capture] ^= (1ull << to);
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to];
+			colorBitboards[capture >> 3] ^= (1ull << to);
+			allBitboard ^= (1ull << to);
+		}
+
+		if (moves::isDoublePush(m)) { //May need to add zobrist hash element for enPassant
+			U64 bb = 1ull << to;
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (toMove == black) { //Will be white next turn, not updated yet
+				if (bb & bitboards[wPawn]) {
+					zobrist ^= zobrist::values[772 + (to % 8)];
+				}
+			}
+			else {
+				if (bb & bitboards[bPawn]) {
+					zobrist ^= zobrist::values[772 + (to % 8)];
+				}
+			}
+		}
+	}
+
+	//Update castling rights
+	const auto rights = moves::getCastleChanges(m);
+	if (std::get<0>(rights)) {
+		wKingside = false;
+		zobrist ^= zobrist::values[768];
+	}
+	if (std::get<1>(rights)) {
+		wQueenside = false;
+		zobrist ^= zobrist::values[769];
+	}
+	if (std::get<2>(rights)) {
+		bKingside = false;
+		zobrist ^= zobrist::values[770];
+	}
+	if (std::get<3>(rights)) {
+		bQueenside = false;
+		zobrist ^= zobrist::values[771];
+	}
+
+	toMove = color(1 - toMove); //Flip toMove
+	toMoveSigned = -1 * toMoveSigned;
+	zobrist ^= zobrist::values[780];
+
+	if (!reversible) {
+		lastMove = m; //Update lastMove
+	}
+
+	//Add position to repetition history
+	positions[positionsTail] = zobrist;
+	positionsHead = (positionsHead == positionsTail) ? (positionsHead + 1) : positionsHead; //If we just overwrote the first element, increment positionsHead
+	positionsTail++; //Increment the tail
+
+	//If both greater or equal to numPositions subtract numPositions
+	if (positionsHead >= numPositions && positionsTail >= numPositions) {
+		positionsHead -= numPositions;
+		positionsTail -= numPositions;
+	}
+}
+
+void position::makeMove(move& m) {
+	makeMove(m, true);
+}
+
+void position::undoMove() {
+	if (moveNum == -1) {
+		throw std::out_of_range("Undo move was attempted with no moves to undo.");
+	}
+
+	move m = moves[moveNum];
+	counter = counters[moveNum--]; //Get the counter state before the last move and then decrement moveNum
+	move _lastMove = moveNum == -1 ? lastMove : moves[moveNum]; //ie the move before m
+
+	const square from = moves::getFrom(m);
+	const square to = moves::getTo(m);
+	const piece p = moves::getPiece(m);
+	const piece toPiece = moves::getPromoteFlag(m) ? moves::getPromote(m, color(1 - toMove)) : p;
+	const piece capture = moves::getCapture(m);
+	square lTo;
+	square pos;
+
+	//Handle promotions by removing and adding
+	materialStart += eval::pieceValuesStart[p];
+	materialStart -= eval::pieceValuesStart[toPiece];
+	materialEnd += eval::pieceValuesEnd[p];
+	materialEnd -= eval::pieceValuesEnd[toPiece];
+
+	if ((p & 0b0111) == 6 && std::abs(from - to) == 2) { //Is a king and the distance moved is 2, not 1, 7, 8 or 9 so therefore castling
+		if (p == wKing) {
+			if (to == G1) {
+				//Update mailbox
+				mailbox[E1] = wKing;
+				mailbox[F1] = nullPiece;
+				mailbox[G1] = nullPiece;
+				mailbox[H1] = wRook;
+
+				//Update bitboards
+				bitboards[wKing] ^= (1ull << E1) | (1ull << G1);
+				bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
+				colorBitboards[white] ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
+				allBitboard ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + F1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + H1];
+			}
+			else {
+				//Update mailbox
+				mailbox[E1] = wKing;
+				mailbox[D1] = nullPiece;
+				mailbox[C1] = nullPiece;
+				mailbox[A1] = wRook;
+
+				//Update bitboards
+				bitboards[wKing] ^= (1ull << E1) | (1ull << C1);
+				bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
+				colorBitboards[white] ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
+				allBitboard ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + A1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + D1];
+			}
+		}
+		else {
+			if (to == G8) {
+				//Update mailbox
+				mailbox[E8] = bKing;
+				mailbox[F8] = nullPiece;
+				mailbox[G8] = nullPiece;
+				mailbox[H8] = bRook;
+
+				//Update bitboards
+				bitboards[bKing] ^= (1ull << E8) | (1ull << G8);
+				bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
+				colorBitboards[black] ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
+				allBitboard ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + F8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + H8];
+			}
+			else {
+				//Update mailbox
+				mailbox[E8] = bKing;
+				mailbox[D8] = nullPiece;
+				mailbox[C8] = nullPiece;
+				mailbox[A8] = bRook;
+
+				//Update bitboards
+				bitboards[bKing] ^= (1ull << E8) | (1ull << C8);
+				bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
+				colorBitboards[black] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+				allBitboard ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
+			}
+		}
+		calculateBonusesStart();
+		calculateBonusesEnd();
+	}
+	else {
+		if (moves::isDoublePush(m)) { //May need to remove zobrist hash element for enPassant
+			U64 bb = 1ull << to;
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (toMove == white) { //The double push was by black, so the capture must be by white
+				if (bb & bitboards[wPawn]) {
+					zobrist ^= zobrist::values[772 + (to % 8)];
+				}
+			}
+			else {
+				if (bb & bitboards[bPawn]) {
+					zobrist ^= zobrist::values[772 + (to % 8)];
+				}
+			}
+		}
+
+		//Update mailbox
+		mailbox[from] = p;
+		mailbox[to] = capture;
+
+		//Update psq values
+#pragma warning(push)
+#pragma warning(disable:6385)
+		bonusesStart += (eval::pieceBonusesStart[(p & 0b111) - 1][from ^ 56 * toMove]) * toMoveSigned * -1;
+		bonusesStart -= (eval::pieceBonusesStart[(toPiece & 0b111) - 1][to ^ 56 * toMove]) * toMoveSigned * -1;
+		bonusesEnd += (eval::pieceBonusesEnd[(p & 0b111) - 1][from ^ 56 * toMove]) * toMoveSigned * -1;
+		bonusesEnd -= (eval::pieceBonusesEnd[(toPiece & 0b111) - 1][to ^ 56 * toMove]) * toMoveSigned * -1;
+#pragma warning(pop)
+
+		//Update zobrist hash
+		zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
+		zobrist ^= zobrist::values[64 * zobrist::pieceLookup[toPiece] + to];
+
+		//Update bitboards
+		bitboards[p] ^= (1ull << from);
+		bitboards[toPiece] ^= (1ull << to);
+		colorBitboards[p >> 3] ^= (1ull << from) | (1ull << to);
+		allBitboard ^= (1ull << from) | (1ull << to);
+
+		//Handle enPassant
+		if (moves::isEnPassant(m)) {
+			materialStart += eval::pieceValuesStart[capture];
+			materialEnd += eval::pieceValuesEnd[capture];
+
+			pos = square(to + (8 * toMoveSigned)); //Calculate square to put the pawn back into
+			mailbox[pos] = capture; //Put the captured piece in the right place
+			mailbox[to] = nullPiece; //And remove it from the original place
+			bitboards[capture] ^= (1ull << pos); //Add it back to the bitboard
+			colorBitboards[capture >> 3] ^= (1ull << pos); //Add it back to the color-specific and main bitboards
+			allBitboard ^= (1ull << pos);
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos]; //And the zobrist hash
+
+			//Update start and end psq values
+#pragma warning(push)
+#pragma warning(disable:6385)
+			bonusesStart += (eval::pieceBonusesStart[(p & 0b111) - 1][pos ^ (56 * (1 - toMove))]) * toMoveSigned;
+			bonusesEnd += (eval::pieceBonusesEnd[(p & 0b111) - 1][pos ^ (56 * (1 - toMove))]) * toMoveSigned;
+#pragma warning(pop)
+		}
+		else if (capture != nullPiece) { //If its non en-passant capture
+			phase += eval::piecePhases[capture];
+			materialStart += eval::pieceValuesStart[capture];
+			materialEnd += eval::pieceValuesEnd[capture];
+
+			bitboards[capture] ^= (1ull << to); //Add it back to the bitboard
+			colorBitboards[capture >> 3] ^= (1ull << to);
+			allBitboard ^= (1ull << to);
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to]; //Add it back to the hash
+
+			//Update start and end psq values
+#pragma warning(push)
+#pragma warning(disable:6385)
+			bonusesStart += (eval::pieceBonusesStart[(p & 0b111) - 1][to ^ (56 * (1 - toMove))]) * toMoveSigned;
+			bonusesEnd += (eval::pieceBonusesEnd[(p & 0b111) - 1][to ^ (56 * (1 - toMove))]) * toMoveSigned;
+#pragma warning(pop)
+		}
+	}
+
+	//Readd zobrist hashing for new last move if its double push where en passant was pseudo-legal
+	//This must go here after bitboards are updated
+	if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
+		lTo = moves::getTo(_lastMove);
+		U64 bb = 1ull << lTo; //Get where it went to
+		if (toMove == black) { //The move we are currently undoing was played by white, so this move before was played by black
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (bb & bitboards[wPawn]) {
+				zobrist ^= zobrist::values[772 + (lTo % 8)];
+			}
+		}
+		else {
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (bb & bitboards[bPawn]) {
+				zobrist ^= zobrist::values[772 + (lTo % 8)];
+			}
+		}
+	}
+
+	//Update castling rights
+	const auto rights = moves::getCastleChanges(m);
+	if (std::get<0>(rights)) {
+		wKingside = true;
+		zobrist ^= zobrist::values[768];
+	}
+	if (std::get<1>(rights)) {
+		wQueenside = true;
+		zobrist ^= zobrist::values[769];
+	}
+	if (std::get<2>(rights)) {
+		bKingside = true;
+		zobrist ^= zobrist::values[770];
+	}
+	if (std::get<3>(rights)) {
+		bQueenside = true;
+		zobrist ^= zobrist::values[771];
+	}
+
+	toMove = color(1 - toMove); //Flip toMove
+	toMoveSigned = -1 * toMoveSigned;
+	zobrist ^= zobrist::values[780];
+
+	positionsTail--; //Remove the positions just by decrementing the tail - it will be overwritten when necessary in makeMove
+}
+
+bool position::isDraw() {
+	if (counter == 100) {
+		return true;
+	}
+	//Repetition
+	int count = 0;
+	for (int i = positionsHead; i <= positionsTail; i++) {
+		count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
+	}
+	if (count == 3) {
+		return true;
+	}
+
+	U64 kings = bitboards[wKing] | bitboards[bKing];
+
+	//Insufficient material
+	if ((allBitboard & ~kings) == 0) { //Just kings
+		return true;
+	}
+
+	U64 bishops = bitboards[wBishop] | bitboards[bBishop];
+	U64 minors = bitboards[wKnight] | bitboards[bKnight] | bishops;
+
+	if (allBitboard == (kings | minors) && __popcnt64(minors) == 1) { //Only minor pieces left, only one minor piece left
+		return true;
+	}
+
+	unsigned long index1;
+	_BitScanForward64(&index1, bitboards[wBishop]);
+	unsigned long index2;
+	_BitScanForward64(&index2, bitboards[bBishop]);
+
+	if (allBitboard == (kings | bishops) && __popcnt64(bitboards[wBishop]) == 1 && __popcnt64(bitboards[bBishop]) == 1) { //A bishop of each color and kings
+		return sameColor(index1, index2); //Is a draw if they are the same colour
+	}
+
+	//There are more pseudo-draws that would require a complex heuristic, something to consider once search and basic eval is written
+
+	return false; //Stalemate is handled in eval
+}

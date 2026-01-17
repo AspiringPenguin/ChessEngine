@@ -40,4 +40,19 @@ class position {
 	bool wQueenside = true;
 	bool bKingside = true;
 	bool bQueenside = true;
+
+	//For enPassant
+	square enPassantSquare = nullSquare;
+
+	void updateBitboards();
+	void showPosition(color perspective = white);
+
+	void loadStart();
+	void loadFEN(std::string fen);
+
+	void makeMove(move& m);
+	void makeMove(move& m, bool reversible);
+	void undoMove();
+
+	bool isDraw();
 };
