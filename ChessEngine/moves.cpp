@@ -97,7 +97,12 @@ namespace moves {
 	}
 
 	int getMVVLVAScore(const move& m) {
-		return (m & 0xFF000) >> 12;
+		const auto cap = getCapture(m);
+		if (m == 0) {
+			return 0;
+		}
+		//Replace with SEE
+		return ((cap & 0b0111) << 3) | (7 - (getPiece(m) & 0b0111));
 	}
 
 	void debugMove(move m) {
