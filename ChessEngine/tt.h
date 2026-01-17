@@ -21,7 +21,9 @@ namespace tt {
 	};
 	#pragma pack(pop)
 
+	void setSize(int mb);
+
 	std::tuple<ttResult, int> ttProbe(const U64& zobrist, const int& alpha, const int& beta, const int& depth);
 
-	void ttStore(const int& eval, const move& move, const unsigned char& depth);
+	void ttStore(const U64& zobrist, const int& eval, const move& move, const unsigned char& depth, const ttEntryType& entryType);
 }
