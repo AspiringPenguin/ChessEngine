@@ -489,6 +489,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="moveGenHelpers.cpp" />
     <ClCompile Include="moves.cpp" />
+    <ClCompile Include="position.cpp" />
     <ClCompile Include="tt.cpp" />
     <ClCompile Include="zobrist.cpp" />
   </ItemGroup>
@@ -500,6 +501,7 @@
     <ClInclude Include="eval.h" />
     <ClInclude Include="moveGenHelpers.h" />
     <ClInclude Include="moves.h" />
+    <ClInclude Include="position.h" />
     <ClInclude Include="tt.h" />
     <ClInclude Include="zobrist.h" />
   </ItemGroup>
