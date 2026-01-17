@@ -311,10 +311,7 @@ int main() {
 #endif
 
 // Todo - search and eval:
-// Transposition table and updates to move ordering
-// Enhanced move ordering - use bubble sort passes
 // Proper search routine based on time limit with iterative deepening
-// UCI
 
 // Todo - longer term core aims:
 // Improve board representation by removing if and conditionals in make/unmake move by using more of the 32 move bits?
