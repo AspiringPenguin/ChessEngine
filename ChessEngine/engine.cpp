@@ -3,6 +3,7 @@
 #include "eval.h"
 #include "moves.h"
 #include "moveGenHelpers.h"
+#include "tt.h"
 #include "zobrist.h"
 #include <algorithm>
 #include <exception>
@@ -1481,6 +1482,22 @@ namespace engine {
 		return moves::getMVVLVAScore(m);
 	}
 
+	move getNextMove(std::vector<move>& moves, int& moveN) {
+		if (moveN == moves.size()) {
+			return -1;
+		}
+
+		move _;
+		for (int i = 0; i < (moves.size() - 1 - moveN); i++) {
+			if (scoreMove(moves[i]) > scoreMove(moves[i + 1])) {
+				_ = moves[i + 1];
+				moves[i + 1] = moves[i];
+				moves[i] = _;
+			}
+		}
+		return moves[(moves.size() - 1 - moveN++)];
+	}
+
 	int negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
 			nodes++;
@@ -1495,11 +1512,9 @@ namespace engine {
 		int legalMoves = 0;
 		auto moves = generatePseudoLegalMoves();
 
-		std::sort(moves.begin(), moves.end(), [](const move& m1, const move& m2) {
-			return moves::getMVVLVAScore(m1) > moves::getMVVLVAScore(m2);
-		});
+		int moveN = 0;
 
-		for (auto& move : moves) {
+		for (move move = getNextMove(moves, moveN); move != -1; move = getNextMove(moves, moveN)){
 			makeMove(move);
 			if (!moveWasLegal()) {
 				undoMove();
@@ -1541,11 +1556,9 @@ namespace engine {
 		int captureMoves = 0;
 		auto moves = generatePseudoLegalQuiescenceMoves();
 
-		std::sort(moves.begin(), moves.end(), [](const move& m1, const move& m2) {
-			return moves::getMVVLVAScore(m1) > moves::getMVVLVAScore(m2);
-		});
+		int moveN = 0;
 
-		for (auto& move : moves) {
+		for (move move = getNextMove(moves, moveN); move != -1; move = getNextMove(moves, moveN)) {
 			makeMove(move);
 			if (!moveWasLegal()) {
 				undoMove();
@@ -1583,11 +1596,9 @@ namespace engine {
 		int legalMoves = 0;
 		auto moves = generatePseudoLegalMoves();
 
-		std::sort(moves.begin(), moves.end(), [](const move& m1, const move& m2) {
-			return moves::getMVVLVAScore(m1) > moves::getMVVLVAScore(m2);
-		});
+		int moveN = 0;
 
-		for (auto& move : moves) {
+		for (move move = getNextMove(moves, moveN); move != -1; move = getNextMove(moves, moveN)) {
 			makeMove(move);
 			if (!moveWasLegal()) {
 				undoMove();
