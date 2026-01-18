@@ -373,6 +373,8 @@ int main() {
     while (true) {
         std::getline(std::cin, cliInput, '\n');
 
+        s.resetNodes();
+
         if (cliInput == "uci") {
             std::cout << "id name AspireBot" << std::endl;
             std::cout << "id author AspiringPenguin" << std::endl;
