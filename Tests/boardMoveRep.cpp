@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 
 #include "moves.h"
+#include "perft.h"
 #include "position.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -454,6 +455,56 @@ namespace boardMoveRep
 			p.undoMove();
 
 			Assert::IsTrue(p.zobrist == 0x463b96181691fc9c);
+		}
+	};
+
+	TEST_CLASS(Perft) {
+		TEST_METHOD(StartDepth1) {
+			auto p = perft::PerftSearcher();
+
+			int res = p.go(1);
+
+			Assert::IsTrue(res == 20);
+		}
+
+		TEST_METHOD(StartDepth2) {
+			auto p = perft::PerftSearcher();
+
+			int res = p.go(2);
+
+			Assert::IsTrue(res == 400);
+		}
+
+		TEST_METHOD(StartDepth3) {
+			auto p = perft::PerftSearcher();
+
+			int res = p.go(3);
+
+			Assert::IsTrue(res == 8902);
+		}
+
+		TEST_METHOD(StartDepth4) {
+			auto p = perft::PerftSearcher();
+
+			int res = p.go(4);
+
+			Assert::IsTrue(res == 197281);
+		}
+
+		TEST_METHOD(StartDepth5) {
+			auto p = perft::PerftSearcher();
+
+			int res = p.go(5);
+
+			Assert::IsTrue(res == 4865609);
+		}
+
+		TEST_METHOD(StartDepth6) {
+			auto p = perft::PerftSearcher();
+
+			int res = p.go(6);
+
+			Assert::IsTrue(res == 119060324);
 		}
 	};
 }
