@@ -1321,6 +1321,25 @@ bool Position::moveWasLegal() {
 	return !(pawn || knight || bishopQueen || rookQueen || king);
 }
 
+bool Position::inCheck() {
+	//We want to check if the side to move
+	U64 kingBB = bitboards[wKing + (toMove << 3)];
+	square kingPos = square(SquareOf(kingBB));
+
+	//Check for each enemy piece type here
+	bool pawn = ((toMove == white) ? (((kingBB & ~bitboards::HFile) << 7) | ((kingBB & ~bitboards::AFile) << 9)) : (((kingBB & ~bitboards::HFile) >> 7) | ((kingBB & ~bitboards::AFile) >> 9))) & bitboards[wPawn + ((1 - toMove) << 3)];
+
+	bool knight = moveGen::knightLookup[kingPos] & bitboards[wKnight + ((1 - toMove) << 3)];
+
+	bool bishopQueen = moveGen::bishopMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::bishopPextMasks[kingPos])] & (bitboards[wBishop + ((1 - toMove) << 3)] | bitboards[wQueen + ((1 - toMove) << 3)]);
+
+	bool rookQueen = moveGen::rookMoveLookup[kingPos][_pext_u64(allBitboard, moveGen::rookPextMasks[kingPos])] & (bitboards[wRook + ((1 - toMove) << 3)] | bitboards[wQueen + ((1 - toMove) << 3)]);
+
+	bool king = moveGen::kingLookup[kingPos] & bitboards[wKing + ((1 - toMove) << 3)];
+
+	return (pawn || knight || bishopQueen || rookQueen || king);
+}
+
 //Specialised version for castling
 bool Position::castleWasLegal() {
 	const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called

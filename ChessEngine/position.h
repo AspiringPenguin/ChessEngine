@@ -74,6 +74,7 @@ public:
 	U64 getAttacked(color by);
 
 	bool moveWasLegal();
+	bool inCheck();
 	bool castleWasLegal();
 
 	move UCIMoveAsInternal(std::string m);
