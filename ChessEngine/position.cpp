@@ -1,4 +1,4 @@
-#include "position.h"
+#include "Position.h"
 #include "bitboards.h"
 #include "engine.h"
 #include "eval.h"
@@ -9,13 +9,13 @@
 #include <intrin.h>
 
 //Set up aggregate bitboards
-void position::updateBitboards() {
+void Position::updateBitboards() {
 	colorBitboards[white] = bitboards[wPawn] | bitboards[wKnight] | bitboards[wBishop] | bitboards[wRook] | bitboards[wQueen] | bitboards[wKing];
 	colorBitboards[black] = bitboards[bPawn] | bitboards[bKnight] | bitboards[bBishop] | bitboards[bRook] | bitboards[bQueen] | bitboards[bKing];
 	allBitboard = colorBitboards[white] | colorBitboards[black];
 }
 
-void position::showPosition(color perspective) {
+void Position::showPosition(color perspective) {
 	if (perspective == black) {
 		for (int y = 0; y < 8; y++) {
 			for (int x = 7; x >= 0; x--) {
@@ -34,7 +34,7 @@ void position::showPosition(color perspective) {
 	}
 }
 
-void position::loadStart() {
+void Position::loadStart() {
 	//Status stuff
 	toMove = white;
 	toMoveSigned = 1;
@@ -44,10 +44,10 @@ void position::loadStart() {
 	std::fill(std::begin(counters), std::end(counters), 0);
 	counter = 0; //50 move rule
 
-	//Clear draw position history
-	std::fill(std::begin(positions), std::end(positions), 0);
-	positionsHead = 0;
-	positionsTail = 0;
+	//Clear draw Position history
+	std::fill(std::begin(Positions), std::end(Positions), 0);
+	PositionsHead = 0;
+	PositionsTail = 0;
 
 	lastMove = 0;
 
@@ -139,8 +139,8 @@ void position::loadStart() {
 	//White to move
 	zobrist ^= zobrist::values[780];
 
-	positions[positionsTail] = zobrist;
-	positionsTail++;
+	Positions[PositionsTail] = zobrist;
+	PositionsTail++;
 
 	calculatePhase();
 	calculateMaterialStart();
@@ -149,7 +149,7 @@ void position::loadStart() {
 	calculateBonusesEnd();
 }
 
-void position::loadFEN(std::string fen) {
+void Position::loadFEN(std::string fen) {
 	//Reset some stuff
 	std::fill(std::begin(bitboards), std::end(bitboards), 0);
 	std::fill(std::begin(mailbox), std::end(mailbox), nullPiece);
@@ -165,10 +165,10 @@ void position::loadFEN(std::string fen) {
 	std::fill(std::begin(counters), std::end(counters), 0);
 	counter = 0; //50 move rule
 
-	//Clear draw position history
-	std::fill(std::begin(positions), std::end(positions), 0);
-	positionsHead = 0;
-	positionsTail = 0;
+	//Clear draw Position history
+	std::fill(std::begin(Positions), std::end(Positions), 0);
+	PositionsHead = 0;
+	PositionsTail = 0;
 
 	//Get info from FEN
 	const auto info = split(fen, " ");
@@ -270,8 +270,8 @@ void position::loadFEN(std::string fen) {
 		lastMove = 0;
 	}
 
-	positions[positionsTail] = zobrist;
-	positionsTail++;
+	Positions[PositionsTail] = zobrist;
+	PositionsTail++;
 
 	calculatePhase();
 	calculateMaterialStart();
@@ -280,7 +280,7 @@ void position::loadFEN(std::string fen) {
 	calculateBonusesEnd();
 }
 
-void position::makeMove(move& m, bool reversible) {
+void Position::makeMove(move& m, bool reversible) {
 	if (reversible) {
 		//Store this move at the incremented value of moveNum
 		moves[++moveNum] = m;
@@ -518,23 +518,23 @@ void position::makeMove(move& m, bool reversible) {
 		lastMove = m; //Update lastMove
 	}
 
-	//Add position to repetition history
-	positions[positionsTail] = zobrist;
-	positionsHead = (positionsHead == positionsTail) ? (positionsHead + 1) : positionsHead; //If we just overwrote the first element, increment positionsHead
-	positionsTail++; //Increment the tail
+	//Add Position to repetition history
+	Positions[PositionsTail] = zobrist;
+	PositionsHead = (PositionsHead == PositionsTail) ? (PositionsHead + 1) : PositionsHead; //If we just overwrote the first element, increment PositionsHead
+	PositionsTail++; //Increment the tail
 
 	//If both greater or equal to numPositions subtract numPositions
-	if (positionsHead >= numPositions && positionsTail >= numPositions) {
-		positionsHead -= numPositions;
-		positionsTail -= numPositions;
+	if (PositionsHead >= numPositions && PositionsTail >= numPositions) {
+		PositionsHead -= numPositions;
+		PositionsTail -= numPositions;
 	}
 }
 
-void position::makeMove(move& m) {
+void Position::makeMove(move& m) {
 	makeMove(m, true);
 }
 
-void position::undoMove() {
+void Position::undoMove() {
 	if (moveNum == -1) {
 		throw std::out_of_range("Undo move was attempted with no moves to undo.");
 	}
@@ -753,17 +753,17 @@ void position::undoMove() {
 	toMoveSigned = -1 * toMoveSigned;
 	zobrist ^= zobrist::values[780];
 
-	positionsTail--; //Remove the positions just by decrementing the tail - it will be overwritten when necessary in makeMove
+	PositionsTail--; //Remove the Positions just by decrementing the tail - it will be overwritten when necessary in makeMove
 }
 
-bool position::isDraw() {
+bool Position::isDraw() {
 	if (counter == 100) {
 		return true;
 	}
 	//Repetition
 	int count = 0;
-	for (int i = positionsHead; i <= positionsTail; i++) {
-		count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
+	for (int i = PositionsHead; i <= PositionsTail; i++) {
+		count = (Positions[i % numPositions] == zobrist) ? count + 1 : count;
 	}
 	if (count == 3) {
 		return true;
@@ -797,7 +797,7 @@ bool position::isDraw() {
 	return false; //Stalemate is handled in eval
 }
 
-std::vector<move> position::generatePseudoLegalMoves() {
+std::vector<move> Position::generatePseudoLegalMoves() {
 	auto generatedMoves = std::vector<move>();
 	generatedMoves.reserve(218);
 
@@ -1063,7 +1063,7 @@ std::vector<move> position::generatePseudoLegalMoves() {
 	return generatedMoves;
 }
 
-std::vector<move> position::generatePseudoLegalQuiescenceMoves() {
+std::vector<move> Position::generatePseudoLegalQuiescenceMoves() {
 	auto generatedMoves = std::vector<move>();
 	generatedMoves.reserve(218);
 
@@ -1244,7 +1244,7 @@ std::vector<move> position::generatePseudoLegalQuiescenceMoves() {
 	return generatedMoves;
 }
 
-U64 position::getAttacked(color by) {
+U64 Position::getAttacked(color by) {
 	U64 attacks = 0;
 	U64 pieceBB;
 	square from;
@@ -1288,7 +1288,7 @@ U64 position::getAttacked(color by) {
 	return attacks;
 }
 
-bool position::moveWasLegal() {
+bool Position::moveWasLegal() {
 	const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called
 
 	if ((moves::getPiece(_lastMove) & 0b0111) == 6 && std::abs(moves::getFrom(_lastMove) - moves::getTo(_lastMove)) == 2) {
@@ -1314,7 +1314,7 @@ bool position::moveWasLegal() {
 }
 
 //Specialised version for castling
-bool position::castleWasLegal() {
+bool Position::castleWasLegal() {
 	const move _lastMove = moves[moveNum]; //We have a problem if moveNum is -1 and this is being called
 
 	U64 squares = 0xFFFFFFFFFFFFFFFF;
@@ -1337,7 +1337,7 @@ bool position::castleWasLegal() {
 	return ((squares & getAttacked(toMove)) == 0);
 }
 
-move position::UCIMoveAsInternal(std::string m) {
+move Position::UCIMoveAsInternal(std::string m) {
 	square from = stringToSquare(m.substr(0, 2));
 	square to = stringToSquare(m.substr(2, 2));
 

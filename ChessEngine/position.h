@@ -4,7 +4,7 @@
 
 constexpr int numPositions = 100 + maxDepth; //So we still have accurate history after making and unmaking lots of moves
 
-class position {
+class Position {
 protected:
 	std::array<piece, 64> mailbox{ }; //Initialise as 0s = empty
 	U64 bitboards[16]{ }; //Initialise as 0s
