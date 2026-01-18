@@ -8,6 +8,15 @@
 #include <iostream>
 #include <intrin.h>
 
+//Constructors
+Position::Position() {
+	loadStart();
+}
+
+Position::Position(const std::string& fen) {
+	loadFEN(fen);
+}
+
 //Set up aggregate bitboards
 void Position::updateBitboards() {
 	colorBitboards[white] = bitboards[wPawn] | bitboards[wKnight] | bitboards[wBishop] | bitboards[wRook] | bitboards[wQueen] | bitboards[wKing];

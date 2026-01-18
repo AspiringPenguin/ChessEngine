@@ -54,6 +54,9 @@ protected:
 	void calculateBonusesStart();
 	void calculateBonusesEnd();
 public:
+	Position();
+	Position(const std::string& fen);
+
 	void showPosition(color perspective = white);
 
 	void loadStart();
