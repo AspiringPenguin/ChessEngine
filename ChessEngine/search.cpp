@@ -39,10 +39,12 @@ namespace search {
 
 	Searcher::Searcher() {
 		p = Position();
+		nodes = 0;
 	}
 
 	Searcher::Searcher(const std::string& fen) {
 		p = Position(fen);
+		nodes = 0;
 	}
 
 	void Searcher::loadStart() {
@@ -193,6 +195,9 @@ namespace search {
 		auto start = std::chrono::high_resolution_clock::now();
 		int depth = 0;
 		move bestMove = -1;
+
+		auto moves = p.generatePseudoLegalMoves();
+
 		//While elapsed time is less than the ideal search time
 		while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal) {
 			depth++;
@@ -202,7 +207,6 @@ namespace search {
 			move _bestMove = -1;
 			int bestVal = -10000;
 
-			auto moves = p.generatePseudoLegalMoves();
 			int moveN = 0;
 
 			int score;
