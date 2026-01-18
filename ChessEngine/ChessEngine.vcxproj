@@ -489,6 +489,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="moveGenHelpers.cpp" />
     <ClCompile Include="moves.cpp" />
+    <ClCompile Include="perft.cpp" />
     <ClCompile Include="position.cpp" />
     <ClCompile Include="tt.cpp" />
     <ClCompile Include="zobrist.cpp" />
@@ -501,6 +502,7 @@
     <ClInclude Include="eval.h" />
     <ClInclude Include="moveGenHelpers.h" />
     <ClInclude Include="moves.h" />
+    <ClInclude Include="perft.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="tt.h" />
     <ClInclude Include="zobrist.h" />
