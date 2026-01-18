@@ -60,10 +60,10 @@ public:
 	void showPosition(color perspective = white);
 
 	void loadStart();
-	void loadFEN(std::string fen);
+	void loadFEN(const std::string& fen);
 
-	void makeMove(move& m);
-	void makeMove(move& m, bool reversible);
+	void makeMove(const move& m);
+	void makeMove(const move& m, bool reversible);
 	void undoMove();
 
 	bool isDraw();

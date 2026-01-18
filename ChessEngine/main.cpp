@@ -3,12 +3,7 @@
 #include <chrono> //For timing
 #include <iostream>
 
-#include "bitboards.h"
-#include "book.h"
-#include "engine.h"
-#include "moves.h"
-#include "moveGenHelpers.h"
-#include "tt.h"
+#include "search.h"
 
 //#ifdef PERFT
 //int main() {
@@ -353,7 +348,10 @@
 
 #ifdef TEST
 int main() {
-    return 0;
+    auto p = search::Searcher();
+    p.showPosition();
+    p.makeMove(moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false));
+    p.showPosition();
 }
 #endif
 

@@ -1,7 +1,6 @@
 #include "search.h"
 
 namespace search {
-	/* copy-pasted from engine.h
 	int scoreMove(const move& m, const move& ttMove) {
 		if (m == ttMove) {
 			return 255;
@@ -24,6 +23,25 @@ namespace search {
 		}
 		return moves[(moves.size() - 1 - moveN++)];
 	}
+
+	Searcher::Searcher() {
+		p = Position();
+	}
+
+	Searcher::Searcher(const std::string& fen) {
+		p = Position(fen);
+	}
+
+	void Searcher::makeMove(const move& m) {
+		p.makeMove(m, false);
+	}
+
+	void Searcher::showPosition() {
+		p.showPosition();
+	}
+
+	/* copy-pasted from engine.h
+	
 
 	int negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {

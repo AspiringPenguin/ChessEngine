@@ -1,6 +1,5 @@
-#include "Position.h"
+#include "position.h"
 #include "bitboards.h"
-#include "engine.h"
 #include "eval.h"
 #include "moves.h"
 #include "moveGenHelpers.h"
@@ -158,7 +157,7 @@ void Position::loadStart() {
 	calculateBonusesEnd();
 }
 
-void Position::loadFEN(std::string fen) {
+void Position::loadFEN(const std::string& fen) {
 	//Reset some stuff
 	std::fill(std::begin(bitboards), std::end(bitboards), 0);
 	std::fill(std::begin(mailbox), std::end(mailbox), nullPiece);
@@ -289,7 +288,7 @@ void Position::loadFEN(std::string fen) {
 	calculateBonusesEnd();
 }
 
-void Position::makeMove(move& m, bool reversible) {
+void Position::makeMove(const move& m, bool reversible) {
 	if (reversible) {
 		//Store this move at the incremented value of moveNum
 		moves[++moveNum] = m;
@@ -539,7 +538,7 @@ void Position::makeMove(move& m, bool reversible) {
 	}
 }
 
-void Position::makeMove(move& m) {
+void Position::makeMove(const move& m) {
 	makeMove(m, true);
 }
 
