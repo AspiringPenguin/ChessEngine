@@ -506,5 +506,165 @@ namespace boardMoveRep
 
 			Assert::IsTrue(res == 119060324);
 		}
+
+		TEST_METHOD(KiwipeteDepth1) {
+			auto p = perft::PerftSearcher("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+
+			int res = p.go(1);
+
+			Assert::IsTrue(res == 48);
+		}
+
+		TEST_METHOD(KiwipeteDepth2) {
+			auto p = perft::PerftSearcher("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+
+			int res = p.go(2);
+
+			Assert::IsTrue(res == 2039);
+		}
+
+		TEST_METHOD(KiwipeteDepth3) {
+			auto p = perft::PerftSearcher("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+
+			int res = p.go(3);
+
+			Assert::IsTrue(res == 97862);
+		}
+
+		TEST_METHOD(KiwipeteDepth4) {
+			auto p = perft::PerftSearcher("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+
+			int res = p.go(4);
+
+			Assert::IsTrue(res == 4085603);
+		}
+
+		TEST_METHOD(KiwipeteDepth5) {
+			auto p = perft::PerftSearcher("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+
+			int res = p.go(5);
+
+			Assert::IsTrue(res == 193690690);
+		}
+
+		TEST_METHOD(Position3Depth1) {
+			auto p = perft::PerftSearcher("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+
+			int res = p.go(1);
+
+			Assert::IsTrue(res == 14);
+		}
+
+		TEST_METHOD(Position3Depth2) {
+			auto p = perft::PerftSearcher("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+
+			int res = p.go(2);
+
+			Assert::IsTrue(res == 191);
+		}
+
+		TEST_METHOD(Position3Depth3) {
+			auto p = perft::PerftSearcher("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+
+			int res = p.go(3);
+
+			Assert::IsTrue(res == 2812);
+		}
+
+		TEST_METHOD(Position3Depth4) {
+			auto p = perft::PerftSearcher("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+
+			int res = p.go(4);
+
+			Assert::IsTrue(res == 43238);
+		}
+
+		TEST_METHOD(Position3Depth5) {
+			auto p = perft::PerftSearcher("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+
+			int res = p.go(5);
+
+			Assert::IsTrue(res == 674624);
+		}
+
+		TEST_METHOD(Position3Depth6) {
+			auto p = perft::PerftSearcher("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
+
+			int res = p.go(6);
+
+			Assert::IsTrue(res == 11030083);
+		}
+
+		TEST_METHOD(Position4Depth1) {
+			auto p = perft::PerftSearcher("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+
+			int res = p.go(1);
+
+			Assert::IsTrue(res == 6);
+		}
+
+		TEST_METHOD(Position4Depth2) {
+			auto p = perft::PerftSearcher("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+
+			int res = p.go(2);
+
+			Assert::IsTrue(res == 264);
+		}
+
+		TEST_METHOD(Position4Depth3) {
+			auto p = perft::PerftSearcher("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+
+			int res = p.go(3);
+
+			Assert::IsTrue(res == 9467);
+		}
+
+		TEST_METHOD(Position4Depth4) {
+			auto p = perft::PerftSearcher("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+
+			int res = p.go(4);
+
+			Assert::IsTrue(res == 422333);
+		}
+
+		TEST_METHOD(Position4Depth5) {
+			auto p = perft::PerftSearcher("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+
+			int res = p.go(5);
+
+			Assert::IsTrue(res == 15833292);
+		}
+
+		TEST_METHOD(Position5Depth1) {
+			auto p = perft::PerftSearcher("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+
+			int res = p.go(1);
+
+			Assert::IsTrue(res == 44);
+		}
+
+		TEST_METHOD(Position5Depth2) {
+			auto p = perft::PerftSearcher("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+
+			int res = p.go(2);
+
+			Assert::IsTrue(res == 1486);
+		}
+
+		TEST_METHOD(Position5Depth3) {
+			auto p = perft::PerftSearcher("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+
+			int res = p.go(3);
+
+			Assert::IsTrue(res == 62379);
+		}
+
+		TEST_METHOD(Position5Depth4) {
+			auto p = perft::PerftSearcher("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+
+			int res = p.go(4);
+
+			Assert::IsTrue(res == 2103487);
+		}
 	};
 }
