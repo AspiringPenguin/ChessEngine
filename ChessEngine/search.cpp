@@ -105,7 +105,7 @@ namespace search {
 		bool raisedAlpha = false;
 
 		for (move move = getNextMove(moves, moveN, ttMove); move != -1; move = getNextMove(moves, moveN, ttMove)) {
-			makeMove(move);
+			p.makeMove(move);
 			if (!p.moveWasLegal()) {
 				p.undoMove();
 				continue;
@@ -160,7 +160,7 @@ namespace search {
 		int moveN = 0;
 
 		for (move move = getNextMove(moves, moveN, -1); move != -1; move = getNextMove(moves, moveN, -1)) {
-			makeMove(move);
+			p.makeMove(move);
 			if (!p.moveWasLegal()) {
 				p.undoMove();
 				continue;
@@ -199,7 +199,7 @@ namespace search {
 		auto moves = p.generatePseudoLegalMoves();
 
 		//While elapsed time is less than the ideal search time
-		while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal) {
+		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal) {
 			depth++;
 
 			std::cout << "info depth " << depth << std::endl;
@@ -224,7 +224,7 @@ namespace search {
 					*stop = true;
 					break;
 				}
-				else if (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() > max) {
+				else if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max) {
 					*stop = true;
 					break;
 				}
@@ -234,8 +234,6 @@ namespace search {
 					p.undoMove();
 					continue;
 				}
-
-				moves::showMove(move);
 
 				legalMoves++;
 				score = -negamax(-beta, -alpha, depth + 1, depth - 1);
