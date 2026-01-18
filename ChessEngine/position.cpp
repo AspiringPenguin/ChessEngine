@@ -1384,3 +1384,73 @@ move Position::UCIMoveAsInternal(std::string m) {
 
 	return moves::encodeNormal(from, to, p, capture, false, false, wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
 }
+
+//Eval - use this as a base to call stuff from eval to reduce code complexity here, while retaining easy access to incremental value updates
+int Position::evaluate() { //In centipawns
+	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase); // +tempo;
+}
+
+//Incremental update full calculations
+//For FEN loading and reset - incrementally update the rest
+void Position::calculatePhase() { 
+	phase = 0;
+	for (const piece& p : mailbox) {
+		phase += eval::piecePhases[p];
+	}
+}
+
+void Position::calculateMaterialStart() {
+	materialStart = 0;
+
+	for (const piece& p : mailbox) {
+		materialStart += eval::pieceValuesStart[p];
+	}
+}
+
+void Position::calculateMaterialEnd() {
+	materialEnd = 0;
+
+	for (const piece& p : mailbox) {
+		materialEnd += eval::pieceValuesEnd[p];
+	}
+}
+
+void Position::calculateBonusesStart() {
+	bonusesStart = 0;
+
+	for (int i = -1; const piece& p : mailbox) {
+		i++;
+		if (p == nullPiece) {
+			continue;
+		}
+		if ((p >> 3) == white) {
+			bonusesStart += eval::pieceBonusesStart[(p & 0b111) - 1][i ^ 56];
+		}
+		else {
+			#pragma warning(push)
+			#pragma warning(disable:6385)
+			bonusesStart -= eval::pieceBonusesStart[(p & 0b111) - 1][i];
+			#pragma warning(pop)
+		}
+	}
+}
+
+void Position::calculateBonusesEnd() {
+	bonusesEnd = 0;
+
+	for (int i = -1; const piece& p : mailbox) {
+		i++;
+		if (p == nullPiece) {
+			continue;
+		}
+		if ((p >> 3) == white) {
+			bonusesEnd += eval::pieceBonusesEnd[(p & 0b111) - 1][i ^ 56];
+		}
+		else {
+			#pragma warning(push)
+			#pragma warning(disable:6385)
+			bonusesEnd -= eval::pieceBonusesEnd[(p & 0b111) - 1][i];
+			#pragma warning(pop)
+		}
+	}
+}

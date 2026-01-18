@@ -46,6 +46,13 @@ protected:
 	square enPassantSquare = nullSquare;
 
 	void updateBitboards();
+
+	void calculatePhase();
+	void calculateMaterialStart();
+	void calculateMaterialEnd();
+
+	void calculateBonusesStart();
+	void calculateBonusesEnd();
 public:
 	void showPosition(color perspective = white);
 
@@ -67,4 +74,6 @@ public:
 	bool castleWasLegal();
 
 	move UCIMoveAsInternal(std::string m);
+
+	int evaluate();
 };
