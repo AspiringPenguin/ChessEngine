@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 
-#include "engine.h"
 #include "moves.h"
+#include "position.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -160,53 +160,53 @@ namespace boardMoveRep
 	TEST_CLASS(BoardSetupZobrist) {
 		//Zobrist hashes
 		TEST_METHOD(ResetZobrist) {
-			engine::reset();
-			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+			auto p = Position();
+			Assert::IsTrue(p.zobrist == 0x463b96181691fc9c);
 		}
 
 		TEST_METHOD(FENZobrist1) {
-			engine::loadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+			auto p = Position("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			Assert::IsTrue(p.zobrist == 0x463b96181691fc9c);
 		}
 
 		TEST_METHOD(FENZobrist2) {
-			engine::loadFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-			Assert::IsTrue(engine::getZobrist() == 0x823c9b50fd114196);
+			auto p = Position("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+			Assert::IsTrue(p.zobrist == 0x823c9b50fd114196);
 		}
 
 		TEST_METHOD(FENZobrist3) {
-			engine::loadFEN("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2");
-			Assert::IsTrue(engine::getZobrist() == 0x0756b94461c50fb0);
+			auto p = Position("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2");
+			Assert::IsTrue(p.zobrist == 0x0756b94461c50fb0);
 		}
 
 		TEST_METHOD(FENZobrist4) {
-			engine::loadFEN("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2");
-			Assert::IsTrue(engine::getZobrist() == 0x662fafb965db29d4);
+			auto p = Position("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2");
+			Assert::IsTrue(p.zobrist == 0x662fafb965db29d4);
 		}
 
 		TEST_METHOD(FENZobrist5) {
-			engine::loadFEN("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3");
-			Assert::IsTrue(engine::getZobrist() == 0x22a48b5a8e47ff78);
+			auto p = Position("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3");
+			Assert::IsTrue(p.zobrist == 0x22a48b5a8e47ff78);
 		}
 
 		TEST_METHOD(FENZobrist6) {
-			engine::loadFEN("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3");
-			Assert::IsTrue(engine::getZobrist() == 0x652a607ca3f242c1);
+			auto p = Position("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3");
+			Assert::IsTrue(p.zobrist == 0x652a607ca3f242c1);
 		}
 
 		TEST_METHOD(FENZobrist7) {
-			engine::loadFEN("rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4");
-			Assert::IsTrue(engine::getZobrist() == 0x00fdd303c946bdd9);
+			auto p = Position("rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4");
+			Assert::IsTrue(p.zobrist == 0x00fdd303c946bdd9);
 		}
 
 		TEST_METHOD(FENZobrist8) {
-			engine::loadFEN("rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3");
-			Assert::IsTrue(engine::getZobrist() == 0x3c8123ea7b067637);
+			auto p = Position("rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3");
+			Assert::IsTrue(p.zobrist == 0x3c8123ea7b067637);
 		}
 
 		TEST_METHOD(FENZobrist9) {
-			engine::loadFEN("rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4");
-			Assert::IsTrue(engine::getZobrist() == 0x5c3f9b829b279560);
+			auto p = Position("rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4");
+			Assert::IsTrue(p.zobrist == 0x5c3f9b829b279560);
 		}
 	};
 
@@ -214,7 +214,7 @@ namespace boardMoveRep
 		//Test crudely by checking the zobrist hash after applying multiple moves, and after undoing them all.
 
 		TEST_METHOD(DoublePushOnlyApply) {
-			engine::reset();
+			auto p = Position();
 
 			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
 			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
@@ -227,22 +227,22 @@ namespace boardMoveRep
 			move m9 = moves::encodeNormal(C1, E3, wBishop, nullPiece, false, false, false, false, false, false);
 			move m10 = moves::encodeNormal(C8, G4, bBishop, nullPiece, false, false, false, false, false, false);
 			
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
-			engine::makeMove(m8);
-			engine::makeMove(m9);
-			engine::makeMove(m10);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
+			p.makeMove(m8);
+			p.makeMove(m9);
+			p.makeMove(m10);
 
-			Assert::IsTrue(engine::getZobrist() == 0x2d7dfd097f29cb4e);
+			Assert::IsTrue(p.zobrist == 0x2d7dfd097f29cb4e);
 		}
 
 		TEST_METHOD(DoublePushOnlyUndo) {
-			engine::reset();
+			auto p = Position();
 
 			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
 			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
@@ -255,33 +255,33 @@ namespace boardMoveRep
 			move m9 = moves::encodeNormal(C1, E3, wBishop, nullPiece, false, false, false, false, false, false);
 			move m10 = moves::encodeNormal(C8, G4, bBishop, nullPiece, false, false, false, false, false, false);
 
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
-			engine::makeMove(m8);
-			engine::makeMove(m9);
-			engine::makeMove(m10);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
+			p.makeMove(m8);
+			p.makeMove(m9);
+			p.makeMove(m10);
 
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
 
-			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+			Assert::IsTrue(p.zobrist == 0x463b96181691fc9c);
 		}
 
 		TEST_METHOD(EnPassantApply) {
-			engine::reset();
+			auto p = Position();
 			
 			move m1 = moves::encodeNormal(A2, A4, wPawn, nullPiece, false, true, false, false, false, false);
 			move m2 = moves::encodeNormal(B7, B5, bPawn, nullPiece, false, true, false, false, false, false);
@@ -291,19 +291,19 @@ namespace boardMoveRep
 			move m6 = moves::encodeNormal(B4, C3, bPawn, wPawn, true, false, false, false, false, false);
 			move m7 = moves::encodeNormal(A1, A3, wRook, nullPiece, false, false, false, true, false, false);
 
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
 
-			Assert::IsTrue(engine::getZobrist() == 0x5c3f9b829b279560);
+			Assert::IsTrue(p.zobrist = 0x5c3f9b829b279560);
 		}
 
 		TEST_METHOD(EnPassantUndo) {
-			engine::reset();
+			auto p = Position();
 
 			move m1 = moves::encodeNormal(A2, A4, wPawn, nullPiece, false, true, false, false, false, false);
 			move m2 = moves::encodeNormal(B7, B5, bPawn, nullPiece, false, true, false, false, false, false);
@@ -313,27 +313,27 @@ namespace boardMoveRep
 			move m6 = moves::encodeNormal(B4, C3, bPawn, wPawn, true, false, false, false, false, false);
 			move m7 = moves::encodeNormal(A1, A3, wRook, nullPiece, false, false, false, true, false, false);
 
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
 
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
 
-			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+			Assert::IsTrue(p.zobrist == 0x463b96181691fc9c);
 		}
 
 		TEST_METHOD(KingsideApply) {
-			engine::reset();
+			auto p = Position();
 
 			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
 			move m2 = moves::encodeNormal(E7, E5, bPawn, nullPiece, false, true, false, false, false, false);
@@ -344,29 +344,20 @@ namespace boardMoveRep
 			move m7 = moves::encodeCastle(white, false, true, true, true, true);
 			move m8 = moves::encodeCastle(black, false, false, false, true, true);
 
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
-			engine::makeMove(m8);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
+			p.makeMove(m8);
 
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-
-			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+			Assert::IsTrue(p.zobrist == 0x0d4611bae4d8b8a7);
 		}
 
 		TEST_METHOD(KingsideUndo) {
-			engine::reset();
+			auto p = Position();
 
 			move m1 = moves::encodeNormal(E2, E4, wPawn, nullPiece, false, true, false, false, false, false);
 			move m2 = moves::encodeNormal(E7, E5, bPawn, nullPiece, false, true, false, false, false, false);
@@ -377,18 +368,29 @@ namespace boardMoveRep
 			move m7 = moves::encodeCastle(white, false, true, true, true, true);
 			move m8 = moves::encodeCastle(black, false, false, false, true, true);
 
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
-			engine::makeMove(m8);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
+			p.makeMove(m8);
+
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+
+			Assert::IsTrue(p.zobrist == 0x463b96181691fc9c);
 		}
 
 		TEST_METHOD(QueensideApply) {
-			engine::reset();
+			auto p = Position();
 
 			move m1 = moves::encodeNormal(D2, D3, wPawn, nullPiece, false, false, false, false, false, false);
 			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
@@ -401,22 +403,22 @@ namespace boardMoveRep
 			move m9 = moves::encodeCastle(white, true, true, true, true, true);
 			move m10 = moves::encodeCastle(black, true, false, false, true, true);
 
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
-			engine::makeMove(m8);
-			engine::makeMove(m9);
-			engine::makeMove(m10);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
+			p.makeMove(m8);
+			p.makeMove(m9);
+			p.makeMove(m10);
 
-			Assert::IsTrue(engine::getZobrist() == 0x987ff0f0beae1834);
+			Assert::IsTrue(p.zobrist == 0x987ff0f0beae1834);
 		}
 
 		TEST_METHOD(QueensideUndo) {
-			engine::reset();
+			auto p = Position();
 
 			move m1 = moves::encodeNormal(D2, D3, wPawn, nullPiece, false, false, false, false, false, false);
 			move m2 = moves::encodeNormal(D7, D6, bPawn, nullPiece, false, false, false, false, false, false);
@@ -429,29 +431,29 @@ namespace boardMoveRep
 			move m9 = moves::encodeCastle(white, true, true, true, true, true);
 			move m10 = moves::encodeCastle(black, true, false, false, true, true);
 
-			engine::makeMove(m1);
-			engine::makeMove(m2);
-			engine::makeMove(m3);
-			engine::makeMove(m4);
-			engine::makeMove(m5);
-			engine::makeMove(m6);
-			engine::makeMove(m7);
-			engine::makeMove(m8);
-			engine::makeMove(m9);
-			engine::makeMove(m10);
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+			p.makeMove(m5);
+			p.makeMove(m6);
+			p.makeMove(m7);
+			p.makeMove(m8);
+			p.makeMove(m9);
+			p.makeMove(m10);
 
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
-			engine::undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
+			p.undoMove();
 
-			Assert::IsTrue(engine::getZobrist() == 0x463b96181691fc9c);
+			Assert::IsTrue(p.zobrist == 0x463b96181691fc9c);
 		}
 	};
 }

@@ -11,8 +11,6 @@ protected:
 	U64 colorBitboards[2]{ }; //0 = white, 1 = black
 	U64 allBitboard = 0;
 
-	U64 zobrist = 0;
-
 	move moves[maxDepth]{};
 	int counters[maxDepth]{}; //For resetting of 50 move clock - the counter before the matching move was applied
 	move lastMove; //Keep the last move at the root here - the last irreversible move
@@ -54,6 +52,8 @@ protected:
 	void calculateBonusesStart();
 	void calculateBonusesEnd();
 public:
+	U64 zobrist = 0;
+
 	Position();
 	Position(const std::string& fen);
 
