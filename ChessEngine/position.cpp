@@ -43,6 +43,9 @@ void Position::showPosition(color perspective) {
 }
 
 void Position::loadStart() {
+	//Clear bitboards
+	std::fill(std::begin(bitboards), std::end(bitboards), 0);
+
 	//Status stuff
 	toMove = white;
 	toMoveSigned = 1;

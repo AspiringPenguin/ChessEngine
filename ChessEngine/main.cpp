@@ -389,6 +389,8 @@ int main() {
             tt::setSize(128);
         }
         else if (cliInput.substr(0, 2) == "go") {
+            stop = false;
+
             chunks = split(cliInput, " ");
 
             chunkPos = 1;

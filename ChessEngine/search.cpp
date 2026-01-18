@@ -208,7 +208,12 @@ namespace search {
 
 		//While elapsed time is less than the ideal search time
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal) {
-			depth++;
+			depth++; 
+			
+			if (depth > maxDepth) {
+				*stop = true;
+				break;
+			}
 
 			std::cout << "info depth " << depth << std::endl;
 
@@ -226,10 +231,6 @@ namespace search {
 
 			for (move move = getNextMove(moves, moveN, bestMove); move != -1; move = getNextMove(moves, moveN, bestMove)) {
 				if (*stop) {
-					break;
-				}
-				else if (depth > maxDepth) {
-					*stop = true;
 					break;
 				}
 				else if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max) {
