@@ -24,9 +24,6 @@ protected:
 
 	int moveNum = -1;
 
-	color toMove;
-	int toMoveSigned;
-
 	//Eval stuff
 	int phase;
 	int materialStart;
@@ -53,6 +50,9 @@ protected:
 	void calculateBonusesEnd();
 public:
 	U64 zobrist = 0;
+
+	color toMove;
+	int toMoveSigned;
 
 	Position();
 	Position(const std::string& fen);

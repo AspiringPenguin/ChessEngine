@@ -1,4 +1,5 @@
 #include "search.h"
+#include "tt.h"
 
 namespace search {
 	int scoreMove(const move& m, const move& ttMove) {
@@ -40,20 +41,25 @@ namespace search {
 		p.showPosition();
 	}
 
-	/* copy-pasted from engine.h
-	
+	int Searcher::getNodes() {
+		return nodes;
+	}
 
-	int negamax(int alpha, int beta, int depth, int depthRemaining) {
+	void Searcher::resetNodes() {
+		nodes = 0;
+	}
+
+	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
 			nodes++;
 			return negamaxQuiescence(alpha, beta, depth);
 		}
-		else if (isDraw()) {
+		else if (p.isDraw()) {
 			nodes++;
 			return 0;
 		}
 
-		auto ttResult = tt::ttProbe(zobrist, alpha, beta, depthRemaining);
+		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
 		auto resultType = std::get<0>(ttResult);
 
 		if (resultType == tt::ttScore) {
@@ -65,7 +71,7 @@ namespace search {
 		int bestVal = -100000;
 		int score;
 		int legalMoves = 0;
-		auto moves = generatePseudoLegalMoves();
+		auto moves = p.generatePseudoLegalMoves();
 
 		int moveN = 0;
 
@@ -74,13 +80,13 @@ namespace search {
 
 		for (move move = getNextMove(moves, moveN, ttMove); move != -1; move = getNextMove(moves, moveN, ttMove)) {
 			makeMove(move);
-			if (!moveWasLegal()) {
-				undoMove();
+			if (!p.moveWasLegal()) {
+				p.undoMove();
 				continue;
 			}
 			legalMoves++;
 			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1);
-			undoMove();
+			p.undoMove();
 
 			if (score > bestVal) {
 				bestVal = score;
@@ -90,7 +96,7 @@ namespace search {
 				}
 			}
 			if (score >= beta) {
-				tt::ttStore(zobrist, score, move, depthRemaining, tt::lowerBound, firstMove);
+				tt::ttStore(p.zobrist, score, move, depthRemaining, tt::lowerBound, firstMove);
 				return bestVal;
 			}
 
@@ -99,43 +105,43 @@ namespace search {
 
 		if (legalMoves == 0) {
 			nodes++;
-			if (inCheck()) { //Checkmate
+			if (p.inCheck()) { //Checkmate
 				return (-100000 + depth);
 			}
 			return 0; //Stalemate
 		}
 
 		if (raisedAlpha) { //Exact
-			tt::ttStore(zobrist, score, -1, depthRemaining, tt::exact, false);
+			tt::ttStore(p.zobrist, score, -1, depthRemaining, tt::exact, false);
 		}
 		else { //Upper bound
-			tt::ttStore(zobrist, score, -1, depthRemaining, tt::upperBound, false);
+			tt::ttStore(p.zobrist, score, -1, depthRemaining, tt::upperBound, false);
 		}
 
 		return bestVal;
 	}
 
-	int negamaxQuiescence(int alpha, int beta, int depth) {
-		if (isDraw()) {
+	int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
+		if (p.isDraw()) {
 			nodes++;
 			return 0;
 		}
 		int bestVal = -100000;
 		int score;
 		int captureMoves = 0;
-		auto moves = generatePseudoLegalQuiescenceMoves();
+		auto moves = p.generatePseudoLegalQuiescenceMoves();
 
 		int moveN = 0;
 
 		for (move move = getNextMove(moves, moveN, -1); move != -1; move = getNextMove(moves, moveN, -1)) {
 			makeMove(move);
-			if (!moveWasLegal()) {
-				undoMove();
+			if (!p.moveWasLegal()) {
+				p.undoMove();
 				continue;
 			}
 			captureMoves++;
 			score = -negamaxQuiescence(-beta, -alpha, depth + 1);
-			undoMove();
+			p.undoMove();
 
 			if (score > bestVal) {
 				bestVal = score;
@@ -150,52 +156,9 @@ namespace search {
 
 		if (captureMoves == 0) {
 			nodes++;
-			return evaluate() * toMoveSigned;
+			return p.evaluate() * p.toMoveSigned;
 		}
 
 		return bestVal;
 	}
-
-	move negamaxSearch(int depth) {
-		int bestVal = -100000;
-		move bestMove = -1;
-		int alpha = -100000;
-		int beta = 100000;
-		int score;
-		int legalMoves = 0;
-		auto moves = generatePseudoLegalMoves();
-
-		int moveN = 0;
-
-		for (move move = getNextMove(moves, moveN, -1); move != -1; move = getNextMove(moves, moveN, -1)) {
-			makeMove(move);
-			if (!moveWasLegal()) {
-				undoMove();
-				continue;
-			}
-			legalMoves++;
-			score = -negamax(-beta, -alpha, 1, depth - 1);
-			undoMove();
-
-			if (score > bestVal) {
-				bestVal = score;
-				bestMove = move;
-				if (score > alpha) {
-					alpha = score;
-				}
-			}
-			if (score >= beta) {
-				return bestMove;
-			}
-		}
-
-		if (legalMoves == 0) {
-			if (inCheck()) { //Checkmate
-				return -1;
-			}
-			return -1; //Stalemate
-		}
-
-		return bestMove;
-	}*/
 }
