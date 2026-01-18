@@ -1,3 +1,4 @@
+#include "book.h"
 #include "search.h"
 #include "tt.h"
 
@@ -190,6 +191,13 @@ namespace search {
 
 	//High level search
 	move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
+		if (useBook) {
+			if (book::book.contains(p.zobrist)) {
+				std::string stringMove = book::chooseMove(book::book[p.zobrist]);
+				return p.UCIMoveAsInternal(stringMove);
+			}
+		}
+
 		auto [ideal, max] = getIdealAndMaxTimes(wtime, btime, winc, binc, p.toMove);
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -251,7 +259,8 @@ namespace search {
 			if (!(*stop)) { //if we weren't interrupted
 				bestMove = _bestMove; //update best move
 
-				std::cout << "info score cp " << bestVal * p.toMoveSigned << " depth " << depth << " nodes " << nodes << std::endl;
+				std::cout << "info score cp " << bestVal * p.toMoveSigned << " depth " << depth << " nodes " << nodes << " pv ";
+				moves::showMove(bestMove);
 			}
 		}
 		
