@@ -1,6 +1,8 @@
 #include "search.h"
 #include "tt.h"
 
+#include <chrono>
+
 namespace search {
 	int scoreMove(const move& m, const move& ttMove) {
 		if (m == ttMove) {
@@ -23,6 +25,16 @@ namespace search {
 			}
 		}
 		return moves[(moves.size() - 1 - moveN++)];
+	}
+
+	template<color c>
+	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc) {
+		if constexpr (c == white){
+			return { 0.03 * wtime + 0.5 * winc, 0.05 * wtime + winc };
+		}
+		else {
+			return { 0.03 * btime + 0.5 * binc, 0.05 * btime + binc };
+		}
 	}
 
 	Searcher::Searcher() {
@@ -160,5 +172,64 @@ namespace search {
 		}
 
 		return bestVal;
+	}
+
+	//High level search
+	move Searcher::go(int wtime, int btime, int winc, int binc, bool useBook, bool* stop) {
+		auto [ideal, max] = getIdealAndMaxTimes(wtime, btime, winc, binc);
+
+		auto start = std::chrono::high_resolution_clock::now();
+		int depth = 0;
+		move bestMove = -1;
+		//While elapsed time is less than the ideal search time
+		while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal) {
+			depth++;
+
+			move _bestMove = -1;
+			int bestVal = -10000;
+
+			auto moves = p.generatePseudoLegalMoves();
+			int moveN = 0;
+
+			int score;
+
+			int alpha = -10000;
+			int beta = 10000;
+
+			int legalMoves = 0;
+
+			for (move move = getNextMove(moves, moveN, bestMove); move != -1; move = getNextMove(moves, moveN, bestMove)) {
+				if (*stop) {
+					break;
+				}
+				else if (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < max) {
+					*stop = true;
+					break;
+				}
+
+				makeMove(move);
+				if (!p.moveWasLegal()) {
+					p.undoMove();
+					continue;
+				}
+				legalMoves++;
+				score = -negamax(-beta, -alpha, depth + 1, depth - 1);
+				p.undoMove();
+
+				if (score > bestVal) {
+					bestVal = score;
+					_bestMove = move;
+					if (score > alpha) {
+						alpha = score;
+					}
+				}
+			}
+
+			if (!(*stop)) { //if we weren't interrupted
+				bestMove = _bestMove; //update best move
+			}
+		}
+		
+		return bestMove;
 	}
 }

@@ -8,6 +8,8 @@ namespace search {
 
 	move getNextMove(std::vector<move>& moves, int& moveN, const move& ttMove);
 
+	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc);
+
 	class Searcher {
 	protected:
 		Position p;
