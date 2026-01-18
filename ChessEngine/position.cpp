@@ -45,9 +45,9 @@ void Position::loadStart() {
 	counter = 0; //50 move rule
 
 	//Clear draw Position history
-	std::fill(std::begin(Positions), std::end(Positions), 0);
-	PositionsHead = 0;
-	PositionsTail = 0;
+	std::fill(std::begin(positions), std::end(positions), 0);
+	positionsHead = 0;
+	positionsTail = 0;
 
 	lastMove = 0;
 
@@ -139,8 +139,8 @@ void Position::loadStart() {
 	//White to move
 	zobrist ^= zobrist::values[780];
 
-	Positions[PositionsTail] = zobrist;
-	PositionsTail++;
+	positions[positionsTail] = zobrist;
+	positionsTail++;
 
 	calculatePhase();
 	calculateMaterialStart();
@@ -166,9 +166,9 @@ void Position::loadFEN(std::string fen) {
 	counter = 0; //50 move rule
 
 	//Clear draw Position history
-	std::fill(std::begin(Positions), std::end(Positions), 0);
-	PositionsHead = 0;
-	PositionsTail = 0;
+	std::fill(std::begin(positions), std::end(positions), 0);
+	positionsHead = 0;
+	positionsTail = 0;
 
 	//Get info from FEN
 	const auto info = split(fen, " ");
@@ -270,8 +270,8 @@ void Position::loadFEN(std::string fen) {
 		lastMove = 0;
 	}
 
-	Positions[PositionsTail] = zobrist;
-	PositionsTail++;
+	positions[positionsTail] = zobrist;
+	positionsTail++;
 
 	calculatePhase();
 	calculateMaterialStart();
@@ -519,14 +519,14 @@ void Position::makeMove(move& m, bool reversible) {
 	}
 
 	//Add Position to repetition history
-	Positions[PositionsTail] = zobrist;
-	PositionsHead = (PositionsHead == PositionsTail) ? (PositionsHead + 1) : PositionsHead; //If we just overwrote the first element, increment PositionsHead
-	PositionsTail++; //Increment the tail
+	positions[positionsTail] = zobrist;
+	positionsHead = (positionsHead == positionsTail) ? (positionsHead + 1) : positionsHead; //If we just overwrote the first element, increment PositionsHead
+	positionsTail++; //Increment the tail
 
 	//If both greater or equal to numPositions subtract numPositions
-	if (PositionsHead >= numPositions && PositionsTail >= numPositions) {
-		PositionsHead -= numPositions;
-		PositionsTail -= numPositions;
+	if (positionsHead >= numPositions && positionsTail >= numPositions) {
+		positionsHead -= numPositions;
+		positionsTail -= numPositions;
 	}
 }
 
@@ -753,7 +753,7 @@ void Position::undoMove() {
 	toMoveSigned = -1 * toMoveSigned;
 	zobrist ^= zobrist::values[780];
 
-	PositionsTail--; //Remove the Positions just by decrementing the tail - it will be overwritten when necessary in makeMove
+	positionsTail--; //Remove the Positions just by decrementing the tail - it will be overwritten when necessary in makeMove
 }
 
 bool Position::isDraw() {
@@ -762,8 +762,8 @@ bool Position::isDraw() {
 	}
 	//Repetition
 	int count = 0;
-	for (int i = PositionsHead; i <= PositionsTail; i++) {
-		count = (Positions[i % numPositions] == zobrist) ? count + 1 : count;
+	for (int i = positionsHead; i <= positionsTail; i++) {
+		count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
 	}
 	if (count == 3) {
 		return true;
