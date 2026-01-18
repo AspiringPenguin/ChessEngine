@@ -28,9 +28,8 @@ namespace search {
 		return moves[(moves.size() - 1 - moveN++)];
 	}
 
-	template<color c>
-	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc) {
-		if constexpr (c == white){
+	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc, color toMove) {
+		if (toMove == white){
 			return { 0.03 * wtime + 0.5 * winc, 0.05 * wtime + winc };
 		}
 		else {
@@ -46,12 +45,24 @@ namespace search {
 		p = Position(fen);
 	}
 
+	void Searcher::loadStart() {
+		p.loadStart();
+	}
+
+	void Searcher::loadFEN(const std::string& fen) {
+		p.loadFEN(fen);
+	}
+
 	void Searcher::makeMove(const move& m) {
 		p.makeMove(m, false);
 	}
 
 	void Searcher::showPosition() {
 		p.showPosition();
+	}
+
+	move Searcher::UCIMoveAsInternal(const std::string& move) {
+		return p.UCIMoveAsInternal(move);
 	}
 
 	int Searcher::getNodes() {
@@ -176,8 +187,8 @@ namespace search {
 	}
 
 	//High level search
-	move Searcher::go(int wtime, int btime, int winc, int binc, bool useBook, bool* stop) {
-		auto [ideal, max] = getIdealAndMaxTimes(wtime, btime, winc, binc);
+	move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
+		auto [ideal, max] = getIdealAndMaxTimes(wtime, btime, winc, binc, p.toMove);
 
 		auto start = std::chrono::high_resolution_clock::now();
 		int depth = 0;

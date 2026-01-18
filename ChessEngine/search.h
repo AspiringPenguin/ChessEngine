@@ -8,7 +8,7 @@ namespace search {
 
 	move getNextMove(std::vector<move>& moves, int& moveN, const move& ttMove);
 
-	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc);
+	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc, color toMove);
 
 	class Searcher {
 	protected:
@@ -21,12 +21,17 @@ namespace search {
 		Searcher();
 		Searcher(const std::string& fen);
 
+		void loadStart();
+		void loadFEN(const std::string& fen);
+
 		void makeMove(const move& m);
 		void showPosition();
+
+		move UCIMoveAsInternal(const std::string& move);
 
 		int getNodes();
 		void resetNodes();
 
-		move go(int wtime, int btime, int winc, int binc, bool useBook = true, bool* stop);
+		move go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook = true);
 	};
 }
