@@ -2,6 +2,7 @@
 #include "tt.h"
 
 #include <chrono>
+#include <iostream>
 
 namespace search {
 	int scoreMove(const move& m, const move& ttMove) {
@@ -185,6 +186,8 @@ namespace search {
 		while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal) {
 			depth++;
 
+			std::cout << "info depth " << depth << std::endl;
+
 			move _bestMove = -1;
 			int bestVal = -10000;
 
@@ -227,6 +230,8 @@ namespace search {
 
 			if (!(*stop)) { //if we weren't interrupted
 				bestMove = _bestMove; //update best move
+
+				std::cout << "info score cp " << bestVal * p.toMoveSigned << " depth " << depth << " nodes " << nodes << std::endl;
 			}
 		}
 		
