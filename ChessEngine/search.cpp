@@ -220,16 +220,23 @@ namespace search {
 				if (*stop) {
 					break;
 				}
-				else if (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < max) {
+				else if (depth > maxDepth) {
+					*stop = true;
+					break;
+				}
+				else if (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() > max) {
 					*stop = true;
 					break;
 				}
 
-				makeMove(move);
+				p.makeMove(move);
 				if (!p.moveWasLegal()) {
 					p.undoMove();
 					continue;
 				}
+
+				moves::showMove(move);
+
 				legalMoves++;
 				score = -negamax(-beta, -alpha, depth + 1, depth - 1);
 				p.undoMove();
