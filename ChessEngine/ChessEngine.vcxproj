@@ -484,13 +484,13 @@
     <ClCompile Include="bitboards.cpp" />
     <ClCompile Include="book.cpp" />
     <ClCompile Include="core.cpp" />
-    <ClCompile Include="engine.cpp" />
     <ClCompile Include="eval.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="moveGenHelpers.cpp" />
     <ClCompile Include="moves.cpp" />
     <ClCompile Include="perft.cpp" />
     <ClCompile Include="position.cpp" />
+    <ClCompile Include="search.cpp" />
     <ClCompile Include="tt.cpp" />
     <ClCompile Include="zobrist.cpp" />
   </ItemGroup>
@@ -498,12 +498,12 @@
     <ClInclude Include="bitboards.h" />
     <ClInclude Include="book.h" />
     <ClInclude Include="core.h" />
-    <ClInclude Include="engine.h" />
     <ClInclude Include="eval.h" />
     <ClInclude Include="moveGenHelpers.h" />
     <ClInclude Include="moves.h" />
     <ClInclude Include="perft.h" />
     <ClInclude Include="position.h" />
+    <ClInclude Include="search.h" />
     <ClInclude Include="tt.h" />
     <ClInclude Include="zobrist.h" />
   </ItemGroup>
