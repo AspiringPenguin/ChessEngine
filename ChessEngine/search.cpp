@@ -138,10 +138,10 @@ namespace search {
 		}
 
 		if (raisedAlpha) { //Exact
-			tt::ttStore(p.zobrist, score, -1, depthRemaining, tt::exact, false);
+			tt::ttStore(p.zobrist, bestVal, -1, depthRemaining, tt::exact, false);
 		}
 		else { //Upper bound
-			tt::ttStore(p.zobrist, score, -1, depthRemaining, tt::upperBound, false);
+			tt::ttStore(p.zobrist, bestVal, -1, depthRemaining, tt::upperBound, false);
 		}
 
 		return bestVal;
