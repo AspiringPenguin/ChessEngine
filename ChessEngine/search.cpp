@@ -256,7 +256,7 @@ namespace search {
 				}
 
 				legalMoves++;
-				score = -negamax(-beta, -alpha, depth + 1, depth - 1);
+				score = -negamax(-beta, -alpha, 1, depth - 1);
 				p.undoMove();
 
 				if (score > bestVal) {
