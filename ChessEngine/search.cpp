@@ -155,6 +155,18 @@ namespace search {
 		int bestVal = -100000;
 		int score;
 		int captureMoves = 0;
+
+		score = p.evaluate() * p.toMoveSigned; //Get static eval now
+		if (score >= beta) {
+			return score;
+		}
+		if (score > bestVal) {
+			bestVal = score;
+			if (score > alpha) {
+				alpha = score;
+			}
+		}
+
 		auto moves = p.generatePseudoLegalQuiescenceMoves();
 
 		int moveN = 0;
