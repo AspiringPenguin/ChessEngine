@@ -271,7 +271,7 @@ namespace search {
 			if (!(*stop)) { //if we weren't interrupted
 				bestMove = _bestMove; //update best move
 
-				std::cout << "info score cp " << bestVal * p.toMoveSigned << " depth " << depth << " nodes " << nodes << " pv ";
+				std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " pv ";
 				moves::showMove(bestMove);
 			}
 		}
