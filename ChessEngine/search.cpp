@@ -78,7 +78,6 @@ namespace search {
 
 	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
-			nodes++;
 			return negamaxQuiescence(alpha, beta, depth);
 		}
 		else if (p.isDraw()) {
