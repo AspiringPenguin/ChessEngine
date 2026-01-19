@@ -157,7 +157,7 @@ namespace search {
 		int captureMoves = 0;
 
 		score = p.evaluate() * p.toMoveSigned; //Get static eval now
-		if (score >= beta) {
+		if (score >= beta || depth == maxDepth) {
 			return score;
 		}
 		if (score > bestVal) {
