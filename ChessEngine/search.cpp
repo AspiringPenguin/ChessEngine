@@ -88,11 +88,15 @@ namespace search {
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
 		auto resultType = std::get<0>(ttResult);
 
-		if (resultType == tt::ttScore) {
-			return std::get<1>(ttResult);
-		}
+		move ttMove;
 
-		const move ttMove = std::get<1>(ttResult);
+		if (resultType == tt::ttScore) {
+			//return std::get<1>(ttResult);
+			ttMove = -1;
+		}
+		else {
+			ttMove = std::get<1>(ttResult);
+		}
 
 		int bestVal = -100000;
 		int score;
