@@ -229,7 +229,7 @@ namespace search {
 			std::cout << "info depth " << depth << std::endl;
 
 			move _bestMove = -1;
-			int bestVal = -10000;
+			int bestVal = -10001;
 
 			int moveN = 0;
 
@@ -244,7 +244,7 @@ namespace search {
 				if (*stop) {
 					break;
 				}
-				else if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max) {
+				else if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
 					*stop = true;
 					break;
 				}
@@ -268,7 +268,7 @@ namespace search {
 				}
 			}
 
-			if (!(*stop)) { //if we weren't interrupted
+			if (!(*stop) && _bestMove != -1) { //if we weren't interrupted and there isn't a null move being chosen for some reason
 				bestMove = _bestMove; //update best move
 
 				std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " pv ";
