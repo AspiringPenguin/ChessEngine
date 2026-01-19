@@ -1412,7 +1412,7 @@ move Position::UCIMoveAsInternal(std::string m) {
 		}
 	}
 
-	return moves::encodeNormal(from, to, p, capture, false, false, wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8);
+	return moves::encodeNormal(from, to, p, capture, false, false, wKingside && (to == H1 || p == wKing), wQueenside && (to == A1 || p == wKing), bKingside && (to == H8 || p == bKing), bQueenside && (to == A8 || p == bKing));
 }
 
 //Eval - use this as a base to call stuff from eval to reduce code complexity here, while retaining easy access to incremental value updates
