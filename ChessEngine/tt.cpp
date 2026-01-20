@@ -33,7 +33,7 @@ namespace tt {
 			tt[index] = ttEntry{ move, static_cast<short>(eval), entryType, depth };
 		}
 		//Always replace (if exact, if is upper bound (no improvements over alpha, all would otherwise be searched) or if best move not ordered first) and depth >= existing entry
-		else if (tt[index].depth >= depth) {
+		else if (depth >= tt[index].depth) {
 			if (entryType != lowerBound || !firstMove) { 
 				tt[index] = ttEntry{ move, static_cast<short>(eval), entryType, depth };
 			}
