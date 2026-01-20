@@ -12,19 +12,18 @@ namespace tt {
 		tt.assign(size, ttEntry{ -1, 0, empty, 0 });
 	}
 
-	std::tuple<ttResult, int> ttProbe(const U64& zobrist, const int& alpha, const int& beta, const int& depth)
-	{
+	std::tuple<ttResult, int, move> ttProbe(const U64& zobrist, const int& alpha, const int& beta, const int& depth) {
 		U64 index = zobrist & (size - 1);
 		auto entry = tt[index];
 		if (entry.type == empty) { //No stored value
-			return { ttNull, -1 };
+			return { ttNull, -1, -1 };
 		}
 		if (entry.depth >= depth) {
 			if (entry.type == exact || (entry.type == lowerBound && entry.score > beta) || (entry.type == upperBound && entry.score < alpha)) {
-				return { ttScore, entry.score };
+				return { ttScore, entry.score, entry.m };
 			}
 		}
-		return { ttMove, entry.m };
+		return { ttMove, 0, entry.m };
 	}
 
 	void ttStore(const U64& zobrist, const int& eval, const move& move, const unsigned char& depth, const ttEntryType& entryType, bool firstMove) {
