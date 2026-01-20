@@ -1415,6 +1415,15 @@ move Position::UCIMoveAsInternal(std::string m) {
 	return moves::encodeNormal(from, to, p, capture, false, false, wKingside && (from == H1 || to == H1 || p == wKing), wQueenside && (from == A1 || to == A1 || p == wKing), bKingside && (from == H8 || to == H8 || p == bKing), bQueenside && (from == A8 || to == A8 || p == bKing));
 }
 
+bool Position::moveIsValid(const move& m) {
+	const square from = moves::getFrom(m);
+	const square to = moves::getTo(m);
+	const piece p = moves::getPiece(m);
+	const piece cap = moves::getCapture(m);
+
+	return (mailbox[from] == p && mailbox[to] == cap);
+}
+
 //Eval - use this as a base to call stuff from eval to reduce code complexity here, while retaining easy access to incremental value updates
 int Position::evaluate() { //In centipawns
 	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase); // +tempo;

@@ -79,5 +79,7 @@ public:
 
 	move UCIMoveAsInternal(std::string m);
 
+	bool moveIsValid(const move& m);
+
 	int evaluate();
 };
