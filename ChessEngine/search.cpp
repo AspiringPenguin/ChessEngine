@@ -2,7 +2,6 @@
 #include "search.h"
 #include "tt.h"
 
-#include <chrono>
 #include <iostream>
 
 namespace search {
@@ -31,10 +30,10 @@ namespace search {
 
 	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc, color toMove) {
 		if (toMove == white){
-			return { 0.03 * wtime + 0.5 * winc, 0.05 * wtime + winc };
+			return { 0.02 * wtime + 0.5 * winc - 100, 0.04 * wtime + winc - 100};
 		}
 		else {
-			return { 0.03 * btime + 0.5 * binc, 0.05 * btime + binc };
+			return { 0.02 * btime + 0.5 * binc - 100, 0.04 * btime + binc - 100};
 		}
 	}
 
@@ -116,6 +115,13 @@ namespace search {
 			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1);
 			p.undoMove();
 
+			//Check here as the search may have been interrupted
+			if ((nodes & 0xFFF) == 0) {
+				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
+					break;
+				}
+			}
+
 			if (score > bestVal) {
 				bestVal = score;
 				if (score > alpha) {
@@ -183,6 +189,13 @@ namespace search {
 			score = -negamaxQuiescence(-beta, -alpha, depth + 1);
 			p.undoMove();
 
+			//Check here as the search may have been interrupted
+			if ((nodes & 0xFFF) == 0) {
+				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
+					break;
+				}
+			}
+
 			if (score > bestVal) {
 				bestVal = score;
 				if (score > alpha) {
@@ -211,9 +224,12 @@ namespace search {
 			}
 		}
 
-		auto [ideal, max] = getIdealAndMaxTimes(wtime, btime, winc, binc, p.toMove);
+		auto res = getIdealAndMaxTimes(wtime, btime, winc, binc, p.toMove);
 
-		auto start = std::chrono::high_resolution_clock::now();
+		ideal = std::get<0>(res);
+		max = std::get<1>(res);
+
+		start = std::chrono::high_resolution_clock::now();
 		int depth = 0;
 		move bestMove = -1;
 
@@ -246,10 +262,6 @@ namespace search {
 				if (*stop) {
 					break;
 				}
-				else if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
-					*stop = true;
-					break;
-				}
 
 				p.makeMove(move);
 				if (!p.moveWasLegal()) {
@@ -259,7 +271,13 @@ namespace search {
 
 				legalMoves++;
 				score = -negamax(-beta, -alpha, 1, depth - 1);
-				p.undoMove();
+				p.undoMove(); 
+				
+				//Check here as the search may have been interrupted
+				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
+					*stop = true;
+					break;
+				}
 
 				if (score > bestVal) {
 					bestVal = score;

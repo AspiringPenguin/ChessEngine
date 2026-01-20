@@ -2,6 +2,7 @@
 #include "core.h"
 #include "moves.h"
 #include "position.h"
+#include <chrono>
 
 namespace search {
 	int scoreMove(const move& m, const move& ttMove);
@@ -16,6 +17,11 @@ namespace search {
 		int negamax(int alpha, int beta, int depth, int depthRemaining);
 		int negamaxQuiescence(int alpha, int beta, int depth);
 		int nodes;
+
+		int ideal;
+		int max;
+
+		std::chrono::steady_clock::time_point start;
 
 	public:
 		Searcher();
