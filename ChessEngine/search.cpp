@@ -236,7 +236,7 @@ namespace search {
 		auto moves = p.generatePseudoLegalMoves();
 
 		//While elapsed time is less than the ideal search time
-		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal) {
+		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal || depth == 0) {
 			depth++; 
 			
 			if (depth > maxDepth) {
