@@ -151,7 +151,7 @@ void Position::loadStart() {
 	zobrist ^= zobrist::values[780];
 
 	positions[positionsTail] = zobrist;
-	positionsTail++;
+	positionsTail++; //No need for any checking here as 'pointers' are reset earlier, so positionsTail is always 0 and then incremented here to 1
 
 	calculatePhase();
 	calculateMaterialStart();
@@ -282,7 +282,7 @@ void Position::loadFEN(const std::string& fen) {
 	}
 
 	positions[positionsTail] = zobrist;
-	positionsTail++;
+	positionsTail++; //No need for any checking here as 'pointers' are reset earlier, so positionsTail is always 0 and then incremented here to 1
 
 	calculatePhase();
 	calculateMaterialStart();
@@ -530,12 +530,12 @@ void Position::makeMove(const move& m, bool reversible) {
 	}
 
 	//Add Position to repetition history
-	positions[positionsTail] = zobrist;
-	positionsHead = (positionsHead == positionsTail) ? (positionsHead + 1) : positionsHead; //If we just overwrote the first element, increment PositionsHead
+	positions[positionsTail % numPositions] = zobrist;
+	positionsHead = ((positionsHead % numPositions) == (positionsTail % numPositions)) ? (positionsHead + 1) : positionsHead; //If we just overwrote the first element, increment PositionsHead
 	positionsTail++; //Increment the tail
 
 	//If both greater or equal to numPositions subtract numPositions
-	if (positionsHead >= numPositions && positionsTail >= numPositions) {
+	if (positionsHead == numPositions) {
 		positionsHead -= numPositions;
 		positionsTail -= numPositions;
 	}
@@ -773,7 +773,7 @@ bool Position::isDraw() {
 	}
 	//Repetition
 	int count = 0;
-	for (int i = positionsHead; i <= positionsTail; i++) {
+	for (int i = positionsHead; i < positionsTail; i++) {
 		count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
 	}
 	if (count == 3) {
