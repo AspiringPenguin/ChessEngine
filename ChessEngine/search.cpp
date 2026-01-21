@@ -247,14 +247,14 @@ namespace search {
 			std::cout << "info depth " << depth << std::endl;
 
 			move _bestMove = -1;
-			int bestVal = -10001;
+			int bestVal = -100001;
 
 			int moveN = 0;
 
 			int score;
 
-			int alpha = -10000;
-			int beta = 10000;
+			int alpha = -100000;
+			int beta = 100000;
 
 			int legalMoves = 0;
 
