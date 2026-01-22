@@ -123,6 +123,10 @@ namespace search {
 				}
 			}
 
+			if (score >= beta) {
+				tt::ttStore(p.zobrist, score, move, depthRemaining, tt::lowerBound, firstMove);
+				return score;
+			}
 			if (score > bestVal) {
 				bestVal = score;
 				bestMove = move;
@@ -130,10 +134,6 @@ namespace search {
 					alpha = score;
 					raisedAlpha = true;
 				}
-			}
-			if (score >= beta) {
-				tt::ttStore(p.zobrist, score, move, depthRemaining, tt::lowerBound, firstMove);
-				return bestVal;
 			}
 
 			firstMove = false;
@@ -199,14 +199,14 @@ namespace search {
 				}
 			}
 
+			if (score >= beta) {
+				return score;
+			}
 			if (score > bestVal) {
 				bestVal = score;
 				if (score > alpha) {
 					alpha = score;
 				}
-			}
-			if (score >= beta) {
-				return bestVal;
 			}
 		}
 
