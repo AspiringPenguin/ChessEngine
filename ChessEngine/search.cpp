@@ -96,6 +96,7 @@ namespace search {
 		}
 
 		int bestVal = -10000;
+		move bestMove = -1;
 		int score;
 		int legalMoves = 0;
 		auto moves = p.generatePseudoLegalMoves();
@@ -124,6 +125,7 @@ namespace search {
 
 			if (score > bestVal) {
 				bestVal = score;
+				bestMove = move;
 				if (score > alpha) {
 					alpha = score;
 					raisedAlpha = true;
@@ -146,10 +148,10 @@ namespace search {
 		}
 
 		if (raisedAlpha) { //Exact
-			tt::ttStore(p.zobrist, bestVal, -1, depthRemaining, tt::exact, false);
+			tt::ttStore(p.zobrist, bestVal, bestMove, depthRemaining, tt::exact, false);
 		}
 		else { //Upper bound
-			tt::ttStore(p.zobrist, bestVal, -1, depthRemaining, tt::upperBound, false);
+			tt::ttStore(p.zobrist, bestVal, bestMove, depthRemaining, tt::upperBound, false);
 		}
 
 		return bestVal;
