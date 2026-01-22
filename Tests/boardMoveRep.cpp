@@ -458,6 +458,30 @@ namespace boardMoveRep
 		}
 	};
 
+	TEST_CLASS(Draws) {
+		TEST_METHOD(Repetition1) {
+			auto p = Position("4r2r/2p2p2/p1p2k2/P1Pp1b2/BP1Pp1n1/2B1P1Pp/5P2/4RR1K b - - 10 40");
+			move m1 = moves::encodeNormal(E8, E6, bRook, nullPiece, false, false, false, false, false, false);
+			move m2 = moves::encodeNormal(A4, D1, wBishop, nullPiece, false, false, false, false, false, false);
+			move m3 = moves::encodeNormal(E6, E8, bRook, nullPiece, false, false, false, false, false, false);
+			move m4 = moves::encodeNormal(D1, A4, wBishop, nullPiece, false, false, false, false, false, false);
+
+			int i = 0;
+
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+
+			p.makeMove(m1);
+			p.makeMove(m2);
+			p.makeMove(m3);
+			p.makeMove(m4);
+
+			Assert::IsTrue(p.isDraw());
+		}
+	};
+
 	TEST_CLASS(Perft) {
 		TEST_METHOD(StartDepth1) {
 			auto p = perft::PerftSearcher();
