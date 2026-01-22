@@ -236,8 +236,10 @@ namespace search {
 
 		auto moves = p.generatePseudoLegalMoves();
 
+		int timeSearched = 0;
+
 		//While elapsed time is less than the ideal search time
-		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal || depth == 0) {
+		while (timeSearched < ideal || depth == 0) {
 			depth++; 
 			
 			if (depth > maxDepth) {
@@ -275,7 +277,9 @@ namespace search {
 				p.undoMove(); 
 				
 				//Check here as the search may have been interrupted
-				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
+				timeSearched = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
+
+				if (timeSearched > max && depth != 1) {
 					*stop = true;
 					break;
 				}
@@ -292,12 +296,15 @@ namespace search {
 			if (!(*stop)) { //if we weren't interrupted
 				bestMove = _bestMove; //update best move
 
+				//get time searched
+				timeSearched = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
+
 				if (bestVal > 9900 || bestVal < -9900) {
-					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? (-std::abs(bestVal) + 10000)/2 : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << 0 << " pv ";
+					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? (-std::abs(bestVal) + 10000)/2 : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
 					moves::showMove(bestMove);
 				}
 				else {
-					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " time " << 0 << " pv ";
+					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
 					moves::showMove(bestMove);
 				}
 			}
