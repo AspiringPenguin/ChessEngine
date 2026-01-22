@@ -300,7 +300,7 @@ namespace search {
 				timeSearched = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
 
 				if (bestVal > 9900 || bestVal < -9900) {
-					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? (-std::abs(bestVal) + 10000)/2 : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
+					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? ((-std::abs(bestVal) + 10000)/2 + 1) : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
 					moves::showMove(bestMove);
 				}
 				else {
