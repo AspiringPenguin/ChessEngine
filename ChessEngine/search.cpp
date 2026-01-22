@@ -95,7 +95,7 @@ namespace search {
 			}
 		}
 
-		int bestVal = -100000;
+		int bestVal = -10000;
 		int score;
 		int legalMoves = 0;
 		auto moves = p.generatePseudoLegalMoves();
@@ -140,7 +140,7 @@ namespace search {
 		if (legalMoves == 0) {
 			nodes++;
 			if (p.inCheck()) { //Checkmate
-				return (-100000 + depth);
+				return (-10000 + depth);
 			}
 			return 0; //Stalemate
 		}
@@ -160,11 +160,12 @@ namespace search {
 			nodes++;
 			return 0;
 		}
-		int bestVal = -100000;
+		int bestVal = -10000;
 		int score;
 		int captureMoves = 0;
 
 		score = p.evaluate() * p.toMoveSigned; //Get static eval now
+		nodes++; //Have called static eval so increment
 		if (score >= beta || depth == maxDepth) {
 			return score;
 		}
@@ -247,14 +248,14 @@ namespace search {
 			std::cout << "info depth " << depth << std::endl;
 
 			move _bestMove = -1;
-			int bestVal = -100001;
+			int bestVal = -10001;
 
 			int moveN = 0;
 
 			int score;
 
-			int alpha = -100000;
-			int beta = 100000;
+			int alpha = -10000;
+			int beta = 10000;
 
 			int legalMoves = 0;
 
@@ -291,8 +292,14 @@ namespace search {
 			if (!(*stop) && _bestMove != -1) { //if we weren't interrupted and there isn't a null move being chosen for some reason
 				bestMove = _bestMove; //update best move
 
-				std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " pv ";
-				moves::showMove(bestMove);
+				if (bestVal > 9900 || bestVal < -9900) {
+					std::cout << "info score mate " << -std::abs(bestVal) + 10000 << " depth " << depth << " nodes " << nodes << " pv ";
+					moves::showMove(bestMove);
+				}
+				else {
+					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " pv ";
+					moves::showMove(bestMove);
+				}
 			}
 		}
 		
