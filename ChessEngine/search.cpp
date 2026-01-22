@@ -289,15 +289,15 @@ namespace search {
 				}
 			}
 
-			if (!(*stop) && _bestMove != -1) { //if we weren't interrupted and there isn't a null move being chosen for some reason
+			if (!(*stop)) { //if we weren't interrupted
 				bestMove = _bestMove; //update best move
 
 				if (bestVal > 9900 || bestVal < -9900) {
-					std::cout << "info score mate " << -std::abs(bestVal) + 10000 << " depth " << depth << " nodes " << nodes << " pv ";
+					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? (-std::abs(bestVal) + 10000)/2 : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << 0 << " pv ";
 					moves::showMove(bestMove);
 				}
 				else {
-					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " pv ";
+					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " time " << 0 << " pv ";
 					moves::showMove(bestMove);
 				}
 			}
