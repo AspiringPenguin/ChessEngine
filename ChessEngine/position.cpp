@@ -773,7 +773,7 @@ bool Position::isDraw() {
 	}
 	//Repetition
 	int count = 0;
-	for (int i = positionsHead; i < positionsTail; i++) {
+	for (int i = (positionsTail - 1); (i >= (positionsTail - 1 - counter)); i-=2) {
 		count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
 	}
 	if (count == 3) {
