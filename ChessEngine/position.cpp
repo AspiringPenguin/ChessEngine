@@ -1311,6 +1311,14 @@ bool Position::moveWasLegal() {
 	U64 kingBB = bitboards[wKing + ((1 - toMove) << 3)];
 	square kingPos = square(SquareOf(kingBB));
 
+	if (kingPos == 64) {
+		for (int i = 0; i <= moveNum; i++) {
+			moves::showMove(moves[i]);
+		}
+
+		throw std::bad_exception();
+	}
+
 	//Check for each enemy piece type here
 	bool pawn = ((toMove == white) ? (((kingBB & ~bitboards::HFile) >> 7) | ((kingBB & ~bitboards::AFile) >> 9)) : (((kingBB & ~bitboards::AFile) << 7) | ((kingBB & ~bitboards::HFile) << 9))) & bitboards[wPawn + (toMove << 3)];
 
@@ -1422,7 +1430,7 @@ bool Position::moveIsValid(const move& m) {
 	const piece p = moves::getPiece(m);
 	const piece cap = moves::getCapture(m);
 
-	return (mailbox[from] == p && mailbox[to] == cap);
+	return (mailbox[from] == p && mailbox[to] == cap && (p >> 3 == toMove));
 }
 
 //Eval - use this as a base to call stuff from eval to reduce code complexity here, while retaining easy access to incremental value updates
