@@ -15,6 +15,7 @@ namespace search {
 	protected:
 		Position p;
 		int negamax(int alpha, int beta, int depth, int depthRemaining);
+		int negamaxNoTT(int alpha, int beta, int depth, int depthRemaining);
 		int negamaxQuiescence(int alpha, int beta, int depth);
 		int nodes;
 

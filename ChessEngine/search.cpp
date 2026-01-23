@@ -96,7 +96,7 @@ namespace search {
 			return 0;
 		}
 		else if (reps == 2) {
-			//Use a tt-disabled negamax here
+			return negamaxNoTT(alpha, beta, depth, depthRemaining);
 		}
 
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
@@ -167,6 +167,80 @@ namespace search {
 		}
 		else { //Upper bound
 			tt::ttStore(p.zobrist, bestVal, bestMove, depthRemaining, tt::upperBound, false);
+		}
+
+		return bestVal;
+	}
+
+	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining) {
+		if (depthRemaining == 0) {
+			return negamaxQuiescence(alpha, beta, depth);
+		}
+		else if (p.isDraw()) {
+			nodes++;
+			return 0;
+		}
+
+		const int reps = p.countRepetitions();
+		if (reps == 3) {
+			nodes++;
+			return 0;
+		}
+
+		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
+		auto resultType = std::get<0>(ttResult);
+
+		const auto ttMove = std::get<2>(ttResult);
+
+		int bestVal = -10000;
+		move bestMove = -1;
+		int score;
+		int legalMoves = 0;
+		auto moves = p.generatePseudoLegalMoves();
+
+		int moveN = 0;
+
+		bool firstMove = true;
+		bool raisedAlpha = false;
+
+		for (move move = getNextMove(moves, moveN, ttMove); move != -1; move = getNextMove(moves, moveN, ttMove)) {
+			p.makeMove(move);
+			if (!p.moveWasLegal()) {
+				p.undoMove();
+				continue;
+			}
+			legalMoves++;
+			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1);
+			p.undoMove();
+
+			//Check here as the search may have been interrupted
+			if ((nodes & 0xFFF) == 0) {
+				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
+					break;
+				}
+			}
+
+			if (score >= beta) {
+				return score;
+			}
+			if (score > bestVal) {
+				bestVal = score;
+				bestMove = move;
+				if (score > alpha) {
+					alpha = score;
+					raisedAlpha = true;
+				}
+			}
+
+			firstMove = false;
+		}
+
+		if (legalMoves == 0) {
+			nodes++;
+			if (p.inCheck()) { //Checkmate
+				return (-10000 + depth);
+			}
+			return 0; //Stalemate
 		}
 
 		return bestVal;
