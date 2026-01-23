@@ -39,12 +39,18 @@ namespace search {
 
 	Searcher::Searcher() {
 		p = Position();
-		nodes = 0;
+		init();
 	}
 
 	Searcher::Searcher(const std::string& fen) {
 		p = Position(fen);
+		init();
+	}
+
+	void Searcher::init() {
 		nodes = 0;
+		ideal = 0;
+		max = 0;
 	}
 
 	void Searcher::loadStart() {

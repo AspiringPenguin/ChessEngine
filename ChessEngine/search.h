@@ -27,6 +27,8 @@ namespace search {
 		Searcher();
 		Searcher(const std::string& fen);
 
+		void init();
+
 		void loadStart();
 		void loadFEN(const std::string& fen);
 
