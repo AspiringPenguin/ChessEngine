@@ -478,7 +478,7 @@ namespace boardMoveRep
 			p.makeMove(m3);
 			p.makeMove(m4);
 
-			Assert::IsTrue(p.isDraw());
+			Assert::IsTrue(p.countRepetitions() == 3);
 		}
 	};
 
