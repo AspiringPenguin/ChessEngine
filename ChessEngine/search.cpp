@@ -90,6 +90,15 @@ namespace search {
 			return 0;
 		}
 
+		const int reps = p.countRepetitions();
+		if (reps == 3) {
+			nodes++;
+			return 0;
+		}
+		else if (reps == 2) {
+			//Use a tt-disabled negamax here
+		}
+
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
 		auto resultType = std::get<0>(ttResult);
 
@@ -168,6 +177,14 @@ namespace search {
 			nodes++;
 			return 0;
 		}
+
+		//Repetitions are separate due to tt issues
+		const int reps = p.countRepetitions();
+		if (reps == 3) {
+			nodes++;
+			return 0;
+		}
+
 		int bestVal = -10000;
 		int score;
 		int captureMoves = 0;

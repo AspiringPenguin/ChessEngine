@@ -66,6 +66,8 @@ public:
 	void makeMove(const move& m, bool reversible);
 	void undoMove();
 
+	int countRepetitions();
+
 	bool isDraw();
 
 	std::vector<move> generatePseudoLegalMoves();

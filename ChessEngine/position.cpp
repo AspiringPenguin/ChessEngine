@@ -767,18 +767,19 @@ void Position::undoMove() {
 	positionsTail--; //Remove the Positions just by decrementing the tail - it will be overwritten when necessary in makeMove
 }
 
+int Position::countRepetitions() {
+	int count = 0;
+	for (int i = (positionsTail - 1); (i >= (positionsTail - 1 - counter)); i -= 2) {
+		count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
+	}
+	return count;
+}
+
 bool Position::isDraw() {
 	if (counter == 100) {
 		return true;
 	}
-	//Repetition
-	int count = 0;
-	for (int i = (positionsTail - 1); (i >= (positionsTail - 1 - counter)); i-=2) {
-		count = (positions[i % numPositions] == zobrist) ? count + 1 : count;
-	}
-	if (count == 3) {
-		return true;
-	}
+	//Repetition handled separately
 
 	U64 kings = bitboards[wKing] | bitboards[bKing];
 
