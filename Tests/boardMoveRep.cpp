@@ -691,4 +691,46 @@ namespace boardMoveRep
 			Assert::IsTrue(res == 2103487);
 		}
 	};
+
+	TEST_CLASS(Check) {
+		TEST_METHOD(Check1) {
+			auto p = Position();
+			Assert::IsFalse(p.inCheck());
+		}
+
+		TEST_METHOD(Check2) {
+			auto p = Position("r1bqk1nr/pp3ppp/2np4/2p1p3/1b2P3/2NP1N2/PPP2PPP/R1BQKB1R w KQkq - 0 1");
+			Assert::IsFalse(p.inCheck());
+		}
+
+		TEST_METHOD(Check3) {
+			auto p = Position("r1bqk1nr/pp3ppp/2np4/2p1p3/1b2P3/3P1N2/PPP2PPP/R1BQKB1R w KQkq - 0 1");
+			Assert::IsTrue(p.inCheck());
+		}
+
+		TEST_METHOD(Check4) {
+			auto p = Position("8/8/2k5/8/7p/6K1/8/8 w - - 0 1");
+			Assert::IsTrue(p.inCheck());
+		}
+
+		TEST_METHOD(Check5) {
+			auto p = Position("8/8/2k5/8/p7/1K6/8/8 w - - 0 1");
+			Assert::IsTrue(p.inCheck());
+		}
+
+		TEST_METHOD(Check6) {
+			auto p = Position("8/8/6k1/7P/4K3/8/8/8 b - - 0 1");
+			Assert::IsTrue(p.inCheck());
+		}
+
+		TEST_METHOD(Check7) {
+			auto p = Position("8/8/1k6/P7/4K3/8/8/8 b - - 0 1");
+			Assert::IsTrue(p.inCheck());
+		}
+
+		TEST_METHOD(Check8) {
+			auto p = Position("8/1k6/3N4/8/4K3/8/8/8 b - - 0 1");
+			Assert::IsTrue(p.inCheck());
+		}
+	};
 }
