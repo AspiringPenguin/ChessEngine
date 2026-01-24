@@ -20,7 +20,9 @@ namespace tt {
 		}
 		if (entry.depth >= depth) {
 			if (entry.type == exact || (entry.type == lowerBound && entry.score > beta) || (entry.type == upperBound && entry.score < alpha)) {
-				return { ttScore, entry.score, entry.m };
+				if (std::abs(entry.score) < 9900) { //If its not mate - this is dependent on depth from root
+					return { ttScore, entry.score, entry.m };
+				}
 			}
 		}
 		return { ttMove, 0, entry.m };
