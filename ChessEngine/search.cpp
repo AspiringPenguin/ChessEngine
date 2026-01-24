@@ -377,6 +377,11 @@ namespace search {
 
 				legalMoves++;
 				score = -negamax(-beta, -alpha, 1, depth - 1);
+
+				if (score < -10000) {
+					throw std::bad_exception();
+				}
+
 				p.undoMove(); 
 				
 				//Check here as the search may have been interrupted
