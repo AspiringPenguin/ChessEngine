@@ -210,7 +210,7 @@ namespace search {
 				continue;
 			}
 			legalMoves++;
-			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1);
+			score = -negamaxNoTT(-beta, -alpha, depth + 1, depthRemaining - 1);
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
