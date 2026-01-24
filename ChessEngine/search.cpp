@@ -81,6 +81,10 @@ namespace search {
 		nodes = 0;
 	}
 
+	int Searcher::getExtensions() {
+		return p.inCheck() ? 1 : 0;
+	}
+
 	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence(alpha, beta, depth);
@@ -128,7 +132,7 @@ namespace search {
 				continue;
 			}
 			legalMoves++;
-			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1);
+			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1 + getExtensions());
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -210,7 +214,7 @@ namespace search {
 				continue;
 			}
 			legalMoves++;
-			score = -negamaxNoTT(-beta, -alpha, depth + 1, depthRemaining - 1);
+			score = -negamaxNoTT(-beta, -alpha, depth + 1, depthRemaining - 1 + getExtensions());
 			p.undoMove();
 
 			//Check here as the search may have been interrupted

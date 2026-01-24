@@ -41,6 +41,8 @@ namespace search {
 		int getNodes();
 		void resetNodes();
 
+		int getExtensions();
+
 		move go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook = true);
 	};
 }
