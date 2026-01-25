@@ -81,11 +81,14 @@ namespace search {
 		nodes = 0;
 	}
 
-	int Searcher::getExtensions() {
+	int Searcher::getExtensions(int extensionsCount) {
+		if (extensionsCount == 16) {
+			return 0;
+		}
 		return p.inCheck() ? 1 : 0;
 	}
 
-	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining) {
+	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence(alpha, beta, depth);
 		}
@@ -100,7 +103,7 @@ namespace search {
 			return 0;
 		}
 		else if (reps == 2) {
-			return negamaxNoTT(alpha, beta, depth, depthRemaining);
+			return negamaxNoTT(alpha, beta, depth, depthRemaining, extensionsCount);
 		}
 
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
@@ -125,6 +128,8 @@ namespace search {
 		bool firstMove = true;
 		bool raisedAlpha = false;
 
+		int extensions;
+
 		for (move move = getNextMove(moves, moveN, ttMove); move != -1; move = getNextMove(moves, moveN, ttMove)) {
 			p.makeMove(move);
 			if (!p.moveWasLegal()) {
@@ -132,7 +137,10 @@ namespace search {
 				continue;
 			}
 			legalMoves++;
-			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1 + getExtensions());
+
+			extensions = getExtensions(extensionsCount);
+
+			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -176,7 +184,7 @@ namespace search {
 		return bestVal;
 	}
 
-	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining) {
+	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence(alpha, beta, depth);
 		}
@@ -207,6 +215,8 @@ namespace search {
 		bool firstMove = true;
 		bool raisedAlpha = false;
 
+		int extensions;
+
 		for (move move = getNextMove(moves, moveN, ttMove); move != -1; move = getNextMove(moves, moveN, ttMove)) {
 			p.makeMove(move);
 			if (!p.moveWasLegal()) {
@@ -214,7 +224,10 @@ namespace search {
 				continue;
 			}
 			legalMoves++;
-			score = -negamaxNoTT(-beta, -alpha, depth + 1, depthRemaining - 1 + getExtensions());
+
+			extensions = getExtensions(extensionsCount);
+
+			score = -negamaxNoTT(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -376,7 +389,7 @@ namespace search {
 				}
 
 				legalMoves++;
-				score = -negamax(-beta, -alpha, 1, depth - 1);
+				score = -negamax(-beta, -alpha, 1, depth - 1, 0);
 
 				if (score < -10000) {
 					throw std::bad_exception();

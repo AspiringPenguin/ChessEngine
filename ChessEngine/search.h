@@ -14,8 +14,8 @@ namespace search {
 	class Searcher {
 	protected:
 		Position p;
-		int negamax(int alpha, int beta, int depth, int depthRemaining);
-		int negamaxNoTT(int alpha, int beta, int depth, int depthRemaining);
+		int negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
+		int negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
 		int negamaxQuiescence(int alpha, int beta, int depth);
 		int nodes;
 
@@ -41,7 +41,7 @@ namespace search {
 		int getNodes();
 		void resetNodes();
 
-		int getExtensions();
+		int getExtensions(int extensionsCount);
 
 		move go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook = true);
 	};
