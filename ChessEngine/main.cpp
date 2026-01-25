@@ -464,10 +464,11 @@ int main() {
 #endif
 
 // Todo - search and eval:
-// Create separate perft and searcher classes
-// Update UCI implementation
+// Pawn eval
 
 // Todo - longer term core aims:
 // Improve board representation by removing if and conditionals in make/unmake move by using more of the 32 move bits?
 // and adding some padding to eval
 // Remove move gen conditionals by making it templated and constexpr if for toMove, with matching perft and searches
+// Staged move gen in search?
+// PVS?
