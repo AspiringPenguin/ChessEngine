@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include "position.h"
 
 namespace eval {
 	//https://www.chessprogramming.org/Simplified_Evaluation_Function
@@ -145,4 +146,8 @@ namespace eval {
 
 	static int piecePhases[16] = { 0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0,
 							0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0 };
+
+	static int pieceControlValues[16] = { 0, 9, 6, 6, 4, 2, 0, 0, 0, -9, -6, -6, -4, -2, 0, 0 };
+
+	int getBoardControl(const Position& p);
 }

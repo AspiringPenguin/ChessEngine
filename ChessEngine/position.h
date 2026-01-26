@@ -6,11 +6,6 @@ constexpr int numPositions = 100 + maxDepth; //So we still have accurate history
 
 class Position {
 protected:
-	std::array<piece, 64> mailbox{ }; //Initialise as 0s = empty
-	U64 bitboards[16]{ }; //Initialise as 0s
-	U64 colorBitboards[2]{ }; //0 = white, 1 = black
-	U64 allBitboard = 0;
-
 	move moves[maxDepth]{};
 	int counters[maxDepth]{}; //For resetting of 50 move clock - the counter before the matching move was applied
 	move lastMove; //Keep the last move at the root here - the last irreversible move
@@ -49,6 +44,11 @@ protected:
 	void calculateBonusesStart();
 	void calculateBonusesEnd();
 public:
+	std::array<piece, 64> mailbox{ }; //Initialise as 0s = empty
+	U64 bitboards[16]{ }; //Initialise as 0s
+	U64 colorBitboards[2]{ }; //0 = white, 1 = black
+	U64 allBitboard = 0;
+
 	U64 zobrist = 0;
 
 	color toMove;
