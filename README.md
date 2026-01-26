@@ -1,1 +1,10 @@
-My C++ Chess Engine, using bitboards, including PEXT magic bitboards, for most of the board representation, alongside a mailbox to look up the piece on a square.
+# AspireBot
+My C++ Chess Engine.
+
+### Major Features:
+- PEXT and PDEP magic bitboards
+- Traditional alpha-beta negamax
+- Hand-crafted eval
+
+### Play it on Lichess: 
+https://lichess.org/@/AspireBot
