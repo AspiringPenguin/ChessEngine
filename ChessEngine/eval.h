@@ -6,9 +6,9 @@ namespace eval {
 	//https://www.chessprogramming.org/Simplified_Evaluation_Function
 	constexpr int pawnValueStart = 100;
 	constexpr int pawnValueEnd = 100;
-	constexpr int knightValueStart = 320;
-	constexpr int knightValueEnd = 320;
-	constexpr int bishopValueStart = 330;
+	constexpr int knightValueStart = 330;
+	constexpr int knightValueEnd = 310;
+	constexpr int bishopValueStart = 310;
 	constexpr int bishopValueEnd = 330;
 	constexpr int rookValueStart = 500;
 	constexpr int rookValueEnd = 500;
@@ -147,7 +147,7 @@ namespace eval {
 	static int piecePhases[16] = { 0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0,
 							0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0 };
 
-	static int pieceControlValues[16] = { 0, 9, 6, 6, 4, 2, 0, 0, 0, -9, -6, -6, -4, -2, 0, 0 };
+	static int pieceControlValues[16] = { 0, 9, 7, 6, 4, 2, 0, 0, 0, -9, -7, -6, -4, -2, 0, 0 };
 
 	std::array<int, 64> generateKnightMoveCounts();
 
