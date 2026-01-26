@@ -118,4 +118,16 @@ namespace eval {
 
         return control;
     }
+
+    int getPawnEval(const Position* p) {
+        int value = 0;
+
+        //Passed pawn bonuses, with lookup for rank
+
+        //Punish n-pawns, n>1 with lookup table for maluses
+
+        //General defends/defenders checking
+
+        return value;
+    }
 }
