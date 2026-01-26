@@ -1427,7 +1427,7 @@ bool Position::moveIsValid(const move& m) {
 
 //Eval - use this as a base to call stuff from eval to reduce code complexity here, while retaining easy access to incremental value updates
 int Position::evaluate() { //In centipawns
-	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase); // +tempo;
+	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase) + eval::getBoardControl(this); // +tempo;
 }
 
 //Incremental update full calculations

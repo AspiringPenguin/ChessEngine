@@ -153,5 +153,5 @@ namespace eval {
 
 	static std::array<int, 64> knightMoveCounts = generateKnightMoveCounts();
 
-	int getBoardControl(const Position& p);
+	int getBoardControl(const Position* p);
 }
