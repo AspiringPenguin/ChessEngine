@@ -149,5 +149,9 @@ namespace eval {
 
 	static int pieceControlValues[16] = { 0, 9, 6, 6, 4, 2, 0, 0, 0, -9, -6, -6, -4, -2, 0, 0 };
 
+	std::array<int, 64> generateKnightMoveCounts();
+
+	static std::array<int, 64> knightMoveCounts = generateKnightMoveCounts();
+
 	int getBoardControl(const Position& p);
 }
