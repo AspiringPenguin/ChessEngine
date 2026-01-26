@@ -155,5 +155,13 @@ namespace eval {
 
 	int getBoardControl(const Position* p);
 
+	//										   0  1  2   3   4    5    6
+	static std::array<int, 7> nPawnMaluses = { 0, 0, 40, 80, 180, 350, 800 };
+
+	//															    Defends: 0   1   2
+	static std::array<int, 3> pawnAttackDefendValues[3] = { /*0 defenders*/ {0,  0 , -10},
+															/*1 defender */ {5,  10, 0},
+															/*2 defenders*/ {10, 20, 15}};
+
 	int getPawnEval(const Position* p);
 }
