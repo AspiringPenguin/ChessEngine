@@ -119,10 +119,58 @@ namespace eval {
         return control;
     }
 
+    U64 passedPawnMask(square sq, color c) {
+        U64 mask;
+        if (c == white) {
+            mask = bitboards::files[sq & 7];
+            mask <<= (sq & 56) + 8;
+            mask |= ((mask << 1) & ~bitboards::AFile);
+            mask |= ((mask >> 1) & ~bitboards::HFile);
+            return mask;
+        }
+        else {
+            mask = bitboards::files[sq & 7];
+            mask >>= 56 - (sq & 56) + 8;
+            mask |= ((mask << 1) & ~bitboards::AFile);
+            mask |= ((mask >> 1) & ~bitboards::HFile);
+            return mask;
+        }
+    }
+
+    std::array<std::array<U64, 64>, 2> generatePassedPawnMasks() {
+        auto masks = std::array<std::array<U64, 64>, 2>();
+        for (color c : {white, black}) {
+            for (int s = 0; s < 64; s++) {
+                masks[c][s] = passedPawnMask(square(s), c);
+            }
+        }
+        return masks;
+    }
+
     int getPawnEval(const Position* p) {
         int value = 0;
 
         //Passed pawn bonuses, with lookup for rank
+        //White pawns
+        U64 pieceBB = p->bitboards[wPawn];
+        U64 blockerBB = p->bitboards[bPawn];
+        square sq;
+        Bitloop(pieceBB) {
+            sq = square(SquareOf(pieceBB));
+            if ((passedPawnMasks[white][sq] & blockerBB) == 0) {
+                value += passedPawnBonuses[sq >> 3];
+            }
+        }
+
+        //Black pawns
+        pieceBB = p->bitboards[bPawn];
+        blockerBB = p->bitboards[wPawn];
+        Bitloop(pieceBB) {
+            sq = square(SquareOf(pieceBB));
+            if ((passedPawnMasks[black][sq] & blockerBB) == 0) {
+                value -= passedPawnBonuses[7 - (sq >> 3)];
+            }
+        }
 
         //Punish n-pawns, n>1 with lookup table for maluses
 
