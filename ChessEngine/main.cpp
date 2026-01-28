@@ -471,3 +471,7 @@ int main() {
 // Rework core board representation and as such perft and search to remove branches and improve performance
 // PVS and Aspriation windows
 // Staged move gen in search? - will need better tt to make worthwhile I think
+
+// Automated tuning of eval by texel's tuning
+
+// Better book generator, larger opening book
