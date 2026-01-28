@@ -171,7 +171,7 @@ namespace eval {
 	static int piecePhases[16] = { 0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0,
 							0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0 };
 
-	static int pieceControlValues[16] = { 0, 9, 7, 6, 4, 2, 0, 0, 0, -9, -7, -6, -4, -2, 0, 0 };
+	static int pieceControlValues[16] = { 0, 9, 7, 4, 4, 2, 0, 0, 0, -9, -7, -4, -4, -2, 0, 0 };
 
 	std::array<int, 64> generateKnightMoveCounts();
 
