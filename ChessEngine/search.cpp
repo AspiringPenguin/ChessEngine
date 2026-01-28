@@ -353,6 +353,8 @@ namespace search {
 		auto moves = p.generatePseudoLegalMoves();
 
 		int timeSearched = 0;
+		
+		int bestVal = -10001;
 
 		//While elapsed time is less than the ideal search time
 		while (timeSearched < ideal || depth == 0) {
@@ -366,7 +368,7 @@ namespace search {
 			std::cout << "info depth " << depth << std::endl;
 
 			move _bestMove = -1;
-			int bestVal = -10001;
+			int _bestVal = -10001;
 
 			int moveN = 0;
 
@@ -401,8 +403,8 @@ namespace search {
 					break;
 				}
 
-				if (score > bestVal) {
-					bestVal = score;
+				if (score > _bestVal) {
+					_bestVal = score;
 					_bestMove = move;
 					if (score > alpha) {
 						alpha = score;
@@ -410,8 +412,9 @@ namespace search {
 				}
 			}
 
-			if (!(*stop)) { //if we weren't interrupted
-				bestMove = _bestMove; //update best move
+			if (!(*stop) || _bestMove != -1) { //if we weren't interrupted or there is a valid result - the best move on last generation is always searched first so this should work great
+				bestMove = _bestMove; //update best move and eval
+				bestVal = _bestVal;
 
 				//get time searched
 				timeSearched = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
