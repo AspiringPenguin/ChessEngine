@@ -187,8 +187,8 @@ namespace eval {
 															/*1 defender */ {5,  10, 0},
 															/*2 defenders*/ {10, 20, 15}};
 
-	//											    1  2   3   4   5   6    7
-	static std::array<int, 7> passedPawnBonuses = { 0, 10, 20, 40, 60, 80, 120 };
+	//											    1  2   3   4   5   6   7
+	static std::array<int, 7> passedPawnBonuses = { 0, 10, 20, 40, 60, 80, 0 };
 
 	U64 passedPawnMask(square sq, color c);
 	std::array<std::array<U64, 64>, 2> generatePassedPawnMasks();
