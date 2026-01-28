@@ -464,11 +464,10 @@ int main() {
 #endif
 
 // Todo - search and eval:
-// Pawn eval
+// Pawn eval - hash table and more detailed analysis
+// Some form of king safety analysis
 
 // Todo - longer term core aims:
-// Improve board representation by removing if and conditionals in make/unmake move by using more of the 32 move bits?
-// and adding some padding to eval
-// Remove move gen conditionals by making it templated and constexpr if for toMove, with matching perft and searches
-// Staged move gen in search?
-// PVS?
+// Rework core board representation and as such perft and search to remove branches and improve performance
+// PVS and Aspriation windows
+// Staged move gen in search? - will need better tt to make worthwhile I think
