@@ -809,7 +809,7 @@ bool Position::isDraw() {
 	return false; //Stalemate is handled in eval
 }
 
-std::vector<move> Position::generatePseudoLegalMoves() {
+template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 	auto generatedMoves = std::vector<move>();
 	generatedMoves.reserve(218);
 
@@ -817,41 +817,60 @@ std::vector<move> Position::generatePseudoLegalMoves() {
 	square sq;
 	piece p;
 
-	//King
-	p = piece(wKing + (toMove << 3));
-	const square kingPos = square(SquareOf(bitboards[p]));
+	if constexpr (c == white) {
+		//King
+		const square kingPos = square(SquareOf(bitboards[wKing]));
 
-	//Captures
-	movesBB = moveGen::kingLookup[kingPos] & colorBitboards[1 - toMove];
-	Bitloop(movesBB) {
-		square sq = square(SquareOf(movesBB));
-		generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, mailbox[sq], false, false,
-			(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
+		//Captures
+		movesBB = moveGen::kingLookup[kingPos] & colorBitboards[black];
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			generatedMoves.push_back(moves::encodeNormal(kingPos, sq, wKing, mailbox[sq], false, false, wKingside, wQueenside, false, false));
+		}
+
+		//Non-captures
+		movesBB = moveGen::kingLookup[kingPos] & ~allBitboard;
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			generatedMoves.push_back(moves::encodeNormal(kingPos, sq, wKing, nullPiece, false, false, wKingside, wQueenside, false, false));
+		}
+
+		//Castling
+		if ((moveGen::whiteKingCastleMask & allBitboard) == 0 && wKingside) { //Can white kingside castle
+			generatedMoves.push_back(moves::encodeCastle(white, false, wKingside, wQueenside, false, false));
+		}
+
+		if ((moveGen::whiteQueenCastleMask & allBitboard) == 0 && wQueenside) { //Can white queenside castle
+			generatedMoves.push_back(moves::encodeCastle(white, true, wKingside, wQueenside, false, false));
+		}
+
 	}
+	else {
+		//King
+		const square kingPos = square(SquareOf(bitboards[bKing]));
 
-	//Non-captures
-	movesBB = moveGen::kingLookup[kingPos] & ~allBitboard;
-	Bitloop(movesBB) {
-		sq = square(SquareOf(movesBB));
-		generatedMoves.push_back(moves::encodeNormal(kingPos, sq, p, nullPiece, false, false,
-			(toMove == white && wKingside), (toMove == white && wQueenside), (toMove == black && bKingside), (toMove == black && bQueenside)));
-	}
+		//Captures
+		movesBB = moveGen::kingLookup[kingPos] & colorBitboards[white];
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			generatedMoves.push_back(moves::encodeNormal(kingPos, sq, bKing, mailbox[sq], false, false, false, false, bKingside, bQueenside));
+		}
 
-	//Castling
-	if ((moveGen::whiteKingCastleMask & allBitboard) == 0 && wKingside && toMove == white) { //Can white kingside castle
-		generatedMoves.push_back(moves::encodeCastle(white, false, wKingside, wQueenside, false, false));
-	}
+		//Non-captures
+		movesBB = moveGen::kingLookup[kingPos] & ~allBitboard;
+		Bitloop(movesBB) {
+			sq = square(SquareOf(movesBB));
+			generatedMoves.push_back(moves::encodeNormal(kingPos, sq, bKing, nullPiece, false, false, false, false, bKingside, bQueenside));
+		}
 
-	if ((moveGen::whiteQueenCastleMask & allBitboard) == 0 && wQueenside && toMove == white) { //Can white queenside castle
-		generatedMoves.push_back(moves::encodeCastle(white, true, wKingside, wQueenside, false, false));
-	}
+		//Castling
+		if ((moveGen::blackKingCastleMask & allBitboard) == 0 && bKingside) { //Can black kingside castle
+			generatedMoves.push_back(moves::encodeCastle(black, false, false, false, bKingside, bQueenside));
+		}
 
-	if ((moveGen::blackKingCastleMask & allBitboard) == 0 && bKingside && toMove == black) { //Can black kingside castle
-		generatedMoves.push_back(moves::encodeCastle(black, false, false, false, bKingside, bQueenside));
-	}
-
-	if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && bQueenside && toMove == black) { //Can black queenside castle
-		generatedMoves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
+		if ((moveGen::blackQueenCastleMask & allBitboard) == 0 && bQueenside) { //Can black queenside castle
+			generatedMoves.push_back(moves::encodeCastle(black, true, false, false, bKingside, bQueenside));
+		}
 	}
 
 	//If double check return here?
