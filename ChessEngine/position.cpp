@@ -964,39 +964,39 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		}
 
 		//Pawns
-		p = piece(wPawn + (toMove << 3));
+		p = bPawn;
 
-		const U64 dpRank = (toMove == white) ? bitboards::rank3 : bitboards::rank6;
+		constexpr U64 dpRank = bitboards::rank6;
 		constexpr U64 prRank = bitboards::rank8 | bitboards::rank1;
 
 		//Single push
-		movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & ~prRank; //Not promotion
+		movesBB = (bitboards[p] >> 8) & ~allBitboard & ~prRank; //Not promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, false, false, false, false, false, false));
+			generatedMoves.push_back(moves::encodeNormal(square(sq + 8), sq, bPawn, nullPiece, false, false, false, false, false, false));
 		}
 
-		movesBB = ((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & prRank; //Promotion
+		movesBB = (bitboards[p] >> 8) & ~allBitboard & prRank; //Promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
-				generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned)), sq, p, nullPiece, promotePiece, false, false, false, false));
+				generatedMoves.push_back(moves::encodePromote(square(sq + 8), sq, bPawn, nullPiece, promotePiece, false, false, false, false));
 			}
 		}
 
 		//Double push
-		movesBB = (((toMove == white) ? bitboards[p] << 8 : bitboards[p] >> 8) & ~allBitboard & dpRank); //Get double pushable pawns on 3rd/6th rank
-		movesBB = (((toMove == white) ? movesBB << 8 : movesBB >> 8) & ~allBitboard); //And push again
+		movesBB = (bitboards[p] >> 8) & ~allBitboard & dpRank; //Get double pushable pawns on 3rd/6th rank
+		movesBB = (movesBB >> 8) & ~allBitboard; //And push again
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			generatedMoves.push_back(moves::encodeNormal(square(sq - (16 * toMoveSigned)), sq, p, nullPiece, false, true, false, false, false, false));
+			generatedMoves.push_back(moves::encodeNormal(square(sq + 16), sq, bPawn, nullPiece, false, true, false, false, false, false));
 		}
 
 		//Left captures - white perspective so add 7 for white and subtract 9 for black - (<< (8*toMoveSigned - 1)
-		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+		movesBB = ((bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[white] & ~prRank; //Not promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -1004,7 +1004,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
 		}
 
-		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::AFile) << 7 : (bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[1 - toMove]) & prRank; //Promotion
+		movesBB = ((bitboards[p] & ~bitboards::AFile) >> 9) & colorBitboards[white] & prRank; //Promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
