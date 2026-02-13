@@ -1000,7 +1000,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], false, false,
+			generatedMoves.push_back(moves::encodeNormal(square(sq + 9), sq, bPawn, mailbox[sq], false, false,
 				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
 		}
 
@@ -1009,27 +1009,27 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
-				generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned - 1)), sq, p, mailbox[sq], promotePiece,
+				generatedMoves.push_back(moves::encodePromote(square(sq + 9), sq, bPawn, mailbox[sq], promotePiece,
 					wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
 				//Only way to remove rights is taking rook, so check for castle rook squares
 			}
 		}
 
 		//Right captures - white perspective so add 9 for white and subtract 7 for black - (<< (8*toMoveSigned + 1)
-		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & ~prRank; //Not promotion
+		movesBB = ((bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[white] & ~prRank; //Not promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
-			generatedMoves.push_back(moves::encodeNormal(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], false, false,
+			generatedMoves.push_back(moves::encodeNormal(square(sq + 7), sq, bPawn, mailbox[sq], false, false,
 				false, false, false, false)); //Only way to remove rights is taking rook, and this doesn't cover promotion
 		}
 
-		movesBB = (((toMove == white) ? (bitboards[p] & ~bitboards::HFile) << 9 : (bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[1 - toMove]) & prRank; //Promotion
+		movesBB = ((bitboards[p] & ~bitboards::HFile) >> 7) & colorBitboards[white] & prRank; //Promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
 			for (piece promotePiece : {wKnight, wBishop, wRook, wQueen}) {
-				generatedMoves.push_back(moves::encodePromote(square(sq - (8 * toMoveSigned + 1)), sq, p, mailbox[sq], promotePiece,
+				generatedMoves.push_back(moves::encodePromote(square(sq + 7), sq, bPawn, mailbox[sq], promotePiece,
 					wKingside && sq == H1, wQueenside && sq == A1, bKingside && sq == H8, bQueenside && sq == A8));
 				//Only way to remove rights is taking rook, so check for castle rook squares
 			}
@@ -1039,13 +1039,13 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		if (moves::isDoublePush((moveNum == -1) ? lastMove : moves[moveNum])) {
 			const square epSquare = square(moves::getTo((moveNum == -1) ? lastMove : moves[moveNum]) + (8 * toMoveSigned));
 			movesBB = (1ull << epSquare);
-			movesBB = (toMove == white) ? ((movesBB & ~bitboards::AFile) >> 9) | ((movesBB & ~bitboards::HFile) >> 7) : ((movesBB & ~bitboards::HFile) << 9) | ((movesBB & ~bitboards::AFile) << 7);
+			movesBB = ((movesBB & ~bitboards::HFile) << 9) | ((movesBB & ~bitboards::AFile) << 7);
 			movesBB &= bitboards[p]; //Get pawns that can attack the square
 
 			Bitloop(movesBB) {
 				square pos = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, epSquare, p, piece(p ^ 0b1000), true, false, false, false, false, false));
+				generatedMoves.push_back(moves::encodeNormal(pos, epSquare, bPawn, wPawn, true, false, false, false, false, false));
 			}
 		}
 	}
