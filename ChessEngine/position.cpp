@@ -882,7 +882,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		}
 
 		//Left captures - white perspective so add 7 for white and subtract 9 for black - (<< (8*toMoveSigned - 1)
-		movesBB = ((bitboards[p] & ~bitboards::AFile) << 7) & colorBitboards[black] & ~prRank; //Not promotion
+		movesBB = ((bitboards[wPawn] & ~bitboards::AFile) << 7) & colorBitboards[black] & ~prRank; //Not promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -890,7 +890,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 				false, false, false, false)); //Only way to remove rights here is taking rook, and this doesn't cover promotion
 		}
 
-		movesBB = ((bitboards[p] & ~bitboards::AFile) << 7) & colorBitboards[black] & prRank; //Promotion
+		movesBB = ((bitboards[wPawn] & ~bitboards::AFile) << 7) & colorBitboards[black] & prRank; //Promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -902,7 +902,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		}
 
 		//Right captures - white perspective so add 9 for white and subtract 7 for black - (<< (8*toMoveSigned + 1)
-		movesBB = ((bitboards[p] & ~bitboards::HFile) << 9) & colorBitboards[black] & ~prRank; //Not promotion
+		movesBB = ((bitboards[wPawn] & ~bitboards::HFile) << 9) & colorBitboards[black] & ~prRank; //Not promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -910,7 +910,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 				false, false, false, false)); //Only way to remove rights here is taking rook, and this doesn't cover promotion
 		}
 
-		movesBB = ((bitboards[p] & ~bitboards::HFile) << 9) & colorBitboards[black] & prRank; //Promotion
+		movesBB = ((bitboards[wPawn] & ~bitboards::HFile) << 9) & colorBitboards[black] & prRank; //Promotion
 
 		Bitloop(movesBB) {
 			sq = square(SquareOf(movesBB));
@@ -926,7 +926,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 			const square epSquare = square(moves::getTo((moveNum == -1) ? lastMove : moves[moveNum]) + (8 * toMoveSigned));
 			movesBB = (1ull << epSquare);
 			movesBB = ((movesBB & ~bitboards::AFile) >> 9) | ((movesBB & ~bitboards::HFile) >> 7);
-			movesBB &= bitboards[p]; //Get pawns that can attack the square
+			movesBB &= bitboards[wPawn]; //Get pawns that can attack the square
 
 			Bitloop(movesBB) {
 				square pos = square(SquareOf(movesBB));
