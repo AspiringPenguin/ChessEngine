@@ -36,6 +36,8 @@ namespace search {
 		void makeMove(const move& m);
 		void showPosition();
 
+		color getToMove();
+
 		move UCIMoveAsInternal(const std::string& move);
 
 		int getNodes();
@@ -43,6 +45,6 @@ namespace search {
 
 		int getExtensions(int extensionsCount);
 
-		move go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook = true);
+		template <color c> move go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook = true);
 	};
 }

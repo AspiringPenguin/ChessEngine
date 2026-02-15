@@ -69,6 +69,10 @@ namespace search {
 		p.showPosition();
 	}
 
+	color Searcher::getToMove() {
+		return p.toMove;
+	}
+
 	move Searcher::UCIMoveAsInternal(const std::string& move) {
 		return p.UCIMoveAsInternal(move);
 	}
@@ -333,7 +337,7 @@ namespace search {
 	}
 
 	//High level search
-	move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
+	template <color c> move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
 		if (useBook) {
 			if (book::book.contains(p.zobrist)) {
 				std::string stringMove = book::chooseMove(book::book[p.zobrist]);
@@ -351,13 +355,8 @@ namespace search {
 		move bestMove = -1;
 
 		std::vector<move> moves;
-
-		if (p.toMove == white) {
-			moves = p.generatePseudoLegalMoves<white>();
-		}
-		else {
-			moves = p.generatePseudoLegalMoves<black>();
-		}
+		
+		moves = p.generatePseudoLegalMoves<c>();
 
 		int timeSearched = 0;
 		
@@ -398,12 +397,7 @@ namespace search {
 				}
 
 				legalMoves++;
-				if (p.toMove == white) { //After black has moved
-					score = -negamax<white>(-beta, -alpha, 1, depth - 1, 0);
-				}
-				else { //After white has moved
-					score = -negamax<black>(-beta, -alpha, 1, depth - 1, 0);
-				}
+				score = -negamax<color(1 - c)>(-beta, -alpha, 1, depth - 1, 0);
 
 				p.undoMove(); 
 				

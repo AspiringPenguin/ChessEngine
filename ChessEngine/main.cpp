@@ -84,7 +84,12 @@ int main() {
                     chunkPos += 2;
                 }
 
-                m = s.go(wtime, btime, winc, binc, &stop);
+                if (s.getToMove() == white) {
+                    m = s.go<white>(wtime, btime, winc, binc, &stop);
+                }
+                else {
+                    m = s.go<black>(wtime, btime, winc, binc, &stop);
+                }
 
                 std::cout << "bestmove ";
                 moves::showMove(m);
