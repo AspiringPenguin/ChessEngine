@@ -986,6 +986,33 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 				generatedMoves.push_back(moves::encodeNormal(pos, to, wBishop, nullPiece, false, false, false, false, false, false));
 			}
 		}
+
+		//Rook
+		piecesBB = bitboards[wRook];
+
+		Bitloop(piecesBB) { //For each rook
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[black];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wRook, mailbox[to], false, false,
+					wKingside && pos == H1, wQueenside && pos == A1, bKingside && to == H8, bQueenside && to == A8));
+				//Be careful, rooks can move off castle squares as well as being captured by a rook
+			}
+
+			//Non-captures
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wRook, mailbox[to], false, false,
+					wKingside && (pos == H1), wQueenside && (pos == A1), false, false));
+				//Be careful, rooks can move off castle squares 
+			}
+		}
 	}
 
 	else {
@@ -1150,38 +1177,40 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 				generatedMoves.push_back(moves::encodeNormal(pos, to, bBishop, nullPiece, false, false, false, false, false, false));
 			}
 		}
+
+		//Rook
+		p = bRook; //Remove
+
+		piecesBB = bitboards[bRook];
+
+		Bitloop(piecesBB) { //For each rook
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bRook, mailbox[to], false, false,
+					wKingside && to == H1, wQueenside && to == A1, bKingside && pos == H8, bQueenside && pos == A8));
+				//Be careful, rooks can move off castle squares as well as being captured by a rook
+			}
+
+			//Non-captures
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bRook, mailbox[to], false, false,
+					false, false, bKingside && (pos == H8), bQueenside && (pos == A8)));
+				//Be careful, rooks can move off castle squares 
+			}
+		}
 	}
 
 	square pos, to;
 
-	//Rook
-	p = piece(wRook + (toMove << 3));
-
-	U64 piecesBB = bitboards[p];
-
-	Bitloop(piecesBB) { //For each rook
-		pos = square(SquareOf(piecesBB)); //Get its square
-
-		//Captures
-		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
-		Bitloop(movesBB) {
-			to = square(SquareOf(movesBB));
-
-			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-				wKingside && (to == H1 || pos == H1), wQueenside && (to == A1 || pos == A1), bKingside && (to == H8 || pos == H8), bQueenside && (to == A8 || pos == A8)));
-			//Be careful, rooks can move off castle squares as well as being captured by a rook
-		}
-
-		//Non-captures
-		movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & ~allBitboard;
-		Bitloop(movesBB) {
-			to = square(SquareOf(movesBB));
-
-			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-				wKingside && (pos == H1), wQueenside && (pos == A1), bKingside && (pos == H8), bQueenside && (pos == A8)));
-			//Be careful, rooks can move off castle squares 
-		}
-	}
+	U64 piecesBB;
 
 	//Queen
 	p = piece(wQueen + (toMove << 3));
