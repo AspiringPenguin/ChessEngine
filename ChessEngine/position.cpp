@@ -935,6 +935,32 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 			}
 		}
 
+		//Knights
+		U64 piecesBB = bitboards[wKnight];
+
+		square pos, to;
+
+		Bitloop(piecesBB) { //For each knight
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures
+			movesBB = moveGen::knightLookup[pos] & colorBitboards[black];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wKnight, mailbox[to], false, false,
+					false, false, bKingside && to == H8, bQueenside && to == A8));
+				//Only way to remove rights is taking rook, so check for castle rook squares
+			}
+
+			//Non-captures
+			movesBB = moveGen::knightLookup[pos] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wKnight, nullPiece, false, false, false, false, false, false));
+			}
+		}
 	}
 	else {
 		//King
@@ -1046,41 +1072,41 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 				generatedMoves.push_back(moves::encodeNormal(pos, epSquare, bPawn, wPawn, true, false, false, false, false, false));
 			}
 		}
+
+		//Knights
+		U64 piecesBB = bitboards[bKnight];
+
+		square pos, to;
+
+		Bitloop(piecesBB) { //For each knight
+			pos = square(SquareOf(piecesBB)); //Get its square
+
+			//Captures
+			movesBB = moveGen::knightLookup[pos] & colorBitboards[white];
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bKnight, mailbox[to], false, false,
+					wKingside && to == H1, wQueenside && to == A1, false, false));
+				//Only way to remove rights is taking rook, so check for castle rook squares
+			}
+
+			//Non-captures
+			movesBB = moveGen::knightLookup[pos] & ~allBitboard;
+			Bitloop(movesBB) {
+				to = square(SquareOf(movesBB));
+
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bKnight, nullPiece, false, false, false, false, false, false));
+			}
+		}
 	}
-
-	//Knights
-	p = piece(wKnight + (toMove << 3));
-
-	U64 piecesBB = bitboards[p];
 
 	square pos, to;
-
-	Bitloop(piecesBB) { //For each knight
-		pos = square(SquareOf(piecesBB)); //Get its square
-
-		//Captures
-		movesBB = moveGen::knightLookup[pos] & colorBitboards[1 - toMove];
-		Bitloop(movesBB) {
-			to = square(SquareOf(movesBB));
-
-			generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-				wKingside && to == H1, wQueenside && to == A1, bKingside && to == H8, bQueenside && to == A8));
-			//Only way to remove rights is taking rook, so check for castle rook squares
-		}
-
-		//Non-captures
-		movesBB = moveGen::knightLookup[pos] & ~allBitboard;
-		Bitloop(movesBB) {
-			to = square(SquareOf(movesBB));
-
-			generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
-		}
-	}
 
 	//Bishop
 	p = piece(wBishop + (toMove << 3));
 
-	piecesBB = bitboards[p];
+	U64 piecesBB = bitboards[p];
 
 	Bitloop(piecesBB) { //For each bishop
 		pos = square(SquareOf(piecesBB)); //Get its square
