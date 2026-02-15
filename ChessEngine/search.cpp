@@ -1,4 +1,5 @@
 #include "book.h"
+#include "core.h"
 #include "search.h"
 #include "tt.h"
 
@@ -92,7 +93,8 @@ namespace search {
 		return p.inCheck() ? 1 : 0;
 	}
 
-	template <color c> int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
+	template <color c>
+	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
@@ -188,7 +190,8 @@ namespace search {
 		return bestVal;
 	}
 
-	template <color c> int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
+	template <color c>
+	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
@@ -267,7 +270,8 @@ namespace search {
 		return bestVal;
 	}
 
-	template <color c> int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
+	template <color c>
+	int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
 		if (p.isDraw()) {
 			nodes++;
 			return 0;
@@ -337,7 +341,8 @@ namespace search {
 	}
 
 	//High level search
-	template <color c> move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
+	template <color c>
+	move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
 		if (useBook) {
 			if (book::book.contains(p.zobrist)) {
 				std::string stringMove = book::chooseMove(book::book[p.zobrist]);
