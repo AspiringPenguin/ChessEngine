@@ -4,7 +4,7 @@
 namespace perft {
 	class PerftSearcher {
 		Position p;
-		int perft(int depthRemaining, bool top);
+		template <color c> int perft(int depthRemaining, bool top);
 
 	public:
 		PerftSearcher();

@@ -12,10 +12,15 @@ namespace perft {
 	}
 
 	int PerftSearcher::go(int depth, bool debug) {
-		return perft(depth, debug); //For handling toMove remplates in future
+		if (p.toMove == white) {
+			return perft<white>(depth, debug); //For handling toMove remplates in future
+		}
+		else {
+			return perft<black>(depth, debug); //For handling toMove remplates in future
+		}
 	}
 
-	int PerftSearcher::perft(int depthRemaining, bool top) {
+	template <color c> int PerftSearcher::perft(int depthRemaining, bool top) {
 		if (depthRemaining == 0) {
 			return 1;
 		}
@@ -23,12 +28,12 @@ namespace perft {
 		U64 nodes = 0;
 		U64 _nodes;
 
-		auto moves = p.generatePseudoLegalMoves();
+		auto moves = p.generatePseudoLegalMoves<c>();
 
 		for (auto& move : moves) {
 			p.makeMove(move);
 			if (p.moveWasLegal()) {
-				_nodes = perft(depthRemaining - 1, false);
+				_nodes = perft<color(1 - c)>(depthRemaining - 1, false);
 				if (top) {
 					moves::showMove(move);
 					std::cout << _nodes << std::endl;
