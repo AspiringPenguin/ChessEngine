@@ -340,6 +340,10 @@ namespace search {
 		return bestVal;
 	}
 
+	//To avoid compiler errors
+	template move Searcher::go<white>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
+	template move Searcher::go<black>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
+
 	//High level search
 	template <color c>
 	move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
