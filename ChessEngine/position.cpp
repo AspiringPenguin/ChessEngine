@@ -1015,30 +1015,28 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		}
 
 		//Queen
-		p = wQueen;
-
-		piecesBB = bitboards[p];
+		piecesBB = bitboards[wQueen];
 
 		Bitloop(piecesBB) { //For each queen
 			pos = square(SquareOf(piecesBB)); //Get its square
 
 			//Captures like rook
-			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[black];
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-					wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wQueen, mailbox[to], false, false,
+					false, false, bKingside && (to == H8), bQueenside && (to == A8)));
 			}
 			//Only way to remove rights is taking rook, so check for castle rook squares
 
 			//Captures like bishop
-			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[black];
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-					wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wQueen, mailbox[to], false, false,
+					false, false, bKingside && (to == H8), bQueenside && (to == A8)));
 			}
 			//Only way to remove rights is taking rook, so check for castle rook squares
 
@@ -1047,7 +1045,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wQueen, nullPiece, false, false, false, false, false, false));
 			}
 
 			//Non-captures like bishop
@@ -1055,9 +1053,11 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, wQueen, nullPiece, false, false, false, false, false, false));
 			}
 		}
+
+		return generatedMoves;
 	}
 
 	else {
@@ -1253,30 +1253,28 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		}
 
 		//Queen
-		p = bQueen;
-
-		piecesBB = bitboards[p];
+		piecesBB = bitboards[bQueen];
 
 		Bitloop(piecesBB) { //For each queen
 			pos = square(SquareOf(piecesBB)); //Get its square
 
 			//Captures like rook
-			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[1 - toMove];
+			movesBB = moveGen::rookMoveLookup[pos][_pext_u64(allBitboard, moveGen::rookPextMasks[pos])] & colorBitboards[white];
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-					wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bQueen, mailbox[to], false, false,
+					wKingside && (to == H1), wQueenside && (to == A1), false, false));
 			}
 			//Only way to remove rights is taking rook, so check for castle rook squares
 
 			//Captures like bishop
-			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[1 - toMove];
+			movesBB = moveGen::bishopMoveLookup[pos][_pext_u64(allBitboard, moveGen::bishopPextMasks[pos])] & colorBitboards[white];
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, mailbox[to], false, false,
-					wKingside && (to == H1), wQueenside && (to == A1), bKingside && (to == H8), bQueenside && (to == A8)));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bQueen, mailbox[to], false, false,
+					wKingside && (to == H1), wQueenside && (to == A1), false, false));
 			}
 			//Only way to remove rights is taking rook, so check for castle rook squares
 
@@ -1285,7 +1283,7 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bQueen, nullPiece, false, false, false, false, false, false));
 			}
 
 			//Non-captures like bishop
@@ -1293,12 +1291,12 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 			Bitloop(movesBB) {
 				to = square(SquareOf(movesBB));
 
-				generatedMoves.push_back(moves::encodeNormal(pos, to, p, nullPiece, false, false, false, false, false, false));
+				generatedMoves.push_back(moves::encodeNormal(pos, to, bQueen, nullPiece, false, false, false, false, false, false));
 			}
 		}
-	}
 
-	return generatedMoves;
+		return generatedMoves;
+	}
 }
 
 std::vector<move> Position::generatePseudoLegalQuiescenceMoves() {
