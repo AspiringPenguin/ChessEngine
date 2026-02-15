@@ -809,13 +809,6 @@ bool Position::isDraw() {
 	return false; //Stalemate is handled in eval
 }
 
-std::vector<move> Position::generatePseudoLegalMoves() {
-	if (toMove == white) {
-		return generatePseudoLegalMoves<white>();
-	}
-	return generatePseudoLegalMoves<black>();
-}
-
 template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 	auto generatedMoves = std::vector<move>();
 	generatedMoves.reserve(218);
@@ -1298,6 +1291,9 @@ template <color c> std::vector<move> Position::generatePseudoLegalMoves() {
 		return generatedMoves;
 	}
 }
+
+template std::vector<move> Position::generatePseudoLegalMoves<white>();
+template std::vector<move> Position::generatePseudoLegalMoves<black>();
 
 std::vector<move> Position::generatePseudoLegalQuiescenceMoves() {
 	auto generatedMoves = std::vector<move>();
