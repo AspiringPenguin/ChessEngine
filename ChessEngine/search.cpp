@@ -88,9 +88,9 @@ namespace search {
 		return p.inCheck() ? 1 : 0;
 	}
 
-	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
+	template <color c> int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
-			return negamaxQuiescence(alpha, beta, depth);
+			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
 		else if (p.isDraw()) {
 			nodes++;
@@ -103,7 +103,7 @@ namespace search {
 			return 0;
 		}
 		else if (reps == 2) {
-			return negamaxNoTT(alpha, beta, depth, depthRemaining, extensionsCount);
+			return negamaxNoTT<c>(alpha, beta, depth, depthRemaining, extensionsCount);
 		}
 
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
@@ -121,7 +121,7 @@ namespace search {
 		move bestMove = -1;
 		int score;
 		int legalMoves = 0;
-		auto moves = p.generatePseudoLegalMoves();
+		auto moves = p.generatePseudoLegalMoves<c>();
 
 		int moveN = 0;
 
@@ -140,7 +140,7 @@ namespace search {
 
 			extensions = getExtensions(extensionsCount);
 
-			score = -negamax(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+			score = -negamax<color(1 - c)>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -184,9 +184,9 @@ namespace search {
 		return bestVal;
 	}
 
-	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
+	template <color c> int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
-			return negamaxQuiescence(alpha, beta, depth);
+			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
 		else if (p.isDraw()) {
 			nodes++;
@@ -208,7 +208,7 @@ namespace search {
 		move bestMove = -1;
 		int score;
 		int legalMoves = 0;
-		auto moves = p.generatePseudoLegalMoves();
+		auto moves = p.generatePseudoLegalMoves<c>();
 
 		int moveN = 0;
 
@@ -227,7 +227,7 @@ namespace search {
 
 			extensions = getExtensions(extensionsCount);
 
-			score = -negamaxNoTT(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+			score = -negamaxNoTT<color(1 - c)>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -263,7 +263,7 @@ namespace search {
 		return bestVal;
 	}
 
-	int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
+	template <color c> int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
 		if (p.isDraw()) {
 			nodes++;
 			return 0;
@@ -303,7 +303,7 @@ namespace search {
 				continue;
 			}
 			captureMoves++;
-			score = -negamaxQuiescence(-beta, -alpha, depth + 1);
+			score = -negamaxQuiescence<color(1 - c)>(-beta, -alpha, depth + 1);
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -350,7 +350,14 @@ namespace search {
 		int depth = 0;
 		move bestMove = -1;
 
-		auto moves = p.generatePseudoLegalMoves();
+		std::vector<move> moves;
+
+		if (p.toMove == white) {
+			moves = p.generatePseudoLegalMoves<white>();
+		}
+		else {
+			moves = p.generatePseudoLegalMoves<black>();
+		}
 
 		int timeSearched = 0;
 		
@@ -391,7 +398,12 @@ namespace search {
 				}
 
 				legalMoves++;
-				score = -negamax(-beta, -alpha, 1, depth - 1, 0);
+				if (p.toMove == white) { //After black has moved
+					score = -negamax<white>(-beta, -alpha, 1, depth - 1, 0);
+				}
+				else { //After white has moved
+					score = -negamax<black>(-beta, -alpha, 1, depth - 1, 0);
+				}
 
 				p.undoMove(); 
 				

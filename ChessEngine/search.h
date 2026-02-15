@@ -14,9 +14,9 @@ namespace search {
 	class Searcher {
 	protected:
 		Position p;
-		int negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
-		int negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
-		int negamaxQuiescence(int alpha, int beta, int depth);
+		template <color c> int negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
+		template <color c> int negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
+		template <color c> int negamaxQuiescence(int alpha, int beta, int depth);
 		int nodes;
 
 		int ideal;
