@@ -31,10 +31,10 @@ namespace search {
 
 	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc, color toMove) {
 		if (toMove == white){
-			return { 0.03 * wtime + 0.5 * winc - 100, 0.05 * wtime + winc - 100};
+			return { 0.02 * wtime + 0.5 * winc, 0.04 * wtime + winc};
 		}
 		else {
-			return { 0.03 * btime + 0.5 * binc - 100, 0.05 * btime + binc - 100};
+			return { 0.02 * btime + 0.5 * binc, 0.04 * btime + binc};
 		}
 	}
 
