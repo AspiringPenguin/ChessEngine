@@ -22,9 +22,12 @@ int main() {
 
     std::getline(std::cin, cliInput, '\n');
 
+    bool useBook = true;
+
     if (cliInput == "uci") {
         std::cout << "id name AspireBot" << std::endl;
         std::cout << "id author AspiringPenguin" << std::endl;
+        std::cout << "option name OwnBook type check default true" << std::endl;
         std::cout << "uciok" << std::endl;
 
         //Uci loop
@@ -33,6 +36,8 @@ int main() {
         int chunkPos;
         std::string fenString;
         move m;
+        std::string optionName;
+        std::string optionValue;
 
         unsigned int wtime, winc, btime, binc;
 
@@ -54,6 +59,26 @@ int main() {
             else if (cliInput == "ucinewgame") {
                 s.loadStart();
                 tt::setSize(128);
+            }
+            else if (cliInput.substr(0, 9) == "setoption") {
+                chunks = split(cliInput, " ");
+
+                optionName = chunks[2];
+
+                if (chunks.size() < 5) { //No value
+                    continue;
+                }
+
+                optionValue = chunks[4];
+
+                if (optionName == "OwnBook") {
+                    if (optionValue == "true") {
+                        useBook = true;
+                    }
+                    else if (optionValue == "false") {
+                        useBook = false;
+                    }
+                }
             }
             else if (cliInput.substr(0, 2) == "go") {
                 stop = false;
@@ -85,10 +110,10 @@ int main() {
                 }
 
                 if (s.getToMove() == white) {
-                    m = s.go<white>(wtime, btime, winc, binc, &stop);
+                    m = s.go<white>(wtime, btime, winc, binc, &stop, useBook);
                 }
                 else {
-                    m = s.go<black>(wtime, btime, winc, binc, &stop);
+                    m = s.go<black>(wtime, btime, winc, binc, &stop, useBook);
                 }
 
                 std::cout << "bestmove ";
