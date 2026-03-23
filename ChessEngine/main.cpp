@@ -28,6 +28,7 @@ int main() {
         std::cout << "id name AspireBot" << std::endl;
         std::cout << "id author AspiringPenguin" << std::endl;
         std::cout << "option name OwnBook type check default true" << std::endl;
+        std::cout << "option name Hash type spin default 4 min 1 max 4096" << std::endl;
         std::cout << "uciok" << std::endl;
 
         //Uci loop
@@ -78,6 +79,10 @@ int main() {
                     else if (optionValue == "false") {
                         useBook = false;
                     }
+                }
+
+                else if (optionName == "Hash") {
+                    tt::setSize(std::stoi(optionValue));
                 }
             }
             else if (cliInput.substr(0, 2) == "go") {

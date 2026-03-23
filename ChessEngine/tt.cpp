@@ -13,7 +13,7 @@ namespace tt {
 	}
 
 	std::tuple<ttResult, int, move> ttProbe(const U64& zobrist, const int& alpha, const int& beta, const int& depth) {
-		U64 index = zobrist & (size - 1);
+		U64 index = zobrist % size;
 		auto entry = tt[index];
 		if (entry.type == empty) { //No stored value
 			return { ttNull, -1, -1 };
@@ -29,7 +29,7 @@ namespace tt {
 	}
 
 	void ttStore(const U64& zobrist, const int& eval, const move& move, const unsigned char& depth, const ttEntryType& entryType, bool firstMove) {
-		U64 index = zobrist & (size - 1);
+		U64 index = zobrist % size;
 		if (tt[index].type == empty) { //Is empty
 			tt[index] = ttEntry{ move, static_cast<short>(eval), entryType, depth };
 		}
