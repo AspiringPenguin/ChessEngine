@@ -300,7 +300,7 @@ namespace search {
 			}
 		}
 
-		auto moves = p.generatePseudoLegalQuiescenceMoves();
+		auto moves = p.generatePseudoLegalQuiescenceMoves<c>();
 
 		int moveN = 0;
 

@@ -71,7 +71,7 @@ public:
 	bool isDraw();
 
 	template <color c> std::vector<move> generatePseudoLegalMoves();
-	std::vector<move> generatePseudoLegalQuiescenceMoves();
+	template <color c> std::vector<move> generatePseudoLegalQuiescenceMoves();
 
 	U64 getAttacked(color by);
 
