@@ -284,20 +284,16 @@ namespace search {
 			return 0;
 		}
 
-		int bestVal = -10000;
 		int score;
 		int captureMoves = 0;
 
-		score = p.evaluate() * p.toMoveSigned; //Get static eval now
+		int bestVal = p.evaluate() * p.toMoveSigned; //Get static eval now
 		nodes++; //Have called static eval so increment
-		if (score >= beta || depth == maxDepth) {
-			return score;
+		if (bestVal >= beta || depth == maxDepth) {
+			return bestVal;
 		}
-		if (score > bestVal) {
-			bestVal = score;
-			if (score > alpha) {
-				alpha = score;
-			}
+		if (bestVal > alpha) {
+			alpha = bestVal;
 		}
 
 		auto moves = p.generatePseudoLegalQuiescenceMoves<c>();
@@ -330,11 +326,6 @@ namespace search {
 					alpha = score;
 				}
 			}
-		}
-
-		if (captureMoves == 0) {
-			nodes++;
-			return p.evaluate() * p.toMoveSigned;
 		}
 
 		return bestVal;
