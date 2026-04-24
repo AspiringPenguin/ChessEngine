@@ -131,3 +131,8 @@ bool sameColor(square sq1, square sq2);
 bool sameColor(unsigned char sq1, unsigned char sq2);
 
 square stringToSquare(std::string sq);
+
+enum nodeType {
+	PV,
+	NonPV
+};

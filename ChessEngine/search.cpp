@@ -93,7 +93,7 @@ namespace search {
 		return p.inCheck() ? 1 : 0;
 	}
 
-	template <color c>
+	template <color c, nodeType nType>
 	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
@@ -109,7 +109,7 @@ namespace search {
 			return 0;
 		}
 		else if (reps == 2) {
-			return negamaxNoTT<c>(alpha, beta, depth, depthRemaining, extensionsCount);
+			return negamaxNoTT<c, nType>(alpha, beta, depth, depthRemaining, extensionsCount);
 		}
 
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
@@ -146,7 +146,23 @@ namespace search {
 
 			extensions = getExtensions(extensionsCount);
 
-			score = -negamax<color(1 - c)>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+			if constexpr (nType == PV) {
+				if (firstMove) {
+					score = -negamax<color(1 - c), PV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				}
+				else {
+					score = -negamax<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					if (alpha < score && score < beta) {
+						score = -negamax<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					}
+				}
+			}
+			else {
+				score = -negamax<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				if (alpha < score && score < beta) {
+					score = -negamax<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				}
+			}
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -190,7 +206,7 @@ namespace search {
 		return bestVal;
 	}
 
-	template <color c>
+	template <color c, nodeType nType>
 	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
@@ -234,7 +250,23 @@ namespace search {
 
 			extensions = getExtensions(extensionsCount);
 
-			score = -negamaxNoTT<color(1 - c)>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+			if constexpr (nType == PV) {
+				if (firstMove) {
+					score = -negamaxNoTT<color(1 - c), PV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				}
+				else {
+					score = -negamaxNoTT<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					if (alpha < score && score < beta) {
+						score = -negamaxNoTT<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					}
+				}
+			}
+			else {
+				score = -negamaxNoTT<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				if (alpha < score && score < beta) {
+					score = -negamaxNoTT<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				}
+			}
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -308,6 +340,7 @@ namespace search {
 			}
 			captureMoves++;
 			score = -negamaxQuiescence<color(1 - c)>(-beta, -alpha, depth + 1);
+
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
@@ -385,6 +418,8 @@ namespace search {
 
 			int legalMoves = 0;
 
+			bool firstMove = true;
+
 			for (move move = getNextMove(moves, moveN, bestMove); move != -1; move = getNextMove(moves, moveN, bestMove)) {
 				if (*stop) {
 					break;
@@ -397,7 +432,15 @@ namespace search {
 				}
 
 				legalMoves++;
-				score = -negamax<color(1 - c)>(-beta, -alpha, 1, depth - 1, 0);
+				if (firstMove) {
+					score = -negamax<color(1 - c), PV>(-beta, -alpha, 1, depth - 1, 0);
+				}
+				else {
+					score = -negamax<color(1 - c), NonPV>(-alpha - 1, -alpha, 1, depth - 1, 0);
+					if (alpha < score < beta) {
+						score = -negamax<color(1 - c), NonPV>(-beta, -alpha, 1, depth - 1, 0);
+					}
+				}
 
 				p.undoMove(); 
 				
@@ -416,6 +459,8 @@ namespace search {
 						alpha = score;
 					}
 				}
+
+				firstMove = false;
 			}
 
 			if (!(*stop) || _bestMove != -1) { //if we weren't interrupted or there is a valid result - the best move on last generation is always searched first so this should work great
