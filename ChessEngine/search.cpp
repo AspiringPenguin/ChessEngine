@@ -93,7 +93,7 @@ namespace search {
 		return p.inCheck() ? 1 : 0;
 	}
 
-	template <color c, nodeType nType>
+	template <color c, nodeType nType, bool useTTScore>
 	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
@@ -104,12 +104,20 @@ namespace search {
 		}
 
 		const int reps = p.countRepetitions();
-		if (reps == 3) {
-			nodes++;
-			return 0;
+		if constexpr (useTTScore) {
+			if (reps == 3) {
+				nodes++;
+				return 0;
+			}
+			else if (reps == 2) {
+				return negamax<c, nType, false>(alpha, beta, depth, depthRemaining, extensionsCount);
+			}
 		}
-		else if (reps == 2) {
-			return negamaxNoTT<c, nType>(alpha, beta, depth, depthRemaining, extensionsCount);
+		else {
+			if (reps == 3) {
+				nodes++;
+				return 0;
+			}
 		}
 
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
@@ -117,9 +125,11 @@ namespace search {
 
 		const auto ttMove = std::get<2>(ttResult);
 
-		if (resultType == tt::ttScore) {
-			if (p.moveIsValid(ttMove)) {
-				return std::get<1>(ttResult);
+		if constexpr (useTTScore) {
+			if (resultType == tt::ttScore) {
+				if (p.moveIsValid(ttMove)) {
+					return std::get<1>(ttResult);
+				}
 			}
 		}
 
@@ -148,19 +158,19 @@ namespace search {
 
 			if constexpr (nType == PV) {
 				if (firstMove) {
-					score = -negamax<color(1 - c), PV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamax<color(1 - c), PV, useTTScore>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				}
 				else {
-					score = -negamax<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamax<color(1 - c), NonPV, useTTScore>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 					if (alpha < score && score < beta) {
-						score = -negamax<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+						score = -negamax<color(1 - c), NonPV, useTTScore>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 					}
 				}
 			}
 			else {
-				score = -negamax<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				score = -negamax<color(1 - c), NonPV, useTTScore>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				if (alpha < score && score < beta) {
-					score = -negamax<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamax<color(1 - c), NonPV, useTTScore>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				}
 			}
 			p.undoMove();
@@ -201,102 +211,6 @@ namespace search {
 		}
 		else { //Upper bound
 			tt::ttStore(p.zobrist, bestVal, bestMove, depthRemaining, tt::upperBound, false);
-		}
-
-		return bestVal;
-	}
-
-	template <color c, nodeType nType>
-	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
-		if (depthRemaining == 0) {
-			return negamaxQuiescence<c>(alpha, beta, depth);
-		}
-		else if (p.isDraw()) {
-			nodes++;
-			return 0;
-		}
-
-		const int reps = p.countRepetitions();
-		if (reps == 3) {
-			nodes++;
-			return 0;
-		}
-
-		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
-		auto resultType = std::get<0>(ttResult);
-
-		const auto ttMove = std::get<2>(ttResult);
-
-		int bestVal = -10000;
-		move bestMove = -1;
-		int score;
-		int legalMoves = 0;
-		auto moves = p.generatePseudoLegalMoves<c>();
-
-		int moveN = 0;
-
-		bool firstMove = true;
-		bool raisedAlpha = false;
-
-		int extensions;
-
-		for (move move = getNextMove(moves, moveN, ttMove); move != -1; move = getNextMove(moves, moveN, ttMove)) {
-			p.makeMove(move);
-			if (!p.moveWasLegal()) {
-				p.undoMove();
-				continue;
-			}
-			legalMoves++;
-
-			extensions = getExtensions(extensionsCount);
-
-			if constexpr (nType == PV) {
-				if (firstMove) {
-					score = -negamaxNoTT<color(1 - c), PV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
-				}
-				else {
-					score = -negamaxNoTT<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
-					if (alpha < score && score < beta) {
-						score = -negamaxNoTT<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
-					}
-				}
-			}
-			else {
-				score = -negamaxNoTT<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
-				if (alpha < score && score < beta) {
-					score = -negamaxNoTT<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
-				}
-			}
-			p.undoMove();
-
-			//Check here as the search may have been interrupted
-			if ((nodes & 0xFFF) == 0) {
-				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
-					break;
-				}
-			}
-
-			if (score >= beta) {
-				return score;
-			}
-			if (score > bestVal) {
-				bestVal = score;
-				bestMove = move;
-				if (score > alpha) {
-					alpha = score;
-					raisedAlpha = true;
-				}
-			}
-
-			firstMove = false;
-		}
-
-		if (legalMoves == 0) {
-			nodes++;
-			if (p.inCheck()) { //Checkmate
-				return (-10000 + depth);
-			}
-			return 0; //Stalemate
 		}
 
 		return bestVal;
@@ -433,12 +347,12 @@ namespace search {
 
 				legalMoves++;
 				if (firstMove) {
-					score = -negamax<color(1 - c), PV>(-beta, -alpha, 1, depth - 1, 0);
+					score = -negamax<color(1 - c), PV, true>(-beta, -alpha, 1, depth - 1, 0);
 				}
 				else {
-					score = -negamax<color(1 - c), NonPV>(-alpha - 1, -alpha, 1, depth - 1, 0);
+					score = -negamax<color(1 - c), NonPV, true>(-alpha - 1, -alpha, 1, depth - 1, 0);
 					if (alpha < score && score < beta) {
-						score = -negamax<color(1 - c), NonPV>(-beta, -alpha, 1, depth - 1, 0);
+						score = -negamax<color(1 - c), NonPV, true>(-beta, -alpha, 1, depth - 1, 0);
 					}
 				}
 
