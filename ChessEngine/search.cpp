@@ -109,7 +109,7 @@ namespace search {
 			return 0;
 		}
 		else if (reps == 2) {
-			return negamaxNoTT<c, nType>(alpha, beta, depth, depthRemaining, extensionsCount);
+			return negamaxNoTTScore(alpha, beta, depth, depthRemaining, extensionsCount);
 		}
 
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
@@ -207,7 +207,7 @@ namespace search {
 	}
 
 	template <color c, nodeType nType>
-	int Searcher::negamaxNoTT(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
+	int search::Searcher::negamaxNoTTScore(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
@@ -252,19 +252,19 @@ namespace search {
 
 			if constexpr (nType == PV) {
 				if (firstMove) {
-					score = -negamaxNoTT<color(1 - c), PV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamaxNoTTScore(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				}
 				else {
-					score = -negamaxNoTT<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamaxNoTTScore(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 					if (alpha < score && score < beta) {
-						score = -negamaxNoTT<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+						score = -negamaxNoTTScore(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 					}
 				}
 			}
 			else {
-				score = -negamaxNoTT<color(1 - c), NonPV>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				score = -negamaxNoTTScore(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				if (alpha < score && score < beta) {
-					score = -negamaxNoTT<color(1 - c), NonPV>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamaxNoTTScore(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				}
 			}
 			p.undoMove();
