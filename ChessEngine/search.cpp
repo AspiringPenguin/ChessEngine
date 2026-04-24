@@ -437,7 +437,7 @@ namespace search {
 				}
 				else {
 					score = -negamax<color(1 - c), NonPV>(-alpha - 1, -alpha, 1, depth - 1, 0);
-					if (alpha < score < beta) {
+					if (alpha < score && score < beta) {
 						score = -negamax<color(1 - c), NonPV>(-beta, -alpha, 1, depth - 1, 0);
 					}
 				}
