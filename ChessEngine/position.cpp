@@ -1807,6 +1807,11 @@ int Position::evaluate() { //In centipawns
 	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase) + eval::getBoardControl(this) + eval::getPawnEval(this); // +tempo;
 }
 
+int Position::cheapEvaluate() { //In centipawns, only incrementally updated stuff
+	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase);
+}
+
+
 //Incremental update full calculations
 //For FEN loading and reset - incrementally update the rest
 void Position::calculatePhase() { 

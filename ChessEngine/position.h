@@ -83,5 +83,6 @@ public:
 
 	bool moveIsValid(const move& m);
 
+	int cheapEvaluate();
 	int evaluate();
 };
