@@ -122,13 +122,23 @@ namespace search {
 
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
 		auto resultType = std::get<0>(ttResult);
-
 		const auto ttMove = std::get<2>(ttResult);
 
 		if constexpr (useTTScore) {
+			const int ttScore = std::get<1>(ttResult);
 			if (resultType == tt::ttScore) {
 				if (p.moveIsValid(ttMove)) {
-					return std::get<1>(ttResult);
+					return ttScore;
+				}
+			}
+			if constexpr (nType == NonPV) {
+				//Futility pruning using TT score from a ply less
+				if (resultType == tt::ttMaybeScore) {
+					if (p.moveIsValid(ttMove)) {
+						if (ttScore > (beta + 250)) {
+							return ttScore;
+						}
+					}
 				}
 			}
 		}

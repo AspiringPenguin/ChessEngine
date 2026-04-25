@@ -18,10 +18,10 @@ namespace tt {
 		if (entry.type == empty) { //No stored value
 			return { ttNull, -1, -1 };
 		}
-		if (entry.depth >= depth) {
+		if (entry.depth >= (depth - 1)) {
 			if (entry.type == exact || (entry.type == lowerBound && entry.score > beta) || (entry.type == upperBound && entry.score < alpha)) {
 				if (std::abs(entry.score) < 9900) { //If its not mate - this is dependent on depth from root
-					return { ttScore, entry.score, entry.m };
+					return { entry.depth >= depth ? ttScore : ttMaybeScore, entry.score, entry.m };
 				}
 			}
 		}

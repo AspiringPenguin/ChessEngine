@@ -7,6 +7,7 @@ namespace tt {
 		ttNull = 0,
 		ttScore = 1,
 		ttMove = 2,
+		ttMaybeScore = 3,
 	};
 
 	enum ttEntryType : char {
