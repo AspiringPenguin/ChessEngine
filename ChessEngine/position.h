@@ -19,13 +19,6 @@ protected:
 
 	int moveNum = -1;
 
-	//Eval stuff
-	int phase;
-	int materialStart;
-	int materialEnd;
-	int bonusesStart;
-	int bonusesEnd;
-
 	//Castling rights
 	bool wKingside = true;
 	bool wQueenside = true;
@@ -54,6 +47,13 @@ public:
 	color toMove;
 	int toMoveSigned;
 
+	//Eval stuff
+	int phase;
+	int materialStart;
+	int materialEnd;
+	int bonusesStart;
+	int bonusesEnd;
+
 	Position();
 	Position(const std::string& fen);
 
@@ -63,8 +63,11 @@ public:
 	void loadFEN(const std::string& fen);
 
 	void makeMove(const move& m);
+	void makeNullMove();
 	void makeMove(const move& m, bool reversible);
 	void undoMove();
+
+	void undoNullMove();
 
 	int countRepetitions();
 

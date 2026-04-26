@@ -545,6 +545,12 @@ void Position::makeMove(const move& m) {
 	makeMove(m, true);
 }
 
+void Position::makeNullMove() {
+	toMove = color(1 - toMove); //Flip toMove
+	toMoveSigned = -1 * toMoveSigned;
+	zobrist ^= zobrist::values[780];
+}
+
 void Position::undoMove() {
 	if (moveNum == -1) {
 		throw std::out_of_range("Undo move was attempted with no moves to undo.");
@@ -765,6 +771,12 @@ void Position::undoMove() {
 	zobrist ^= zobrist::values[780];
 
 	positionsTail--; //Remove the Positions just by decrementing the tail - it will be overwritten when necessary in makeMove
+}
+
+void Position::undoNullMove() {
+	toMove = color(1 - toMove); //Flip toMove
+	toMoveSigned = -1 * toMoveSigned;
+	zobrist ^= zobrist::values[780];
 }
 
 int Position::countRepetitions() {

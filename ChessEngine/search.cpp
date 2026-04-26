@@ -93,7 +93,7 @@ namespace search {
 		return p.inCheck() ? 1 : 0;
 	}
 
-	template <color c, nodeType nType, bool useTTScore>
+	template <color c, nodeType nType, bool useTTScore, bool useNullMove>
 	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
@@ -110,7 +110,7 @@ namespace search {
 				return 0;
 			}
 			else if (reps == 2) {
-				return negamax<c, nType, false>(alpha, beta, depth, depthRemaining, extensionsCount);
+				return negamax<c, nType, false, useNullMove>(alpha, beta, depth, depthRemaining, extensionsCount);
 			}
 		}
 		else {
@@ -123,6 +123,7 @@ namespace search {
 		auto ttResult = tt::ttProbe(p.zobrist, alpha, beta, depthRemaining);
 		auto resultType = std::get<0>(ttResult);
 		const auto ttMove = std::get<2>(ttResult);
+		int score;
 
 		if constexpr (useTTScore) {
 			const int ttScore = std::get<1>(ttResult);
@@ -142,10 +143,23 @@ namespace search {
 				}
 			}
 		}
+		//Null move pruning
+		if constexpr (nType == NonPV && useNullMove) {
+			if (depthRemaining > 3) {
+				if (p.phase >= 1 && !p.inCheck()) { //If pieces other than pawns are on the board
+					p.makeNullMove();
+					int r = 3;
+					score = -negamax<color(1 - c), NonPV, useTTScore, false>(-beta, -(beta - 1), depth, depthRemaining - r, extensionsCount);
+					p.undoNullMove();
+					if (score >= beta) {
+						return score;
+					}
+				}
+			}
+		}
 
 		int bestVal = -10000;
 		move bestMove = -1;
-		int score;
 		int legalMoves = 0;
 		auto moves = p.generatePseudoLegalMoves<c>();
 
@@ -168,19 +182,19 @@ namespace search {
 
 			if constexpr (nType == PV) {
 				if (firstMove) {
-					score = -negamax<color(1 - c), PV, useTTScore>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamax<color(1 - c), PV, useTTScore, useNullMove>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				}
 				else {
-					score = -negamax<color(1 - c), NonPV, useTTScore>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 					if (alpha < score && score < beta) {
-						score = -negamax<color(1 - c), NonPV, useTTScore>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+						score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 					}
 				}
 			}
 			else {
-				score = -negamax<color(1 - c), NonPV, useTTScore>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				if (alpha < score && score < beta) {
-					score = -negamax<color(1 - c), NonPV, useTTScore>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 				}
 			}
 			p.undoMove();
@@ -357,12 +371,12 @@ namespace search {
 
 				legalMoves++;
 				if (firstMove) {
-					score = -negamax<color(1 - c), PV, true>(-beta, -alpha, 1, depth - 1, 0);
+					score = -negamax<color(1 - c), PV, true, true>(-beta, -alpha, 1, depth - 1, 0);
 				}
 				else {
-					score = -negamax<color(1 - c), NonPV, true>(-alpha - 1, -alpha, 1, depth - 1, 0);
+					score = -negamax<color(1 - c), NonPV, true, true>(-alpha - 1, -alpha, 1, depth - 1, 0);
 					if (alpha < score && score < beta) {
-						score = -negamax<color(1 - c), NonPV, true>(-beta, -alpha, 1, depth - 1, 0);
+						score = -negamax<color(1 - c), NonPV, true, true>(-beta, -alpha, 1, depth - 1, 0);
 					}
 				}
 
