@@ -16,6 +16,42 @@ Position::Position(const std::string& fen) {
 	loadFEN(fen);
 }
 
+Position::Position(Position const& toCopy) {
+	std::copy(std::begin(toCopy.moves), std::end(toCopy.moves), std::begin(moves));
+	std::copy(std::begin(toCopy.counters), std::end(toCopy.counters), std::begin(counters));
+	lastMove = toCopy.lastMove;
+
+	counter = toCopy.counter;
+
+	std::copy(std::begin(toCopy.positions), std::end(toCopy.positions), std::begin(positions));
+	positionsHead = toCopy.positionsHead;
+	positionsTail = toCopy.positionsTail;
+
+	moveNum = toCopy.moveNum;
+
+	phase = toCopy.phase;
+	materialStart = toCopy.materialStart;
+	materialEnd = toCopy.materialEnd;
+	bonusesStart = toCopy.bonusesStart;
+	bonusesEnd = toCopy.bonusesEnd;
+
+	wKingside = toCopy.wKingside;
+	wQueenside = toCopy.wQueenside;
+	bKingside = toCopy.bKingside;
+	bQueenside = toCopy.bQueenside;
+
+	enPassantSquare = toCopy.enPassantSquare;
+
+	std::copy(std::begin(toCopy.mailbox), std::end(toCopy.mailbox), std::begin(mailbox));
+	std::copy(std::begin(toCopy.bitboards), std::end(toCopy.bitboards), std::begin(bitboards));
+	std::copy(std::begin(toCopy.colorBitboards), std::end(toCopy.colorBitboards), std::begin(colorBitboards));
+	allBitboard = toCopy.allBitboard;
+
+	zobrist = toCopy.zobrist;
+	toMove = toCopy.toMove;
+	toMoveSigned = toCopy.toMoveSigned;
+}
+
 //Set up aggregate bitboards
 void Position::updateBitboards() {
 	colorBitboards[white] = bitboards[wPawn] | bitboards[wKnight] | bitboards[wBishop] | bitboards[wRook] | bitboards[wQueen] | bitboards[wKing];

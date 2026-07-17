@@ -56,6 +56,7 @@ public:
 
 	Position();
 	Position(const std::string& fen);
+	Position(Position const& toCopy);
 
 	void showPosition(color perspective = white);
 
