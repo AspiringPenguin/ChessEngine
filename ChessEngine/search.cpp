@@ -377,6 +377,60 @@ namespace search {
 
 	template<color c>
 	int SearchNode::randomPlayout() {
+		int numMoves = 0;
+
+		//For pseudo-random numbers
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<> dist(0, 1);
+
+		std:vector<move> moves;
+		int moveNum;
+		int numMoves;
+		move m;
+		bool foundLegalMove;
+
+		while (true) {
+			//Check here for a draw
+			//if it's a draw, then it's a draw
+			if (p.isDraw()) {
+				return 0;
+			}
+
+			//Repetition is separate
+			const int reps = p.countRepetitions();
+			if (reps == 3) {
+				return 0;
+			}
+
+			moves = p.generatePseudoLegalMoves<c>();
+			numMoves = moves.size();
+			moveNum = std::floor(dist(gen) * numMoves);
+			foundLegalMove = false;
+
+			for (int i = 0; i < numMoves; i++) {
+				m = moves[i % numMoves];
+				p.makeMove(m);
+				if (p.moveWasLegal()) {
+					foundLegalMove = true;
+					break;
+				}
+				p.undoMove();
+			}
+
+			//Check here for checks - stalemate or checkmate
+			if (!foundLegalMove) {
+				if (p.inCheck()) { //Checkmate
+					return (p.toMove != positiveSide) * 2 - 1;
+				}
+				return 0; //Stalemate
+			}
+		}
+
+		for (i = 0; i < numMoves; i++) {
+			p.undoMove();
+		}
+		
 		return 0;
 	}
 
