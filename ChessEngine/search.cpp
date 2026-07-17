@@ -41,16 +41,19 @@ namespace search {
 
 	SearchNode::SearchNode() {
 		p = Position();
+		positiveSide = white;
 		init();
 	}
 
 	SearchNode::SearchNode(const std::string& fen) {
 		p = Position(fen);
+		positiveSide = p.toMove;
 		init();
 	}
 
 	SearchNode::SearchNode(SearchNode const & toCopy) {
 		p = Position(toCopy.p);
+		positiveSide = toCopy.positiveSide;
 		init();
 	}
 
@@ -62,10 +65,12 @@ namespace search {
 
 	void SearchNode::loadStart() {
 		p.loadStart();
+		positiveSide = white;
 	}
 
 	void SearchNode::loadFEN(const std::string& fen) {
 		p.loadFEN(fen);
+		positiveSide = p.toMove;
 	}
 
 	void SearchNode::makeMove(const move& m) {
@@ -307,6 +312,18 @@ namespace search {
 		}
 	}
 
+	template<color c>
+	int SearchNode::selectExpandBackpropogate()
+	{
+		//Special cases
+		if (children.size() == 0) {
+			return 0;
+		}
+
+		//Normal case
+		return 0;
+	}
+
 	//To avoid compiler errors
 	template move SearchNode::go<white>(int wtime, int btime, int winc, int binc, bool useBook);
 	template move SearchNode::go<black>(int wtime, int btime, int winc, int binc, bool useBook);
@@ -335,9 +352,9 @@ namespace search {
 		//For pseudo-random numbers
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> dist(0, 217);
+		std::uniform_real_distribution<> dist(0, 1);
 
-		int moveNum = dist(gen) % moves.size();
+		int moveNum = std::floor(dist(gen) * moves.size());
 
 		move m;
 

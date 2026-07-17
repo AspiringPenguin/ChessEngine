@@ -18,6 +18,7 @@ namespace search {
 		template <color c> int negamaxQuiescence(int alpha, int beta, int depth);
 
 		template<color c> void generateChildren();
+		template<color c> int selectExpandBackpropogate();
 
 		int nodes;
 
@@ -27,6 +28,8 @@ namespace search {
 		std::chrono::steady_clock::time_point start;
 
 		std::vector<std::shared_ptr<SearchNode>> children;
+
+		color positiveSide;
 
 	public:
 		SearchNode();
