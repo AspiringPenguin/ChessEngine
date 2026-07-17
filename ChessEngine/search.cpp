@@ -324,7 +324,13 @@ namespace search {
 				return 0;
 			}
 
-			//Checkmate requires knowledge that we have generated children
+			//Repetition is separate
+			const int reps = p.countRepetitions();
+			if (reps == 3) {
+				return 0;
+			}
+
+			//Checkmate requires knowledge that we have generated children and still got none
 			if (p.inCheck() && haveGeneratedChildren) { //Checkmate
 				return (p.toMove != positiveSide) * 2 - 1;
 			}
