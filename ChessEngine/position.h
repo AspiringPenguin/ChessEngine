@@ -6,10 +6,7 @@ constexpr int numPositions = 100 + maxDepth; //So we still have accurate history
 
 class Position {
 protected:
-	move moves[maxDepth]{};
 	int counters[maxDepth]{}; //For resetting of 50 move clock - the counter before the matching move was applied
-	move lastMove; //Keep the last move at the root here - the last irreversible move
-
 	int counter = 0; //For the 50-move rule, add/subtract 1 every 'half-move', draw when >= 100
 
 	U64 positions[numPositions]; //Use circularly to store last 100 positions' zobrist hashes
@@ -48,6 +45,9 @@ public:
 	U64 bitboards[16]{ }; //Initialise as 0s
 	U64 colorBitboards[2]{ }; //0 = white, 1 = black
 	U64 allBitboard = 0;
+
+	move moves[maxDepth]{};
+	move lastMove; //Keep the last move at the root here - the last irreversible move
 
 	U64 zobrist = 0;
 

@@ -358,7 +358,7 @@ namespace search {
 			double childUCT;
 
 			for (int i = 0; i < children.size(); i++) {
-				childUCT = children[i]->calcUCT(searches);
+				childUCT = (children[i])->calcUCT(searches);
 				if (childUCT > bestChildUCT) {
 					bestChildUCT = childUCT;
 					bestChildIndex = i;
@@ -366,7 +366,7 @@ namespace search {
 			}
 
 			//Continue down the tree
-			result = children[bestChildIndex]->selectExpandBackPropogate<color(1 - c)>();
+			result = children[bestChildIndex]->selectExpandBackpropogate<color(1 - c)>();
 		}
 
 		searches++;
@@ -377,14 +377,14 @@ namespace search {
 
 	template<color c>
 	int SearchNode::randomPlayout() {
-		int numMoves = 0;
+		int numMovesPlayed = 0;
 
 		//For pseudo-random numbers
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_real_distribution<> dist(0, 1);
 
-		std:vector<move> moves;
+		std::vector<move> moves;
 		int moveNum;
 		int numMoves;
 		move m;
@@ -403,7 +403,12 @@ namespace search {
 				return 0;
 			}
 
-			moves = p.generatePseudoLegalMoves<p.toMove>();
+			if (p.toMove == white) {
+				moves = p.generatePseudoLegalMoves<white>();
+			}
+			else {
+				moves = p.generatePseudoLegalMoves<black>();
+			}
 			numMoves = moves.size();
 			moveNum = std::floor(dist(gen) * numMoves);
 			foundLegalMove = false;
@@ -427,7 +432,7 @@ namespace search {
 			}
 		}
 
-		for (i = 0; i < numMoves; i++) {
+		for (int i = 0; i < numMovesPlayed; i++) {
 			p.undoMove();
 		}
 		
@@ -457,7 +462,7 @@ namespace search {
 		
 		generateChildren<c>();
 		int count = 0;
-		while ((std::chrono::high_resolution_clock::now() - start).count < ideal) {
+		while ((std::chrono::high_resolution_clock::now() - start).count() < ideal) {
 			count++;
 			for (int i = 0; i < 10000; i++) { //Run 10000 iterations at a time
 				selectExpandBackpropogate<c>(); //Ignore the result as we are already being updated
