@@ -304,7 +304,7 @@ namespace search {
 			return FLT_MAX;
 		}
 
-		return (searchResults/searches) + uctConst*std::sqrt(std::log(parentSearches)/searches);
+		return ((((double) searchResults)/ ((double) searches))*0.5 + 0.5) + uctConst*std::sqrt(std::log(parentSearches)/searches);
 	}
 
 	template<color c>
@@ -340,14 +340,20 @@ namespace search {
 				return 0;
 			}
 
-			//Checkmate requires knowledge that we have generated children and still got none
-			if (p.inCheck() && haveGeneratedChildren) { //Checkmate
-				return (p.toMove != positiveSide) * 2 - 1;
+			//We need to check we have generated children before testing for checkmate
+			if (!haveGeneratedChildren) {
+				generateChildren<c>();
 			}
 
-			//None of the other cases apply, generate children and produce a random playthrough for one of them.
-			generateChildren<c>();
+			//No legal moves - we know for sure now
+			if (children.size() == 0) {
+				if (p.inCheck()) { //Checkmate
+					return (p.toMove != positiveSide) * 2 - 1;
+				}
+				return 0;
+			}
 
+			//None of the other cases apply, produce a random playthrough for a child.
 			result = children[0]->randomPlayout<color(1 - c)>();
 		}
 		else {
