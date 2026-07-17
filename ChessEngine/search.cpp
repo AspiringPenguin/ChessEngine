@@ -346,7 +346,7 @@ namespace search {
 			}
 
 			//None of the other cases apply, generate children and produce a random playthrough for one of them.
-			generateChildren<c>;
+			generateChildren<c>();
 
 			result = children[0]->randomPlayout<color(1 - c)>();
 		}
@@ -403,7 +403,7 @@ namespace search {
 				return 0;
 			}
 
-			moves = p.generatePseudoLegalMoves<c>();
+			moves = p.generatePseudoLegalMoves<p.toMove>();
 			numMoves = moves.size();
 			moveNum = std::floor(dist(gen) * numMoves);
 			foundLegalMove = false;
@@ -454,32 +454,29 @@ namespace search {
 		max = std::get<1>(res);
 
 		start = std::chrono::high_resolution_clock::now();
-		int depth = 0;
-		move bestMove = -1;
-
-		auto moves = p.generatePseudoLegalMoves<c>();
-
-		//For pseudo-random numbers
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_real_distribution<> dist(0, 1);
-
-		int moveNum = std::floor(dist(gen) * moves.size());
-
-		move m;
-
-		while (true) {
-			m = moves[moveNum];
-			p.makeMove(m);
-			if (p.moveWasLegal()) {
-				p.undoMove();
-				return m;
+		
+		generateChildren<c>();
+		int count = 0;
+		while ((std::chrono::high_resolution_clock::now() - start).count < ideal) {
+			count++;
+			for (int i = 0; i < 10000; i++) { //Run 10000 iterations at a time
+				selectExpandBackpropogate<c>(); //Ignore the result as we are already being updated
 			}
-			p.undoMove();
-			moveNum++;
-			moveNum %= moves.size();
+			//Tell UCI what we are doing
+			std::cout << "uci info nodes " << count * 10000 << std::endl;
 		}
 
-		return -1;
+		//Find the best move
+		move bestMove = -1;
+		double bestRatio = -1;
+		double childRatio;
+
+		for (auto c : children) {
+			childRatio = (c->searchResults / ((float) c->searches));
+			if (childRatio > bestRatio) {
+				bestMove = c->p.lastMove;
+			}
+		}
+		return bestMove;
 	}
 }
