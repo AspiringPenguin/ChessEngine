@@ -39,55 +39,60 @@ namespace search {
 		}
 	}
 
-	Searcher::Searcher() {
+	SearchNode::SearchNode() {
 		p = Position();
 		init();
 	}
 
-	Searcher::Searcher(const std::string& fen) {
+	SearchNode::SearchNode(const std::string& fen) {
 		p = Position(fen);
 		init();
 	}
 
-	void Searcher::init() {
+	SearchNode::SearchNode(SearchNode const& toCopy) {
+		p = Position(toCopy.p);
+		init();
+	}
+
+	void SearchNode::init() {
 		nodes = 0;
 		ideal = 0;
 		max = 0;
 	}
 
-	void Searcher::loadStart() {
+	void SearchNode::loadStart() {
 		p.loadStart();
 	}
 
-	void Searcher::loadFEN(const std::string& fen) {
+	void SearchNode::loadFEN(const std::string& fen) {
 		p.loadFEN(fen);
 	}
 
-	void Searcher::makeMove(const move& m) {
+	void SearchNode::makeMove(const move& m) {
 		p.makeMove(m, false);
 	}
 
-	void Searcher::showPosition() {
+	void SearchNode::showPosition() {
 		p.showPosition();
 	}
 
-	color Searcher::getToMove() {
+	color SearchNode::getToMove() {
 		return p.toMove;
 	}
 
-	move Searcher::UCIMoveAsInternal(const std::string& move) {
+	move SearchNode::UCIMoveAsInternal(const std::string& move) {
 		return p.UCIMoveAsInternal(move);
 	}
 
-	int Searcher::getNodes() {
+	int SearchNode::getNodes() {
 		return nodes;
 	}
 
-	void Searcher::resetNodes() {
+	void SearchNode::resetNodes() {
 		nodes = 0;
 	}
 
-	int Searcher::getExtensions(int extensionsCount) {
+	int SearchNode::getExtensions(int extensionsCount) {
 		if (extensionsCount == 16) {
 			return 0;
 		}
@@ -95,7 +100,7 @@ namespace search {
 	}
 
 	template <color c, nodeType nType, bool useTTScore>
-	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
+	int SearchNode::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
@@ -228,7 +233,7 @@ namespace search {
 	}
 
 	template <color c>
-	int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
+	int SearchNode::negamaxQuiescence(int alpha, int beta, int depth) {
 		if (p.isDraw()) {
 			nodes++;
 			return 0;
@@ -290,12 +295,12 @@ namespace search {
 	}
 
 	//To avoid compiler errors
-	template move Searcher::go<white>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
-	template move Searcher::go<black>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
+	template move SearchNode::go<white>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
+	template move SearchNode::go<black>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
 
 	//High level search
 	template <color c>
-	move Searcher::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
+	move SearchNode::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
 		if (useBook) {
 			if (book::book.contains(p.zobrist)) {
 				std::string stringMove = book::chooseMove(book::book[p.zobrist]);

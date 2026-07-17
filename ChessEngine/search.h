@@ -11,7 +11,7 @@ namespace search {
 
 	std::tuple<int, int> getIdealAndMaxTimes(int wtime, int btime, int winc, int binc, color toMove);
 
-	class Searcher {
+	class SearchNode {
 	protected:
 		Position p;
 		template <color c, nodeType nType, bool useTTScore> int negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
@@ -23,9 +23,12 @@ namespace search {
 
 		std::chrono::steady_clock::time_point start;
 
+		std::vector<std::shared_ptr<SearchNode>> children;
+
 	public:
-		Searcher();
-		Searcher(const std::string& fen);
+		SearchNode();
+		SearchNode(const std::string& fen);
+		SearchNode(SearchNode const&);
 
 		void init();
 
