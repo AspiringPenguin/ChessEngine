@@ -317,6 +317,8 @@ namespace search {
 	template<color c>
 	int SearchNode::selectExpandBackpropogate()
 	{
+		int result;
+
 		//Special cases
 		if (children.size() == 0) {
 			//if it's a draw, then it's a draw
@@ -335,11 +337,23 @@ namespace search {
 				return (p.toMove != positiveSide) * 2 - 1;
 			}
 
+			//None of the other cases apply, generate children and produce a random playthrough for one of them.
 			generateChildren<c>;
+
+			result = children[0]->randomPlayout();
+		}
+		else {
+			//Normal case
+			//Choose child
+
+			//Continue down the tree
+			result = nullptr->selectExpandBackPropogate<color(1 - c)>();
 		}
 
-		//Normal case
-		return 0;
+		searches++;
+		searchResults += result;
+
+		return result;
 	}
 
 	//To avoid compiler errors

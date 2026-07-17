@@ -25,6 +25,9 @@ namespace search {
 		int ideal;
 		int max;
 
+		int searches = 0;
+		int searchResults = 0;
+
 		bool haveGeneratedChildren = false;
 
 		std::chrono::steady_clock::time_point start;
