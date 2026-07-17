@@ -4,6 +4,7 @@
 #include "tt.h"
 
 #include <iostream>
+#include <random>
 
 namespace search {
 	int scoreMove(const move& m, const move& ttMove) {
@@ -311,100 +312,29 @@ namespace search {
 		int depth = 0;
 		move bestMove = -1;
 
-		std::vector<move> moves;
-		
-		moves = p.generatePseudoLegalMoves<c>();
+		auto moves = p.generatePseudoLegalMoves<c>();
 
-		int timeSearched = 0;
-		
-		int bestVal = -10001;
+		//For pseudo-random numbers
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dist(0, 217);
 
-		//While elapsed time is less than the ideal search time
-		while (timeSearched < ideal || depth == 0) {
-			depth++; 
-			
-			if (depth > maxDepth) {
-				*stop = true;
-				break;
+		int moveNum = dist(gen) % moves.size();
+
+		move m;
+
+		while (true) {
+			m = moves[moveNum];
+			p.makeMove(m);
+			if (p.moveWasLegal()) {
+				p.undoMove();
+				return m;
 			}
-
-			std::cout << "info depth " << depth << std::endl;
-
-			move _bestMove = -1;
-			int _bestVal = -10001;
-
-			int moveN = 0;
-
-			int score;
-
-			int alpha = -10000;
-			int beta = 10000;
-
-			int legalMoves = 0;
-
-			bool firstMove = true;
-
-			for (move move = getNextMove(moves, moveN, bestMove); move != -1; move = getNextMove(moves, moveN, bestMove)) {
-				if (*stop) {
-					break;
-				}
-
-				p.makeMove(move);
-				if (!p.moveWasLegal()) {
-					p.undoMove();
-					continue;
-				}
-
-				legalMoves++;
-				if (firstMove) {
-					score = -negamax<color(1 - c), PV, true>(-beta, -alpha, 1, depth - 1, 0);
-				}
-				else {
-					score = -negamax<color(1 - c), NonPV, true>(-alpha - 1, -alpha, 1, depth - 1, 0);
-					if (alpha < score && score < beta) {
-						score = -negamax<color(1 - c), NonPV, true>(-beta, -alpha, 1, depth - 1, 0);
-					}
-				}
-
-				p.undoMove(); 
-				
-				//Check here as the search may have been interrupted
-				timeSearched = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
-
-				if (timeSearched > max && depth != 1) {
-					*stop = true;
-					break;
-				}
-
-				if (score > _bestVal) {
-					_bestVal = score;
-					_bestMove = move;
-					if (score > alpha) {
-						alpha = score;
-					}
-				}
-
-				firstMove = false;
-			}
-
-			if (!(*stop) || _bestMove != -1) { //if we weren't interrupted or there is a valid result - the best move on last generation is always searched first so this should work great
-				bestMove = _bestMove; //update best move and eval
-				bestVal = _bestVal;
-
-				//get time searched
-				timeSearched = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
-
-				if (bestVal > 9900 || bestVal < -9900) {
-					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? ((-std::abs(bestVal) + 10000)/2 + 1) : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
-					moves::showMove(bestMove);
-				}
-				else {
-					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
-					moves::showMove(bestMove);
-				}
-			}
+			p.undoMove();
+			moveNum++;
+			moveNum %= moves.size();
 		}
-		
-		return bestMove;
+
+		return -1;
 	}
 }
