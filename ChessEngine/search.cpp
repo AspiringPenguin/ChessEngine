@@ -462,13 +462,13 @@ namespace search {
 		
 		generateChildren<c>();
 		int count = 0;
-		while ((std::chrono::high_resolution_clock::now() - start).count() < ideal) {
+		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal || count == 0) {
 			count++;
-			for (int i = 0; i < 10000; i++) { //Run 10000 iterations at a time
+			for (int i = 0; i < 1000; i++) { //Run 1000 iterations at a time
 				selectExpandBackpropogate<c>(); //Ignore the result as we are already being updated
 			}
 			//Tell UCI what we are doing
-			std::cout << "uci info nodes " << count * 10000 << std::endl;
+			std::cout << "uci info nodes " << count * 1000 << std::endl;
 		}
 
 		//Find the best move
@@ -479,7 +479,7 @@ namespace search {
 		for (auto c : children) {
 			childRatio = (c->searchResults / ((float) c->searches));
 			if (childRatio > bestRatio) {
-				bestMove = c->p.lastMove;
+				bestMove = c->p.moves[0];
 			}
 		}
 		return bestMove;
