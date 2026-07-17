@@ -42,14 +42,12 @@ int main() {
 
         unsigned int wtime, winc, btime, binc;
 
-        search::Searcher s = search::Searcher();
-
-        bool stop = false;
+        auto s = std::make_unique<search::SearchNode>();
 
         while (true) {
             std::getline(std::cin, cliInput, '\n');
 
-            s.resetNodes();
+            s->resetNodes();
 
             if (cliInput == "quit") {
                 break;
@@ -58,7 +56,7 @@ int main() {
                 std::cout << "readyok" << std::endl;
             }
             else if (cliInput == "ucinewgame") {
-                s.loadStart();
+                s->loadStart();
                 tt::setSize(128);
             }
             else if (cliInput.substr(0, 9) == "setoption") {
@@ -86,8 +84,6 @@ int main() {
                 }
             }
             else if (cliInput.substr(0, 2) == "go") {
-                stop = false;
-
                 chunks = split(cliInput, " ");
 
                 chunkPos = 1;
@@ -114,11 +110,11 @@ int main() {
                     chunkPos += 2;
                 }
 
-                if (s.getToMove() == white) {
-                    m = s.go<white>(wtime, btime, winc, binc, &stop, useBook);
+                if (s->getToMove() == white) {
+                    m = s->go<white>(wtime, btime, winc, binc, useBook);
                 }
                 else {
-                    m = s.go<black>(wtime, btime, winc, binc, &stop, useBook);
+                    m = s->go<black>(wtime, btime, winc, binc, useBook);
                 }
 
                 std::cout << "bestmove ";
@@ -135,10 +131,10 @@ int main() {
                         fenString += chunks[chunkPos];
                         chunkPos++;
                     }
-                    s.loadFEN(fenString);
+                    s = std::make_unique<search::SearchNode>(fenString);
                 }
                 else if (chunks[1] == "startpos") {
-                    s.loadStart();
+                    s->loadStart();
                     chunkPos = 2;
                 }
                 else {
@@ -153,8 +149,8 @@ int main() {
                 if (chunks[chunkPos] == "moves") {
                     chunkPos++;
                     while (chunks.size() != chunkPos) {
-                        m = s.UCIMoveAsInternal(chunks[chunkPos]);
-                        s.makeMove(m);
+                        m = s->UCIMoveAsInternal(chunks[chunkPos]);
+                        s->makeMove(m);
                         chunkPos++;
                     }
                 }
