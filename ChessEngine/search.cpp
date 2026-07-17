@@ -295,12 +295,12 @@ namespace search {
 	}
 
 	//To avoid compiler errors
-	template move SearchNode::go<white>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
-	template move SearchNode::go<black>(int wtime, int btime, int winc, int binc, bool* stop, bool useBook);
+	template move SearchNode::go<white>(int wtime, int btime, int winc, int binc, bool useBook);
+	template move SearchNode::go<black>(int wtime, int btime, int winc, int binc, bool useBook);
 
 	//High level search
 	template <color c>
-	move SearchNode::go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook) {
+	move SearchNode::go(int wtime, int btime, int winc, int binc, bool useBook) {
 		if (useBook) {
 			if (book::book.contains(p.zobrist)) {
 				std::string stringMove = book::chooseMove(book::book[p.zobrist]);

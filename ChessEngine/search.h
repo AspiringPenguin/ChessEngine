@@ -47,6 +47,6 @@ namespace search {
 
 		int getExtensions(int extensionsCount);
 
-		template <color c> move go(int wtime, int btime, int winc, int binc, bool* stop, bool useBook = true);
+		template <color c> move go(int wtime, int btime, int winc, int binc, bool useBook = true);
 	};
 }
