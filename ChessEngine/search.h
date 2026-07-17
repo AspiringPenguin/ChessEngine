@@ -25,6 +25,8 @@ namespace search {
 		int ideal;
 		int max;
 
+		bool haveGeneratedChildren = false;
+
 		std::chrono::steady_clock::time_point start;
 
 		std::vector<std::shared_ptr<SearchNode>> children;

@@ -301,6 +301,8 @@ namespace search {
 
 	template<color c>
 	void SearchNode::generateChildren() {
+		haveGeneratedChildren = true;
+
 		auto moves = p.generatePseudoLegalMoves<c>();
 
 		for (move m : moves) {
@@ -317,7 +319,17 @@ namespace search {
 	{
 		//Special cases
 		if (children.size() == 0) {
-			return 0;
+			//if it's a draw, then it's a draw
+			if (p.isDraw()) {
+				return 0;
+			}
+
+			//Checkmate requires knowledge that we have generated children
+			if (p.inCheck() && haveGeneratedChildren) { //Checkmate
+				return (p.toMove != positiveSide) * 2 - 1;
+			}
+
+			generateChildren<c>;
 		}
 
 		//Normal case
