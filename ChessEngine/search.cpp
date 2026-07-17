@@ -299,6 +299,14 @@ namespace search {
 		return bestVal;
 	}
 
+	double SearchNode::calcUCT(int parentSearches) {
+		if (searches == 0) {
+			return FLT_MAX;
+		}
+
+		return (searchResults/searches) + uctConst*std::sqrt(std::log(parentSearches)/searches);
+	}
+
 	template<color c>
 	void SearchNode::generateChildren() {
 		haveGeneratedChildren = true;
@@ -340,20 +348,36 @@ namespace search {
 			//None of the other cases apply, generate children and produce a random playthrough for one of them.
 			generateChildren<c>;
 
-			result = children[0]->randomPlayout();
+			result = children[0]->randomPlayout<color(1 - c)>();
 		}
 		else {
 			//Normal case
 			//Choose child
+			int bestChildIndex = 0;
+			double bestChildUCT = -10000;
+			double childUCT;
+
+			for (int i = 0; i < children.size(); i++) {
+				childUCT = children[i]->calcUCT(searches);
+				if (childUCT > bestChildUCT) {
+					bestChildUCT = childUCT;
+					bestChildIndex = i;
+				}
+			}
 
 			//Continue down the tree
-			result = nullptr->selectExpandBackPropogate<color(1 - c)>();
+			result = children[bestChildIndex]->selectExpandBackPropogate<color(1 - c)>();
 		}
 
 		searches++;
 		searchResults += result;
 
 		return result;
+	}
+
+	template<color c>
+	int SearchNode::randomPlayout() {
+		return 0;
 	}
 
 	//To avoid compiler errors

@@ -136,3 +136,6 @@ enum nodeType {
 	PV,
 	NonPV
 };
+
+//For UCT in MCTS
+constexpr double uctConst = 1.4;

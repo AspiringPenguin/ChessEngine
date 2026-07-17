@@ -19,6 +19,9 @@ namespace search {
 
 		template<color c> void generateChildren();
 		template<color c> int selectExpandBackpropogate();
+		template<color c> int randomPlayout();
+
+		double calcUCT(int parentSearches);
 
 		int nodes;
 
