@@ -49,7 +49,7 @@ namespace search {
 		init();
 	}
 
-	SearchNode::SearchNode(SearchNode const& toCopy) {
+	SearchNode::SearchNode(SearchNode const & toCopy) {
 		p = Position(toCopy.p);
 		init();
 	}
@@ -292,6 +292,19 @@ namespace search {
 		}
 
 		return bestVal;
+	}
+
+	template<color c>
+	void SearchNode::generateChildren() {
+		auto moves = p.generatePseudoLegalMoves<c>();
+
+		for (move m : moves) {
+			p.makeMove(m);
+			if (p.moveWasLegal()) {
+				children.push_back(std::make_shared<SearchNode>((SearchNode const &) *this));
+			}
+			p.undoMove();
+		}
 	}
 
 	//To avoid compiler errors
