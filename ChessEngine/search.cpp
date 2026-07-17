@@ -304,7 +304,7 @@ namespace search {
 			return FLT_MAX;
 		}
 
-		return ((((double) searchResults)/ ((double) searches))*0.5 + 0.5) + uctConst*std::sqrt(std::log(parentSearches)/searches);
+		return (((double) searchResults)/ ((double) searches)) + uctConst*std::sqrt(std::log(parentSearches)/searches);
 	}
 
 	template<color c>
@@ -327,19 +327,19 @@ namespace search {
 	{
 		int result;
 
+		//if it's a draw, then it's a draw
+		if (p.isDraw()) {
+			return 0;
+		}
+
+		//Repetition is separate
+		const int reps = p.countRepetitions();
+		if (reps == 3) {
+			return 0;
+		}
+
 		//Special cases
 		if (children.size() == 0) {
-			//if it's a draw, then it's a draw
-			if (p.isDraw()) {
-				return 0;
-			}
-
-			//Repetition is separate
-			const int reps = p.countRepetitions();
-			if (reps == 3) {
-				return 0;
-			}
-
 			//We need to check we have generated children before testing for checkmate
 			if (!haveGeneratedChildren) {
 				generateChildren<c>();
@@ -396,17 +396,21 @@ namespace search {
 		move m;
 		bool foundLegalMove;
 
+		int result;
+
 		while (true) {
 			//Check here for a draw
 			//if it's a draw, then it's a draw
 			if (p.isDraw()) {
-				return 0;
+				result = 0;
+				break;
 			}
 
 			//Repetition is separate
 			const int reps = p.countRepetitions();
 			if (reps == 3) {
-				return 0;
+				result = 0;
+				break;
 			}
 
 			if (p.toMove == white) {
@@ -420,7 +424,7 @@ namespace search {
 			foundLegalMove = false;
 
 			for (int i = 0; i < numMoves; i++) {
-				m = moves[i % numMoves];
+				m = moves[(moveNum + i) % numMoves];
 				p.makeMove(m);
 				if (p.moveWasLegal()) {
 					foundLegalMove = true;
@@ -432,9 +436,11 @@ namespace search {
 			//Check here for checks - stalemate or checkmate
 			if (!foundLegalMove) {
 				if (p.inCheck()) { //Checkmate
-					return (p.toMove != positiveSide) * 2 - 1;
+					result = (p.toMove != positiveSide) * 2 - 1;
+					break;
 				}
-				return 0; //Stalemate
+				result = 0;
+				break;
 			}
 		}
 
@@ -442,7 +448,10 @@ namespace search {
 			p.undoMove();
 		}
 		
-		return 0;
+		searches++;
+		searchResults += result;
+
+		return result;
 	}
 
 	//To avoid compiler errors
@@ -470,8 +479,17 @@ namespace search {
 		int count = 0;
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal || count == 0) {
 			count++;
-			for (int i = 0; i < 1000; i++) { //Run 1000 iterations at a time
+			for (int i = 0; i < 20; i++) { //Run 1000 iterations at a time
 				selectExpandBackpropogate<c>(); //Ignore the result as we are already being updated
+
+				//Give some output
+				std::cout << "Interation " << count << " run " << i << std::endl;
+				std::cout << searchResults << " for " << searches << std::endl;
+				for (auto c : children) {
+					std::cout << c->searchResults << " for " << c->searches << "  ";
+					moves::showMove(c->p.moves[0]);
+				}
+				std::cout << std::endl;
 			}
 			//Tell UCI what we are doing
 			std::cout << "uci info nodes " << count * 1000 << std::endl;
@@ -483,10 +501,12 @@ namespace search {
 		double childRatio;
 
 		for (auto c : children) {
-			childRatio = (c->searchResults / ((float) c->searches));
+			childRatio = (((double) c->searchResults) / ((double) c->searches));
 			if (childRatio > bestRatio) {
 				bestMove = c->p.moves[0];
 			}
+			std::cout << c->searchResults << " for " << c->searches << "  ";
+			moves::showMove(c->p.moves[0]);
 		}
 		return bestMove;
 	}
