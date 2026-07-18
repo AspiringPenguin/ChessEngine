@@ -134,7 +134,7 @@ int main() {
                     s = std::make_unique<search::SearchNode>(fenString);
                 }
                 else if (chunks[1] == "startpos") {
-                    s->loadStart();
+                    s = std::make_unique<search::SearchNode>();
                     chunkPos = 2;
                 }
                 else {

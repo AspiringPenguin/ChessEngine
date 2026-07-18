@@ -496,17 +496,17 @@ namespace search {
 		double bestRatio = -1;
 		double childRatio = ((double) searchResults) / ((double) searches);
 
-		/*std::cout << childRatio << " " << searchResults << " for " << searches << "  " << std::endl;
+		/*std::cout << childRatio << " " << searchResults << " for " << searches << "  " << std::endl;*/
 
 		for (auto c : children) {
 			childRatio = (((double) c->searchResults) / ((double) c->searches));
 			if (childRatio > bestRatio) {
 				bestRatio = childRatio;
-				bestMove = c->p.moves[0];
+				bestMove = c->p.moves[c->p.moveNum];
 			}
-			std::cout << childRatio << " " << c->searchResults << " for " << c->searches << "  ";
-			moves::showMove(c->p.moves[0]);
-		}*/
+			/*std::cout << childRatio << " " << c->searchResults << " for " << c->searches << "  ";
+			moves::showMove(c->p.moves[0]);*/
+		}
 		return bestMove;
 	}
 }

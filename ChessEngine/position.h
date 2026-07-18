@@ -14,8 +14,6 @@ protected:
 	int positionsTail = 0; //Last position, exclusive
 	//If head == (tail) all mod numPositions increment both and overwrite 
 
-	int moveNum = -1;
-
 	//Eval stuff
 	int phase;
 	int materialStart;
@@ -47,6 +45,8 @@ public:
 	U64 allBitboard = 0;
 
 	move moves[maxDepth]{};
+	int moveNum = -1;
+
 	move lastMove; //Keep the last move at the root here - the last irreversible move
 
 	U64 zobrist = 0;
