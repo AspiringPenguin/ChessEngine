@@ -18,7 +18,7 @@ namespace search {
 		template <color c> int negamaxQuiescence(int alpha, int beta, int depth);
 
 		template<color c> void generateChildren();
-		template<color c> int selectExpandBackpropogate();
+		template<color c> int selectExpandBackpropogate(int numPlayouts);
 		template<color c> int randomPlayout();
 
 		double calcUCT(int parentSearches);

@@ -323,10 +323,10 @@ namespace search {
 	}
 
 	template<color c>
-	int SearchNode::selectExpandBackpropogate() {
-		searches++;
+	int SearchNode::selectExpandBackpropogate(int numPlayouts) {
+		searches += numPlayouts;
 
-		int result;
+		int result = 0;
 
 		//if it's a draw, then it's a draw
 		if (p.isDraw()) {
@@ -349,7 +349,7 @@ namespace search {
 			//No legal moves - we know for sure now
 			if (children.size() == 0) {
 				if (p.inCheck()) { //Checkmate
-					result = (p.toMove != positiveSide) * 2 - 1;
+					result = ((p.toMove != positiveSide) * 2 - 1) * numPlayouts;
 				}
 				else { //Stalemate
 					result = 0;
@@ -357,7 +357,9 @@ namespace search {
 			}
 			else {
 				//None of the other cases apply, produce a random playthrough for a child.
-				result = children[0]->randomPlayout<color(1 - c)>();
+				for (int i = 0; i < numPlayouts; i++) {
+					result += children[0]->randomPlayout<color(1 - c)>();
+				}
 			}
 		}
 		else {
@@ -376,7 +378,7 @@ namespace search {
 			}
 
 			//Continue down the tree
-			result = children[bestChildIndex]->selectExpandBackpropogate<color(1 - c)>();
+			result = children[bestChildIndex]->selectExpandBackpropogate<color(1 - c)>(numPlayouts);
 		}
 
 		searchResults += result;
@@ -484,8 +486,8 @@ namespace search {
 		int count = 0;
 		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal || count == 0) {
 			count++;
-			for (int i = 0; i < 1000; i++) { //Run 1000 iterations at a time
-				selectExpandBackpropogate<c>(); //Ignore the result as we are already being updated
+			for (int i = 0; i < 50; i++) { //Run 20*50=1000 iterations at a time
+				selectExpandBackpropogate<c>(20); //Ignore the result as we are already being updated
 			}
 			//Tell UCI what we are doing
 			std::cout << "uci info nodes " << count * 1000 << std::endl;
@@ -496,7 +498,7 @@ namespace search {
 		double bestRatio = -1;
 		double childRatio = ((double) searchResults) / ((double) searches);
 
-		/*std::cout << childRatio << " " << searchResults << " for " << searches << "  " << std::endl;*/
+		std::cout << childRatio << " " << searchResults << " for " << searches << "  " << std::endl;
 
 		for (auto c : children) {
 			childRatio = (((double) c->searchResults) / ((double) c->searches));
@@ -504,8 +506,8 @@ namespace search {
 				bestRatio = childRatio;
 				bestMove = c->p.moves[c->p.moveNum];
 			}
-			/*std::cout << childRatio << " " << c->searchResults << " for " << c->searches << "  ";
-			moves::showMove(c->p.moves[0]);*/
+			std::cout << childRatio << " " << c->searchResults << " for " << c->searches << "  ";
+			moves::showMove(c->p.moves[0]);
 		}
 		return bestMove;
 	}
