@@ -118,7 +118,7 @@ typedef int move;
 typedef unsigned __int64 U64;
 
 //Max possible depth
-constexpr int maxDepth = 512;
+constexpr int maxDepth = 2048;
 
 //Characters to represent pieces
 static char pieceChars[16] = { '.', 'P', 'N', 'B', 'R', 'Q', 'K', ' ', ' ', 'p', 'n', 'b', 'r', 'q', 'k', ' ' };
