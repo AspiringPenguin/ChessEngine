@@ -484,7 +484,7 @@ namespace search {
 		
 		generateChildren<c>();
 		int count = 0;
-		while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal || count == 0) {
+		while ((std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() < ideal || count == 0) && count < 1000) {
 			count++;
 			for (int i = 0; i < 50; i++) { //Run 20*50=1000 iterations at a time
 				selectExpandBackpropogate<c>(20); //Ignore the result as we are already being updated
