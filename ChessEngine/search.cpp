@@ -41,13 +41,11 @@ namespace search {
 
 	SearchNode::SearchNode() {
 		p = Position();
-		positiveSide = white;
 		init();
 	}
 
 	SearchNode::SearchNode(const std::string& fen) {
 		p = Position(fen);
-		positiveSide = p.toMove;
 		init();
 	}
 
@@ -65,12 +63,10 @@ namespace search {
 
 	void SearchNode::loadStart() {
 		p.loadStart();
-		positiveSide = white;
 	}
 
 	void SearchNode::loadFEN(const std::string& fen) {
 		p.loadFEN(fen);
-		positiveSide = p.toMove;
 	}
 
 	void SearchNode::makeMove(const move& m) {
@@ -474,6 +470,8 @@ namespace search {
 				return p.UCIMoveAsInternal(stringMove);
 			}
 		}
+
+		positiveSide = p.toMove;
 
 		auto res = getIdealAndMaxTimes(wtime, btime, winc, binc, p.toMove);
 
