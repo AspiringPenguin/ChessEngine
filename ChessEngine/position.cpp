@@ -50,7 +50,6 @@ void Position::loadStart() {
 	toMove = white;
 	toMoveSigned = 1;
 	moveNum = -1;
-	enPassantSquare = nullSquare;
 	std::fill(std::begin(moves), std::end(moves), 0);
 	std::fill(std::begin(counters), std::end(counters), 0);
 	counter = 0; //50 move rule
@@ -170,7 +169,6 @@ void Position::loadFEN(const std::string& fen) {
 	bKingside = false;
 	bQueenside = false;
 
-	enPassantSquare = nullSquare;
 	moveNum = -1;
 	std::fill(std::begin(moves), std::end(moves), 0);
 	std::fill(std::begin(counters), std::end(counters), 0);
@@ -260,7 +258,7 @@ void Position::loadFEN(const std::string& fen) {
 
 	//En passant - polyglot standard only adds en-passant hash when a pseudo-legal en passant move is possible
 	if (enPassant != "-") {
-		enPassantSquare = stringToSquare(enPassant);
+		square enPassantSquare = stringToSquare(enPassant);
 		U64 bb = 1ull << enPassantSquare;
 		if (toMove == white) {
 			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1)) >> 8;

@@ -32,9 +32,6 @@ protected:
 	bool bKingside = true;
 	bool bQueenside = true;
 
-	//For enPassant
-	square enPassantSquare = nullSquare;
-
 	void updateBitboards();
 
 	void calculatePhase();
