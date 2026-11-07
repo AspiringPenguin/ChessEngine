@@ -133,6 +133,9 @@ namespace search {
 				}
 			}
 		}
+
+		//RFP is shelved until I improve the eval
+
 		//Null move pruning
 		if constexpr (nType == NonPV && useNullMove) {
 			if (depthRemaining > 3) {
@@ -157,6 +160,7 @@ namespace search {
 
 		bool firstMove = true;
 		bool raisedAlpha = false;
+		bool moveFailedHigh = false;
 
 		int extensions;
 
@@ -178,13 +182,29 @@ namespace search {
 					score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
 					if (alpha < score && score < beta) {
 						score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+						moveFailedHigh = true;
 					}
 				}
 			}
 			else {
-				score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
-				if (alpha < score && score < beta) {
-					score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+				if (!moveFailedHigh && moveN > 2 && depthRemaining > 2) {
+					score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-alpha - 1, -alpha, depth + 1, depthRemaining - 2 + extensions, extensionsCount + extensions);
+					if (alpha < score) { //If we fail high on the reduced search
+						//Try again with another null window search at full depth
+						score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+						if (alpha < score && score < beta) { //If this fails high
+							//Do a full search
+							score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+							moveFailedHigh = true; //Only now do we set that a move failed high
+						}
+					}
+				}
+				else {
+					score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-alpha - 1, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+					if (alpha < score && score < beta) {
+						score = -negamax<color(1 - c), NonPV, useTTScore, useNullMove>(-beta, -alpha, depth + 1, depthRemaining - 1 + extensions, extensionsCount + extensions);
+						moveFailedHigh = true;
+					}
 				}
 			}
 			p.undoMove();
