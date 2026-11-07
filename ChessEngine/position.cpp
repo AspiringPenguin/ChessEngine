@@ -587,6 +587,10 @@ void Position::undoMove() {
 				bitboards[wRook] ^= (1ull << F1) | (1ull << H1);
 				colorBitboards[white] ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
 				allBitboard ^= (1ull << E1) | (1ull << F1) | (1ull << G1) | (1ull << H1);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + G1];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + F1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + H1];
 			}
 			else {
 				//Update mailbox
@@ -600,6 +604,10 @@ void Position::undoMove() {
 				bitboards[wRook] ^= (1ull << A1) | (1ull << D1);
 				colorBitboards[white] ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
 				allBitboard ^= (1ull << A1) | (1ull << C1) | (1ull << D1) | (1ull << E1);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wKing] + E1] ^ zobrist::values[64 * zobrist::pieceLookup[wKing] + C1];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[wRook] + A1] ^ zobrist::values[64 * zobrist::pieceLookup[wRook] + D1];
 			}
 		}
 		else {
@@ -615,6 +623,10 @@ void Position::undoMove() {
 				bitboards[bRook] ^= (1ull << F8) | (1ull << H8);
 				colorBitboards[black] ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
 				allBitboard ^= (1ull << E8) | (1ull << F8) | (1ull << G8) | (1ull << H8);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + G8];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + F8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + H8];
 			}
 			else {
 				//Update mailbox
@@ -628,6 +640,10 @@ void Position::undoMove() {
 				bitboards[bRook] ^= (1ull << A8) | (1ull << D8);
 				colorBitboards[black] ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
 				allBitboard ^= (1ull << A8) | (1ull << C8) | (1ull << D8) | (1ull << E8);
+
+				//Update zobrist hash for pieces
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bKing] + E8] ^ zobrist::values[64 * zobrist::pieceLookup[bKing] + C8];
+				zobrist ^= zobrist::values[64 * zobrist::pieceLookup[bRook] + A8] ^ zobrist::values[64 * zobrist::pieceLookup[bRook] + D8];
 			}
 		}
 		calculateBonusesStart();
@@ -662,6 +678,10 @@ void Position::undoMove() {
 		bonusesEnd -= (eval::pieceBonusesEnd[(toPiece & 0b111) - 1][to ^ 56 * toMove]) * toMoveSigned * -1;
 #pragma warning(pop)
 
+		//Update zobrist hash
+		zobrist ^= zobrist::values[64 * zobrist::pieceLookup[p] + from];
+		zobrist ^= zobrist::values[64 * zobrist::pieceLookup[toPiece] + to];
+
 		//Update bitboards
 		bitboards[p] ^= (1ull << from);
 		bitboards[toPiece] ^= (1ull << to);
@@ -679,6 +699,7 @@ void Position::undoMove() {
 			bitboards[capture] ^= (1ull << pos); //Add it back to the bitboard
 			colorBitboards[capture >> 3] ^= (1ull << pos); //Add it back to the color-specific and main bitboards
 			allBitboard ^= (1ull << pos);
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + pos]; //And the zobrist hash
 
 			//Update start and end psq values
 #pragma warning(push)
@@ -695,6 +716,7 @@ void Position::undoMove() {
 			bitboards[capture] ^= (1ull << to); //Add it back to the bitboard
 			colorBitboards[capture >> 3] ^= (1ull << to);
 			allBitboard ^= (1ull << to);
+			zobrist ^= zobrist::values[64 * zobrist::pieceLookup[capture] + to]; //Add it back to the hash
 
 			//Update start and end psq values
 #pragma warning(push)
@@ -705,18 +727,49 @@ void Position::undoMove() {
 		}
 	}
 
+	//Readd zobrist hashing for new last move if its double push where en passant was pseudo-legal
+	//This must go here after bitboards are updated
+	if (moves::isDoublePush(_lastMove)) { //So may need to remove zobrist hash element for en passant
+		lTo = moves::getTo(_lastMove);
+		U64 bb = 1ull << lTo; //Get where it went to
+		if (toMove == black) { //The move we are currently undoing was played by white, so this move before was played by black
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (bb & bitboards[wPawn]) {
+				zobrist ^= zobrist::values[772 + (lTo % 8)];
+			}
+		}
+		else {
+			bb = (((bb & bitboards::notHFile) << 1) | ((bb & bitboards::notAFile) >> 1));
+			if (bb & bitboards[bPawn]) {
+				zobrist ^= zobrist::values[772 + (lTo % 8)];
+			}
+		}
+	}
+
 	//Update castling rights
 	const auto rights = moves::getCastleChanges(m);
-	wKingside |= std::get<0>(rights);
-	wQueenside |= std::get<1>(rights);
-	bKingside |= std::get<2>(rights);
-	bQueenside |= std::get<3>(rights);
+	if (std::get<0>(rights)) {
+		wKingside = true;
+		zobrist ^= zobrist::values[768];
+	}
+	if (std::get<1>(rights)) {
+		wQueenside = true;
+		zobrist ^= zobrist::values[769];
+	}
+	if (std::get<2>(rights)) {
+		bKingside = true;
+		zobrist ^= zobrist::values[770];
+	}
+	if (std::get<3>(rights)) {
+		bQueenside = true;
+		zobrist ^= zobrist::values[771];
+	}
 
 	toMove = color(1 - toMove); //Flip toMove
 	toMoveSigned = -1 * toMoveSigned;
+	zobrist ^= zobrist::values[780];
 
 	positionsTail--; //Remove the Positions just by decrementing the tail - it will be overwritten when necessary in makeMove
-	zobrist = positions[(positionsTail-1)%numPositions];
 }
 
 void Position::undoNullMove() {
