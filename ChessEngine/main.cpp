@@ -226,6 +226,14 @@ int main() {
             std::cout << i << " " << res << " " << (ms_int.count() / (1000000.0f)) << "s " << static_cast<int>(res / (ms_int.count() / (1000000.0f))) << "nps" << std::endl;
         }
     }
+    else if (cliInput == "debugMove") {
+        move inputMove;
+        while (true) {
+            std::getline(std::cin, cliInput, '\n');
+            inputMove = std::stoi(cliInput);
+            moves::debugMove(inputMove);
+        }
+    }
     
 }
 #endif
