@@ -11,6 +11,7 @@ namespace moves {
 	// 0 0 knight
 	// Castling are encoded as per UCI with e1g1, e1c1, e8g8, e8c8
 	// Castling rights changes are true if a move takes them away
+	// 1 << 27 is a null move.
 
 	move encodeMove(square from, square to, piece p, piece capture, bool promote, bool enPassant, bool doublePush, bool wkc, bool wqc, bool bkc, bool bqc) {
 		return from | (to << 6) | (p << 12) | (capture << 16) | (promote << 20) | (enPassant << 21) | (doublePush << 22) | (wkc << 23) | (wqc << 24) | (bkc << 25) | (bqc << 26);

@@ -547,6 +547,7 @@ void Position::makeNullMove() {
 	toMove = color(1 - toMove); //Flip toMove
 	toMoveSigned = -1 * toMoveSigned;
 	zobrist ^= zobrist::values[780];
+	moves[++moveNum] = (1 << 27);
 }
 
 void Position::undoMove() {
@@ -775,6 +776,7 @@ void Position::undoNullMove() {
 	toMove = color(1 - toMove); //Flip toMove
 	toMoveSigned = -1 * toMoveSigned;
 	zobrist ^= zobrist::values[780];
+	moveNum--;
 }
 
 int Position::countRepetitions() {
