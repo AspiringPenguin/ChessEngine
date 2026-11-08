@@ -51,6 +51,9 @@
     <ClCompile Include="search.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fileHandling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.h">
@@ -84,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="search.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileHandling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

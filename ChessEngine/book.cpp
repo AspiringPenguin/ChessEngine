@@ -1,39 +1,10 @@
 #include "book.h"
 
 namespace book {
-	std::string loadFile(std::string fileName) {
-		std::ifstream reader(fileName);
-
-		if (!reader) {
-			std::cerr << "Error opening file " << fileName << std::endl;
-			return "";
-		}
-		else {
-			std::string line; //For reading the file
-
-			std::string contents = ""; //To return
-
-			bool skip = true;
-
-			while (!reader.eof()) {
-				getline(reader, line);
-				if (!skip) {
-					contents += "\n";
-				}
-				else {
-					skip = false;
-				}
-				contents += line;
-			}
-			reader.close();
-			return contents;
-		}
-	}
-
 	std::unordered_map<U64, std::tuple<std::vector<std::tuple<std::string, int, int>>, int>> loadBook() {
 		auto lookup = std::unordered_map<U64, std::tuple<std::vector<std::tuple<std::string, int, int>>, int>>();
 
-		auto lines = split(loadFile("book.txt"), "\n");
+		auto lines = split(files::loadFile("book.txt"), "\n");
 
 		std::vector<std::string> sections;
 		U64 hash;

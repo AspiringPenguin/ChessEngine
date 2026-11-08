@@ -486,6 +486,7 @@
     <ClCompile Include="book.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="eval.cpp" />
+    <ClCompile Include="fileHandling.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="moveGenHelpers.cpp" />
     <ClCompile Include="moves.cpp" />
@@ -500,6 +501,7 @@
     <ClInclude Include="book.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="eval.h" />
+    <ClInclude Include="fileHandling.h" />
     <ClInclude Include="moveGenHelpers.h" />
     <ClInclude Include="moves.h" />
     <ClInclude Include="perft.h" />
