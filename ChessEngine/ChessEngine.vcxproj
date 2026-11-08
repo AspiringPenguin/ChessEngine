@@ -421,7 +421,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)book.txt" "$(TargetDir)"</Command>
+      <Command>copy "$(ProjectDir)book.txt" "$(TargetDir)"
+copy "$(ProjectDir)eval.txt" "$(TargetDir)"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Test|x64'">
@@ -494,6 +496,7 @@
     <ClCompile Include="position.cpp" />
     <ClCompile Include="search.cpp" />
     <ClCompile Include="tt.cpp" />
+    <ClCompile Include="tuning.cpp" />
     <ClCompile Include="zobrist.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -508,6 +511,7 @@
     <ClInclude Include="position.h" />
     <ClInclude Include="search.h" />
     <ClInclude Include="tt.h" />
+    <ClInclude Include="tuning.h" />
     <ClInclude Include="zobrist.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
