@@ -237,7 +237,15 @@ int main() {
             moves::debugMove(inputMove);
         }
     }
-    
+    else if (cliInput == "findK") {
+        std::cout << "Not yet implemented" << std::endl;
+    }
+    else if (cliInput == "tuneEval") {
+        std::cout << "Not yet implemented" << std::endl;
+    }
+    else {
+        std::cout << "Unrecognised mode command: " << cliInput << std::endl;
+    }
 }
 #endif
 
