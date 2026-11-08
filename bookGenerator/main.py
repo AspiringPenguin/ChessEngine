@@ -1,22 +1,23 @@
-from types import NoneType
 import chess
 import chess.pgn
 import chess.polyglot
 import os
 
-positions = {} #Hash to dictionary of moves and frequencies
+positions = dict[int, dict[chess.Move, int]]() #Hash to dictionary of moves and frequencies
 
-def processNode(game : chess.GameNode | NoneType, zHash : int | NoneType):
+def processNode(game : chess.pgn.GameNode | None, zHash : int | None):
     if game == None:
         return
 
     if zHash:
         if zHash in positions:
-            if game.move in positions[zHash]:
+            if not game.move:
+                ...
+            elif game.move in positions[zHash]:
                 positions[zHash][game.move] += 1
             else:
                 positions[zHash][game.move] = 1
-        else:
+        elif game.move != None:
             positions[zHash] = {game.move: 1}
 
     if game.ply() > 16:
