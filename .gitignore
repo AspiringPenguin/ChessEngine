@@ -368,5 +368,5 @@ game-data/
 
 # Generated book
 bookGenerator/book.txt
-/TuningPositionsGenerator/positions.txt
-/TuningPositionsGenerator/tuningGames.pgn
+/TuningPositionsGenerator/*.pgn
+/TuningPositionsGenerator/positions*
