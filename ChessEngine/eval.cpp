@@ -216,7 +216,7 @@ namespace eval {
 		pieceBonusesStart = {pawnBonusesStart, knightBonusesStart, bishopBonusesStart, rookBonusesStart, queenBonusesStart, kingBonusesStart};
 		pieceBonusesEnd = {pawnBonusesEnd, knightBonusesEnd, bishopBonusesEnd, rookBonusesEnd, queenBonusesEnd, kingBonusesEnd};
 
-		std::array<int, 64> knightMoveCounts = generateKnightMoveCounts();
+		knightMoveCounts = generateKnightMoveCounts();
 
 		//				      1  2   3   4   5   6   7
 		passedPawnBonuses = { 0, 10, 20, 40, 60, 80, 0 };
