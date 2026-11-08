@@ -1,0 +1,43 @@
+from chess import pgn
+
+annotatedFens = list[str]()
+
+def processGame(game : pgn.Game):
+    res = game.headers.get("Result", "?")
+    if res == "1-0":
+        gameScore = 1
+    elif res == "0-1":
+        gameScore = -1
+    else:
+        gameScore = 0
+
+    processNode(game, gameScore)
+
+def processNode(game : pgn.GameNode, result : int, ply: int = 0):
+    isMateScore = "M" in game.comment
+    if ply >= 16 and not isMateScore:
+        #Process this node
+        fen = game.board().fen(en_passant="fen")
+
+        annotatedFen = f"{fen};{result}"
+
+        annotatedFens.append(annotatedFen)
+    
+    nextPos = game.next()
+    if nextPos and not isMateScore:
+        processNode(nextPos, result, ply+1)
+
+tuningGames = open("tuningGames.pgn", mode="r")
+
+counter = 0
+
+while game := pgn.read_game(tuningGames):
+    counter += 1
+    processGame(game)
+
+tuningGames.close()
+print(f"{counter} games processed.")
+
+with open("positions.txt", mode="w") as f:
+    for annotatedFen in annotatedFens:
+        f.write(f"{annotatedFen}\n")
