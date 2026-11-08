@@ -7,6 +7,7 @@
 #include "perft.h"
 #include "search.h"
 #include "tt.h"
+#include "tuning.h"
 #include "uci.h"
 
 #ifdef TEST
@@ -44,7 +45,7 @@ int main() {
         std::cout << "Not yet implemented" << std::endl;
     }
     else if (cliInput == "tuneEval") {
-        std::cout << "Not yet implemented" << std::endl;
+        return tuning::tuningMain();
     }
     else {
         std::cout << "Unrecognised mode command: " << cliInput << std::endl;

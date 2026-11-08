@@ -11,9 +11,9 @@ namespace tuning {
 	double sigmoid(int s);
 
 	class TuningPosition {
-		Position p;
+		search::Searcher searcher;
 	public:
-		int resultValue;
+		double resultValue;
 		TuningPosition(std::string annotatedFen);
 
 		double errorSquared();
