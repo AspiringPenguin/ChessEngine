@@ -1,4 +1,4 @@
-from chess import pgn
+from chess import pgn, Board
 
 annotatedFens = list[str]()
 
@@ -11,21 +11,24 @@ def processGame(game : pgn.Game):
     else:
         gameScore = 0
 
-    processNode(game, gameScore)
+    processNode(game, game.board(), gameScore)
 
-def processNode(game : pgn.GameNode, result : int, ply: int = 0):
+def processNode(game : pgn.GameNode, board: Board, result : int, ply: int = 0):
     isMateScore = "M" in game.comment
     if ply >= 16 and not isMateScore:
         #Process this node
-        fen = game.board().fen(en_passant="fen")
+        fen = board.fen(en_passant="fen")
 
         annotatedFen = f"{fen};{result}"
 
         annotatedFens.append(annotatedFen)
     
     nextPos = game.next()
+
     if nextPos and not isMateScore:
-        processNode(nextPos, result, ply+1)
+        nextMove = nextPos.move
+        board.push(nextMove)
+        processNode(nextPos, board, result, ply+1)
 
 tuningGames = open("tuningGames.pgn", mode="r")
 
