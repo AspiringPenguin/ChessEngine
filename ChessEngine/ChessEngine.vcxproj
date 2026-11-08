@@ -497,6 +497,7 @@ copy "$(ProjectDir)eval.txt" "$(TargetDir)"
     <ClCompile Include="search.cpp" />
     <ClCompile Include="tt.cpp" />
     <ClCompile Include="tuning.cpp" />
+    <ClCompile Include="uci.cpp" />
     <ClCompile Include="zobrist.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -512,6 +513,7 @@ copy "$(ProjectDir)eval.txt" "$(TargetDir)"
     <ClInclude Include="search.h" />
     <ClInclude Include="tt.h" />
     <ClInclude Include="tuning.h" />
+    <ClInclude Include="uci.h" />
     <ClInclude Include="zobrist.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
