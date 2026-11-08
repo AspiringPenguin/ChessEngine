@@ -3,6 +3,7 @@
 #include <chrono> //For timing
 #include <iostream>
 
+#include "eval.h"
 #include "perft.h"
 #include "search.h"
 #include "tt.h"
@@ -18,6 +19,8 @@ int main() {
 
 #ifndef TEST
 int main() {
+    eval::loadEval();
+
     std::string cliInput;
 
     std::getline(std::cin, cliInput, '\n');
