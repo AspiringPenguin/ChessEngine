@@ -14,8 +14,7 @@ namespace search {
 	class Searcher {
 	protected:
 		Position p;
-		template <color c, nodeType nType, bool useTTScore, bool useNullMove> int negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
-		template <color c> int negamaxQuiescence(int alpha, int beta, int depth);
+		
 		int nodes;
 
 		int ideal;
@@ -26,6 +25,9 @@ namespace search {
 	public:
 		Searcher();
 		Searcher(const std::string& fen);
+
+		template <color c, nodeType nType, bool useTTScore, bool useNullMove> int negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
+		template <color c, bool timed=true> int negamaxQuiescence(int alpha, int beta, int depth);
 
 		void init();
 
