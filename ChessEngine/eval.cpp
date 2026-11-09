@@ -61,6 +61,8 @@ namespace eval {
 	std::array<int, 7> passedPawnBonuses;
     int pawnDefenceBonus;
 
+    std::array<int, 16> pieceControlValues;
+
     std::vector<int> loadEvalTerms(std::string file) {
         std::string evalTerms = files::loadFile(file);
         std::vector<std::string> evalLines = split(evalTerms, "\n");
@@ -127,6 +129,8 @@ namespace eval {
         std::copy(allTerms.begin() + 778, allTerms.begin() + 785, std::begin(passedPawnBonuses));
 
         pawnDefenceBonus = allTerms[785];
+
+        std::copy(allTerms.begin() + 786, allTerms.begin() + 802, std::begin(pieceControlValues));
 
 		pieceBonusesStart = {pawnBonusesStart, knightBonusesStart, bishopBonusesStart, rookBonusesStart, queenBonusesStart, kingBonusesStart};
 		pieceBonusesEnd = {pawnBonusesEnd, knightBonusesEnd, bishopBonusesEnd, rookBonusesEnd, queenBonusesEnd, kingBonusesEnd};
