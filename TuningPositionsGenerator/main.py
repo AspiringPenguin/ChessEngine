@@ -1,4 +1,5 @@
 from chess import pgn, Board
+import os
 
 annotatedFens = list[str]()
 
@@ -30,16 +31,23 @@ def processNode(game : pgn.GameNode, board: Board, result : int, ply: int = 0):
         board.push(nextMove)
         processNode(nextPos, board, result, ply+1)
 
-tuningGames = open("tuningGames.pgn", mode="r")
-
 counter = 0
 
-while game := pgn.read_game(tuningGames):
-    counter += 1
-    processGame(game)
+for file in os.listdir():
+    if not file.endswith(".pgn"):
+        continue
 
-tuningGames.close()
-print(f"{counter} games processed.")
+    print(file)
+    
+    tuningGames = open(file, mode="r")
+
+    while game := pgn.read_game(tuningGames):
+        counter += 1
+        processGame(game)
+
+    tuningGames.close()
+
+    print(f"Finished file {file}, with {counter} games processed.")
 
 with open("positions.txt", mode="w") as f:
     for annotatedFen in annotatedFens:
