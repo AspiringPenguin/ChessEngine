@@ -18,22 +18,43 @@ namespace tuning {
 
 		resultValue = std::stoi(infoPieces[1]);
 
-		searcher = search::Searcher(infoPieces[0]);
+		auto pos = Position(infoPieces[0]);
+
+
+		//Convert position to vector of values
 	}
 
 	double TuningPosition::errorSquared() {
-		double qSearchResult;
-		if (searcher.getToMove() == white) {
-			qSearchResult = searcher.negamaxQuiescence<white, false>(-10000, 10000, 0);
+		int eval = 0; //Use vector of values
+		return std::pow(sigmoid(eval - resultValue), 2.0f);
+	}
+
+	int TuningPosition::eval() {
+		return 0; //Dot product using the vectors, can optimise later
+	}
+
+	std::vector<TuningPosition> loadPositions(int nSkip, int offset) {
+		auto lines = split(files::loadFile("positions.txt"), "\n");
+		auto tuningPositions = std::vector<TuningPosition>();
+
+		for (int n = -1; auto line : lines) {
+			n++;
+
+			if (line == "") {
+				continue;
+			}
+
+			if ((n % nSkip) == offset) {
+				tuningPositions.push_back(TuningPosition(line));
+			}
 		}
-		else {
-			qSearchResult = searcher.negamaxQuiescence<black, false>(-10000, 10000, 0);
-		}
-		return std::pow(sigmoid(qSearchResult - resultValue), 2.0f);
+
+		return tuningPositions;
 	}
 
 	int tuneK() {
-		std::cout << "Not implemented." << std::endl;
+		auto positions = loadPositions(1, 0);
+
 		return 0;
 	}
 
