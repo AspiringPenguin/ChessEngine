@@ -41,6 +41,14 @@ int main() {
             moves::debugMove(inputMove);
         }
     }
+    else if (cliInput == "eval") {
+        //White=positive eval, so multiply black result by -1
+        std::getline(std::cin, cliInput, '\n');
+
+        auto pos = Position(cliInput);
+
+        std::cout << pos.evaluate() << std::endl;
+    }
     else if (cliInput == "findK") {
         return tuning::tuneK();
     }

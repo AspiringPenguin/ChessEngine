@@ -249,15 +249,19 @@ namespace tuning {
 		return std::pow(sigmoid(eval - resultValue), 2.0f);
 	}
 
-	int TuningPosition::eval() {
-		return 0; //Sum of each coeff in usefulCoefficients * the current evalTerms
+	int TuningPosition::eval(const std::vector<int>& evalTerms) {
+		double total = 0;
+		for (const auto& pair : usefulCoefficients) {
+			total += evalTerms[std::get<0>(pair)] * std::get<1>(pair);
+		}
+		return std::round(total);
 	}
 
 	std::vector<TuningPosition> loadPositions(int nSkip, int offset) {
 		auto lines = split(files::loadFile("positions.txt"), "\n");
 		auto tuningPositions = std::vector<TuningPosition>();
 
-		for (int n = -1; auto line : lines) {
+		for (int n = -1; auto& line : lines) {
 			n++;
 
 			if (line == "") {
@@ -274,10 +278,9 @@ namespace tuning {
 
 	int tuneK() {
 		auto positions = loadPositions(1, 0);
+		auto evalTerms = eval::loadEvalTerms("eval.txt");
 
-		for (auto pair : positions[0].usefulCoefficients) {
-			std::cout << std::get<0>(pair) << " " << std::get<1>(pair) << std::endl;
-		}
+		std::cout << positions[0].eval(evalTerms) << std::endl;
 
 		return 0;
 	}

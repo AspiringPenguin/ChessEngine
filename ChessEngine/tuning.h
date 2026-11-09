@@ -23,7 +23,7 @@ namespace tuning {
 		TuningPosition(std::string annotatedFen);
 
 		double errorSquared();
-		int eval();
+		int eval(const std::vector<int>& evalTerms);
 	};
 
 	std::vector<TuningPosition> loadPositions(int nSkip, int offset);
