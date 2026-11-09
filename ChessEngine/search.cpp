@@ -250,6 +250,10 @@ namespace search {
 		return bestVal;
 	}
 
+	//To avoid compiler errors
+	template move Searcher::negamaxQuiescence<white, false>(int alpha, int beta, int depth);
+	template move Searcher::negamaxQuiescence<black, false>(int alpha, int beta, int depth);
+
 	template <color c, bool timed>
 	int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
 		if (p.isDraw()) {

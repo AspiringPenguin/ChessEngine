@@ -112,5 +112,7 @@ namespace perft {
             auto ms_int = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             std::cout << i << " " << res << " " << (ms_int.count() / (1000000.0f)) << "s " << static_cast<int>(res / (ms_int.count() / (1000000.0f))) << "nps" << std::endl;
         }
+
+        return 0;
 	}
 }
