@@ -16,7 +16,7 @@ namespace tuning {
 	}
 
 	double TuningPosition::errorSquared() {
-		double qSearchResult = searcher.negamaxQuiescence<white, false>(-10000, 10000, 0));
+		double qSearchResult = searcher.negamaxQuiescence<white, false>(-10000, 10000, 0);
 		return std::pow(sigmoid(qSearchResult - resultValue), 2.0f);
 	}
 
