@@ -282,6 +282,29 @@ namespace eval {
                 value -= passedPawnBonuses[7 - (sq >> 3)];
             }
         }
+
+        //Pawns that are defended by other pawns are good
+        //White pawns
+        //Defend to right
+        pieceBB = p->bitboards[wPawn];
+        U64 intersectionBB = pieceBB & ((pieceBB & (~bitboards::HFile)) << 9);
+        value += 2 * __popcnt64(intersectionBB);
+
+        //Defend to left
+        intersectionBB = pieceBB & ((pieceBB & (~bitboards::AFile)) << 7);
+        value += 2 * __popcnt64(intersectionBB);
+
+
+        //Black pawns
+        //Defend to right
+        pieceBB = p->bitboards[bPawn];
+        intersectionBB = pieceBB & ((pieceBB & (~bitboards::HFile)) >> 7);
+        value -= 2 * __popcnt64(intersectionBB);
+
+        //Defend to left
+        intersectionBB = pieceBB & ((pieceBB & (~bitboards::AFile)) >> 9);
+        value -= 2 * __popcnt64(intersectionBB);
+
         return value;
     }
 }
