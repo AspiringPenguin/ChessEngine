@@ -424,7 +424,15 @@ namespace tuning {
 		auto positions = loadPositions(1, 0);
 		auto evalTerms = eval::loadEvalTerms("eval.txt");
 
-		std::cout << positions[0].eval(evalTerms) << std::endl;
+		int k = 100;
+
+		std::cout << "All positions loaded" << std::endl;
+
+		auto evaluations = std::vector<int>();
+
+		for (auto& pos : positions) {
+			evaluations.push_back(pos.eval(evalTerms));
+		}
 
 		return 0;
 	}
