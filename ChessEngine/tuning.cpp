@@ -7,6 +7,12 @@ namespace tuning {
 		return 1 / denom;
 	}
 
+	double sigmoidCustomK(int s, int k) {
+		double denom = 1 + std::pow(10, -1 * ((double)k) * ((double)s) * (1 / 400));
+
+		return 1 / denom;
+	}
+
 	TuningPosition::TuningPosition(std::string annotatedFen) {
 		auto infoPieces = split(annotatedFen, ";");
 

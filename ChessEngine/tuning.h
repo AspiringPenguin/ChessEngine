@@ -10,6 +10,8 @@ namespace tuning {
 
 	double sigmoid(int s);
 
+	double sigmoidCustomK(int s, int k);
+
 	class TuningPosition {
 		search::Searcher searcher;
 	public:
