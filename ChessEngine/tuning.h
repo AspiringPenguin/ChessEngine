@@ -1,4 +1,5 @@
 #pragma once
+#include "bitboards.h"
 #include "core.h"
 #include "eval.h"
 #include "fileHandling.h"
@@ -16,10 +17,11 @@ namespace tuning {
 	class TuningPosition {
 	public:
 		double resultValue;
+		std::vector<double> termCoefficients;
+
 		TuningPosition(std::string annotatedFen);
 
 		double errorSquared();
-
 		int eval();
 	};
 
