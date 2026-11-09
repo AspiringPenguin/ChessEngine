@@ -6,6 +6,7 @@
 #include "position.h"
 
 #include <string>
+#include <tuple>
 
 namespace tuning {
 	constexpr int actualK = 100;
@@ -17,7 +18,7 @@ namespace tuning {
 	class TuningPosition {
 	public:
 		double resultValue;
-		std::vector<double> termCoefficients;
+		std::vector<std::tuple<int, double>> usefulCoefficients; //Int index of term, Double coefficent of term
 
 		TuningPosition(std::string annotatedFen);
 

@@ -20,7 +20,7 @@ namespace tuning {
 
 		auto pos = Position(infoPieces[0]);
 
-		termCoefficients = std::vector<double>();
+		auto allCoefficients = std::vector<double>();
 
 		const int phase = pos.phase;
 		const int maxPhase = eval::maxPhase;
@@ -29,18 +29,18 @@ namespace tuning {
 		const double egCoeff = 1.0  - mgCoeff;
 
 		//MG pieces
-		termCoefficients.push_back(mgCoeff * ((double) (((int) __popcnt64(pos.bitboards[wPawn])) - ((int) __popcnt64(pos.bitboards[bPawn])))));
-		termCoefficients.push_back(mgCoeff * ((double) (((int)__popcnt64(pos.bitboards[wKnight])) - ((int)__popcnt64(pos.bitboards[bKnight])))));
-		termCoefficients.push_back(mgCoeff * ((double) (((int)__popcnt64(pos.bitboards[wBishop])) - ((int)__popcnt64(pos.bitboards[bBishop])))));
-		termCoefficients.push_back(mgCoeff * ((double) (((int)__popcnt64(pos.bitboards[wRook])) - ((int)__popcnt64(pos.bitboards[bRook])))));
-		termCoefficients.push_back(mgCoeff * ((double) (((int) __popcnt64(pos.bitboards[wQueen])) - ((int) __popcnt64(pos.bitboards[bQueen])))));
+		allCoefficients.push_back(mgCoeff * ((double) (((int) __popcnt64(pos.bitboards[wPawn])) - ((int) __popcnt64(pos.bitboards[bPawn])))));
+		allCoefficients.push_back(mgCoeff * ((double) (((int)__popcnt64(pos.bitboards[wKnight])) - ((int)__popcnt64(pos.bitboards[bKnight])))));
+		allCoefficients.push_back(mgCoeff * ((double) (((int)__popcnt64(pos.bitboards[wBishop])) - ((int)__popcnt64(pos.bitboards[bBishop])))));
+		allCoefficients.push_back(mgCoeff * ((double) (((int)__popcnt64(pos.bitboards[wRook])) - ((int)__popcnt64(pos.bitboards[bRook])))));
+		allCoefficients.push_back(mgCoeff * ((double) (((int) __popcnt64(pos.bitboards[wQueen])) - ((int) __popcnt64(pos.bitboards[bQueen])))));
 
 		//EG pieces
-		termCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wPawn])) - ((int)__popcnt64(pos.bitboards[bPawn])))));
-		termCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wKnight])) - ((int)__popcnt64(pos.bitboards[bKnight])))));
-		termCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wBishop])) - ((int)__popcnt64(pos.bitboards[bBishop])))));
-		termCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wRook])) - ((int)__popcnt64(pos.bitboards[bRook])))));
-		termCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wQueen])) - ((int)__popcnt64(pos.bitboards[bQueen])))));
+		allCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wPawn])) - ((int)__popcnt64(pos.bitboards[bPawn])))));
+		allCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wKnight])) - ((int)__popcnt64(pos.bitboards[bKnight])))));
+		allCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wBishop])) - ((int)__popcnt64(pos.bitboards[bBishop])))));
+		allCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wRook])) - ((int)__popcnt64(pos.bitboards[bRook])))));
+		allCoefficients.push_back(egCoeff * ((double) (((int)__popcnt64(pos.bitboards[wQueen])) - ((int)__popcnt64(pos.bitboards[bQueen])))));
 		
 		//Bitboards
 		U64 wMask;
@@ -57,7 +57,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wPawn] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bPawn] & bMask) != 0);
 
-			termCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
 		}
 
 		//Pawns EG
@@ -68,7 +68,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wPawn] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bPawn] & bMask) != 0);
 
-			termCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
 		}
 
 		//Knights MG
@@ -79,7 +79,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wKnight] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bKnight] & bMask) != 0);
 
-			termCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
 		}
 
 		//Knights EG
@@ -90,7 +90,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wKnight] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bKnight] & bMask) != 0);
 
-			termCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
 		}
 
 		//Bishops MG
@@ -101,7 +101,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wBishop] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bBishop] & bMask) != 0);
 
-			termCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
 		}
 
 		//Bishops EG
@@ -112,7 +112,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wBishop] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bBishop] & bMask) != 0);
 
-			termCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
 		}
 
 		//Rooks MG
@@ -123,7 +123,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wRook] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bRook] & bMask) != 0);
 
-			termCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
 		}
 
 		//Rooks EG
@@ -134,7 +134,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wRook] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bRook] & bMask) != 0);
 
-			termCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
 		}
 
 		//Queens MG
@@ -145,7 +145,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wQueen] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bQueen] & bMask) != 0);
 
-			termCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
 		}
 
 		//Queens EG
@@ -156,7 +156,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wQueen] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bQueen] & bMask) != 0);
 
-			termCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
 		}
 
 		//Kings MG
@@ -167,7 +167,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wKing] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bKing] & bMask) != 0);
 
-			termCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(mgCoeff * (whitePiece - blackPiece));
 		}
 
 		//Kings EG
@@ -178,7 +178,7 @@ namespace tuning {
 			whitePiece = ((pos.bitboards[wKing] & wMask) != 0);
 			blackPiece = ((pos.bitboards[bKing] & bMask) != 0);
 
-			termCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
+			allCoefficients.push_back(egCoeff * (whitePiece - blackPiece));
 		}
 
 		//Passed pawns
@@ -204,14 +204,14 @@ namespace tuning {
 		}
 
 		for (auto term : ppCoeffs) {
-			termCoefficients.push_back(term);
+			allCoefficients.push_back(term);
 		}
 
 		//Defended pawns
 		int value = 0;
 		//Pawns that are defended by other pawns are good
-	   //White pawns
-	   //Defend to right
+	    //White pawns
+	    //Defend to right
 		pieceBB = pos.bitboards[wPawn];
 		U64 intersectionBB = pieceBB & ((pieceBB & (~bitboards::HFile)) << 9);
 		value += __popcnt64(intersectionBB);
@@ -231,7 +231,17 @@ namespace tuning {
 		intersectionBB = pieceBB & ((pieceBB & (~bitboards::AFile)) >> 9);
 		value -= __popcnt64(intersectionBB);
 
-		termCoefficients.push_back(value);
+		allCoefficients.push_back(value);
+
+		usefulCoefficients = std::vector<std::tuple<int, double>>();
+
+		for (int i = -1; auto coeff : allCoefficients) {
+			i++;
+
+			if (!(std::abs(coeff) < 0.01)) { //Avoiding strange floating-point 0 issues
+				usefulCoefficients.push_back({i, coeff});
+			}
+		}
 	}
 
 	double TuningPosition::errorSquared() {
@@ -240,7 +250,7 @@ namespace tuning {
 	}
 
 	int TuningPosition::eval() {
-		return 0; //Dot product using the vectors, can optimise later
+		return 0; //Sum of each coeff in usefulCoefficients * the current evalTerms
 	}
 
 	std::vector<TuningPosition> loadPositions(int nSkip, int offset) {
@@ -265,8 +275,8 @@ namespace tuning {
 	int tuneK() {
 		auto positions = loadPositions(1, 0);
 
-		for (double value : positions[0].termCoefficients) {
-			std::cout << value << std::endl;
+		for (auto pair : positions[0].usefulCoefficients) {
+			std::cout << std::get<0>(pair) << " " << std::get<1>(pair) << std::endl;
 		}
 
 		return 0;
