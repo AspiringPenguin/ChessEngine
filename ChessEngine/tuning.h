@@ -4,6 +4,7 @@
 #include "eval.h"
 #include "fileHandling.h"
 #include "position.h"
+#include "moveGenHelpers.h"
 
 #include <string>
 #include <tuple>

@@ -232,7 +232,7 @@ namespace eval {
             control += pieceControlValues[wQueen] * __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
         }
 
-        pieceBB = p->bitboards[bRook];
+        pieceBB = p->bitboards[bQueen];
         blockerBB = p->allBitboard & ~p->bitboards[bRook] & ~p->bitboards[bQueen];
 
         Bitloop(pieceBB) {

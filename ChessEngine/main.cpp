@@ -42,7 +42,6 @@ int main() {
         }
     }
     else if (cliInput == "eval") {
-        //White=positive eval, so multiply black result by -1
         std::getline(std::cin, cliInput, '\n');
 
         auto pos = Position(cliInput);

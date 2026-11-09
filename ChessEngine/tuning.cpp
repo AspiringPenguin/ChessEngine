@@ -233,6 +233,150 @@ namespace tuning {
 
 		allCoefficients.push_back(value);
 
+		//Board control
+		//Empty
+		allCoefficients.push_back(0);
+
+		//white pawns
+		allCoefficients.push_back(2 * ((int) __popcnt64(pos.bitboards[wPawn] & ~(bitboards::AFile | bitboards::HFile)))
+									+ ((int) __popcnt64(pos.bitboards[wPawn] & (bitboards::AFile | bitboards::HFile))));
+
+		//white knights
+		value = 0;
+
+		pieceBB = pos.bitboards[wKnight];
+
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value += eval::knightMoveCounts[sq];
+		}
+
+		allCoefficients.push_back(value);
+
+		//white bishops
+		value = 0;
+
+		pieceBB = pos.bitboards[wBishop];
+		blockerBB = pos.allBitboard & ~pos.bitboards[wBishop] & ~pos.bitboards[wQueen];
+
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value += __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
+		}
+
+		allCoefficients.push_back(value);
+
+		//white rooks
+		value = 0;
+
+		pieceBB = pos.bitboards[wRook];
+		blockerBB = pos.allBitboard & ~pos.bitboards[wRook] & ~pos.bitboards[wQueen];
+
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value += __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
+		}
+
+		allCoefficients.push_back(value);
+
+		//white queen
+		value = 0;
+
+		pieceBB = pos.bitboards[wQueen];
+
+		//Diagonals
+		blockerBB = pos.allBitboard & ~pos.bitboards[wBishop] & ~pos.bitboards[wQueen];
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value += __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
+		}
+
+		//Ranks/files
+		blockerBB = pos.allBitboard & ~pos.bitboards[wRook] & ~pos.bitboards[wQueen];
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value += __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
+		}
+
+		allCoefficients.push_back(value);
+
+		//white king - empty
+		allCoefficients.push_back(0);
+
+		//Empty x2
+		allCoefficients.push_back(0);
+		allCoefficients.push_back(0);
+
+		//black pawns
+		allCoefficients.push_back(-2 * ((int) __popcnt64(pos.bitboards[bPawn] & ~(bitboards::AFile | bitboards::HFile)))
+									 - ((int) __popcnt64(pos.bitboards[bPawn] & (bitboards::AFile | bitboards::HFile))));
+
+		//black knights
+		value = 0;
+
+		pieceBB = pos.bitboards[bKnight];
+
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value -= eval::knightMoveCounts[sq];
+		}
+
+		allCoefficients.push_back(value);
+
+		//black bishops
+		value = 0;
+
+		pieceBB = pos.bitboards[bBishop];
+		blockerBB = pos.allBitboard & ~pos.bitboards[bBishop] & ~pos.bitboards[bQueen];
+
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value -= __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
+		}
+
+		allCoefficients.push_back(value);
+
+		//black rooks
+		value = 0;
+
+		pieceBB = pos.bitboards[bRook];
+		blockerBB = pos.allBitboard & ~pos.bitboards[bRook] & ~pos.bitboards[bQueen];
+
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value -= __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
+		}
+
+		allCoefficients.push_back(value);
+
+		//black queen
+		value = 0;
+
+		pieceBB = pos.bitboards[bQueen];
+
+		//Diagonals
+		blockerBB = pos.allBitboard & ~pos.bitboards[bBishop] & ~pos.bitboards[bQueen];
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value -= __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
+		}
+
+		//Ranks/files
+		blockerBB = pos.allBitboard & ~pos.bitboards[bRook] & ~pos.bitboards[bQueen];
+		Bitloop(pieceBB) {
+			sq = square(SquareOf(pieceBB));
+			value -= __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
+		}
+
+		allCoefficients.push_back(value);
+
+		//black king - empty
+		allCoefficients.push_back(0);
+		
+		//Empty
+		allCoefficients.push_back(0);
+
+		//Convert into condensed form
 		usefulCoefficients = std::vector<std::tuple<int, double>>();
 
 		for (int i = -1; auto coeff : allCoefficients) {
