@@ -78,6 +78,8 @@ namespace eval {
                 allTerms.push_back(std::stoi(term));
             }
         }
+
+        return allTerms;
     }
 
     void loadEval() {
