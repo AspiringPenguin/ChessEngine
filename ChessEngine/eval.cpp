@@ -59,6 +59,7 @@ namespace eval {
 	std::array<std::array<U64, 64>, 2> passedPawnMasks;
 
 	std::array<int, 7> passedPawnBonuses;
+    int pawnDefenceBonus;
 
     void loadEval() {
 		std::string evalTerms = files::loadFile("eval.txt");
@@ -118,6 +119,8 @@ namespace eval {
 		std::copy(allTerms.begin() + 714, allTerms.begin() + 778, std::begin(kingBonusesEnd));
 
         std::copy(allTerms.begin() + 778, allTerms.begin() + 785, std::begin(passedPawnBonuses));
+
+        pawnDefenceBonus = allTerms[785];
 
 		pieceBonusesStart = {pawnBonusesStart, knightBonusesStart, bishopBonusesStart, rookBonusesStart, queenBonusesStart, kingBonusesStart};
 		pieceBonusesEnd = {pawnBonusesEnd, knightBonusesEnd, bishopBonusesEnd, rookBonusesEnd, queenBonusesEnd, kingBonusesEnd};
@@ -288,22 +291,22 @@ namespace eval {
         //Defend to right
         pieceBB = p->bitboards[wPawn];
         U64 intersectionBB = pieceBB & ((pieceBB & (~bitboards::HFile)) << 9);
-        value += 2 * __popcnt64(intersectionBB);
+        value += pawnDefenceBonus * __popcnt64(intersectionBB);
 
         //Defend to left
         intersectionBB = pieceBB & ((pieceBB & (~bitboards::AFile)) << 7);
-        value += 2 * __popcnt64(intersectionBB);
+        value += pawnDefenceBonus * __popcnt64(intersectionBB);
 
 
         //Black pawns
         //Defend to right
         pieceBB = p->bitboards[bPawn];
         intersectionBB = pieceBB & ((pieceBB & (~bitboards::HFile)) >> 7);
-        value -= 2 * __popcnt64(intersectionBB);
+        value -= pawnDefenceBonus * __popcnt64(intersectionBB);
 
         //Defend to left
         intersectionBB = pieceBB & ((pieceBB & (~bitboards::AFile)) >> 9);
-        value -= 2 * __popcnt64(intersectionBB);
+        value -= pawnDefenceBonus * __popcnt64(intersectionBB);
 
         return value;
     }

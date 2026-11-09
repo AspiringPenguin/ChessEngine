@@ -64,6 +64,8 @@ namespace eval {
 
 	extern std::array<int, 7> passedPawnBonuses;
 
+	extern int pawnDefenceBonus;
+
 	//Other Functions
 	void loadEval();
 	std::array<int, 64> generateKnightMoveCounts();
