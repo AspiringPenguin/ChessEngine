@@ -517,6 +517,9 @@ copy "$(ProjectDir)eval.txt" "$(TargetDir)"
     <ClInclude Include="uci.h" />
     <ClInclude Include="zobrist.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="eval.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -58,7 +58,7 @@ namespace eval {
 	const static int maxPhase = pawnPhase * 16 + knightPhase * 4 + bishopPhase * 4 + rookPhase * 4 + queenPhase * 2;
 
 	const static int piecePhases[16] = { 0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0,
-							0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0 };
+										 0, pawnPhase, knightPhase, bishopPhase, rookPhase, queenPhase, 0, 0 };
 
 	extern std::array<int, 16> pieceControlValues;
 

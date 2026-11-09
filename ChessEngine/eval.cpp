@@ -150,11 +150,11 @@ namespace eval {
         //Pawns - capture squares
         //B - G files
         control += 2 * pieceControlValues[wPawn] * __popcnt64(p->bitboards[wPawn] & ~(bitboards::AFile | bitboards::HFile));
-        control += 2 * pieceControlValues[bPawn] * __popcnt64(p->bitboards[bPawn] & ~(bitboards::AFile | bitboards::HFile));
+        control -= 2 * pieceControlValues[bPawn] * __popcnt64(p->bitboards[bPawn] & ~(bitboards::AFile | bitboards::HFile));
 
         //A and H
         control += pieceControlValues[wPawn] * __popcnt64(p->bitboards[wPawn] & (bitboards::AFile | bitboards::HFile));
-        control += pieceControlValues[bPawn] * __popcnt64(p->bitboards[bPawn] & (bitboards::AFile | bitboards::HFile));
+        control -= pieceControlValues[bPawn] * __popcnt64(p->bitboards[bPawn] & (bitboards::AFile | bitboards::HFile));
 
         //Knights
         pieceBB = p->bitboards[wKnight];
@@ -168,7 +168,7 @@ namespace eval {
 
         Bitloop(pieceBB) {
             sq = square(SquareOf(pieceBB));
-            control += pieceControlValues[bKnight] * knightMoveCounts[sq];
+            control -= pieceControlValues[bKnight] * knightMoveCounts[sq];
         }
 
         //Bishops
@@ -185,7 +185,7 @@ namespace eval {
 
         Bitloop(pieceBB) {
             sq = square(SquareOf(pieceBB));
-            control += pieceControlValues[bBishop] * __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
+            control -= pieceControlValues[bBishop] * __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
         }
 
         //Rooks
@@ -202,7 +202,7 @@ namespace eval {
 
         Bitloop(pieceBB) {
             sq = square(SquareOf(pieceBB));
-            control += pieceControlValues[bRook] * __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
+            control -= pieceControlValues[bRook] * __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
         }
 
         //Queen
@@ -220,7 +220,7 @@ namespace eval {
 
         Bitloop(pieceBB) {
             sq = square(SquareOf(pieceBB));
-            control += pieceControlValues[bQueen] * __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
+            control -= pieceControlValues[bQueen] * __popcnt64(moveGen::bishopMoveLookup[sq][_pext_u64(blockerBB, moveGen::bishopPextMasks[sq])]);
         }
 
         //Ranks/files
@@ -237,7 +237,7 @@ namespace eval {
 
         Bitloop(pieceBB) {
             sq = square(SquareOf(pieceBB));
-            control += pieceControlValues[bQueen] * __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
+            control -= pieceControlValues[bQueen] * __popcnt64(moveGen::rookMoveLookup[sq][_pext_u64(blockerBB, moveGen::rookPextMasks[sq])]);
         }
 
         return control;
