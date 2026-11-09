@@ -61,23 +61,27 @@ namespace eval {
 	std::array<int, 7> passedPawnBonuses;
     int pawnDefenceBonus;
 
+    std::vector<int> loadEvalTerms(std::string file) {
+        std::string evalTerms = files::loadFile(file);
+        std::vector<std::string> evalLines = split(evalTerms, "\n");
+
+        auto allTerms = std::vector<int>();
+        bool first = true;
+        std::vector<std::string> lineTerms;
+
+        for (const std::string& line : evalLines) {
+            if (line.starts_with("//") || line == "") {
+                continue;
+            }
+            lineTerms = split(line, ",");
+            for (const std::string& term : lineTerms) {
+                allTerms.push_back(std::stoi(term));
+            }
+        }
+    }
+
     void loadEval() {
-		std::string evalTerms = files::loadFile("eval.txt");
-		std::vector<std::string> evalLines = split(evalTerms, "\n");
-
-		auto allTerms = std::vector<int>();
-		bool first = true;
-		std::vector<std::string> lineTerms;
-
-		for (const std::string& line : evalLines) {
-			if (line.starts_with("//") || line == "") {
-				continue;
-			}
-			lineTerms = split(line, ",");
-			for (const std::string& term : lineTerms) {
-				allTerms.push_back(std::stoi(term));
-			}
-		}
+        auto allTerms = loadEvalTerms("eval.txt");
 
 		//https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
 		pawnValueStart = allTerms[0];
