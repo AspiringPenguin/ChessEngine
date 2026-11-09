@@ -21,5 +21,7 @@ namespace tuning {
 		double errorSquared();
 	};
 
+	int tuneK();
+
 	int tuningMain();
 }

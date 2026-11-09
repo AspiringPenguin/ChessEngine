@@ -32,6 +32,11 @@ namespace tuning {
 		return std::pow(sigmoid(qSearchResult - resultValue), 2.0f);
 	}
 
+	int tuneK() {
+		std::cout << "Not implemented." << std::endl;
+		return 0;
+	}
+
 	int tuningMain() {
 		std::cout << "Not implemented." << std::endl;
 		return 0;

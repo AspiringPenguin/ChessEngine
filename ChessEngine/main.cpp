@@ -42,7 +42,7 @@ int main() {
         }
     }
     else if (cliInput == "findK") {
-        std::cout << "Not yet implemented" << std::endl;
+        return tuning::tuneK();
     }
     else if (cliInput == "tuneEval") {
         return tuning::tuningMain();
