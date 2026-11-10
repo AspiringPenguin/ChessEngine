@@ -250,11 +250,7 @@ namespace search {
 		return bestVal;
 	}
 
-	//To avoid compiler errors
-	template move Searcher::negamaxQuiescence<white, false>(int alpha, int beta, int depth);
-	template move Searcher::negamaxQuiescence<black, false>(int alpha, int beta, int depth);
-
-	template <color c, bool timed>
+	template <color c>
 	int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
 		if (p.isDraw()) {
 			nodes++;
@@ -296,11 +292,9 @@ namespace search {
 			p.undoMove();
 
 			//Check here as the search may have been interrupted
-			if constexpr (timed) {
-				if ((nodes & 0xFFF) == 0) {
-					if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
-						break;
-					}
+			if ((nodes & 0xFFF) == 0) {
+				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > max && depth != 1) {
+					break;
 				}
 			}
 
