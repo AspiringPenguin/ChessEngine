@@ -415,16 +415,13 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <Optimization>Full</Optimization>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)book.txt" "$(TargetDir)"
-copy "$(ProjectDir)eval.txt" "$(TargetDir)"
-</Command>
+      <Command>copy "$(ProjectDir)book.txt" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Test|x64'">
@@ -489,7 +486,6 @@ copy "$(ProjectDir)eval.txt" "$(TargetDir)"
     <ClCompile Include="book.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="eval.cpp" />
-    <ClCompile Include="fileHandling.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="moveGenHelpers.cpp" />
     <ClCompile Include="moves.cpp" />
@@ -497,8 +493,6 @@ copy "$(ProjectDir)eval.txt" "$(TargetDir)"
     <ClCompile Include="position.cpp" />
     <ClCompile Include="search.cpp" />
     <ClCompile Include="tt.cpp" />
-    <ClCompile Include="tuning.cpp" />
-    <ClCompile Include="uci.cpp" />
     <ClCompile Include="zobrist.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -506,19 +500,13 @@ copy "$(ProjectDir)eval.txt" "$(TargetDir)"
     <ClInclude Include="book.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="eval.h" />
-    <ClInclude Include="fileHandling.h" />
     <ClInclude Include="moveGenHelpers.h" />
     <ClInclude Include="moves.h" />
     <ClInclude Include="perft.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="search.h" />
     <ClInclude Include="tt.h" />
-    <ClInclude Include="tuning.h" />
-    <ClInclude Include="uci.h" />
     <ClInclude Include="zobrist.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="eval.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

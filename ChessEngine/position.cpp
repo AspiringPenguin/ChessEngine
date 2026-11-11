@@ -1816,14 +1816,11 @@ bool Position::moveIsValid(const move& m) {
 
 //Eval - use this as a base to call stuff from eval to reduce code complexity here, while retaining easy access to incremental value updates
 int Position::evaluate() { //In centipawns
-	int extraParts = eval::getBoardControl(this) + eval::getPawnEval(this);
-	int incrementalParts = (phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd));
-	return std::round(((double)incrementalParts) / eval::maxPhase) + extraParts; // +tempo;
+	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase) + eval::getBoardControl(this) + eval::getPawnEval(this); // +tempo;
 }
 
 int Position::cheapEvaluate() { //In centipawns, only incrementally updated stuff
-	int incrementalParts = (phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd));
-	return std::round(((double)incrementalParts) / eval::maxPhase);
+	return ((phase * (materialStart + bonusesStart) + (eval::maxPhase - phase) * (materialEnd + bonusesEnd)) / eval::maxPhase);
 }
 
 

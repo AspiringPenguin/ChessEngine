@@ -12,6 +12,4 @@ namespace perft {
 
 		int go(int depth, bool debug = false);
 	};
-
-	int perftMain();
 }

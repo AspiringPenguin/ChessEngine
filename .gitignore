@@ -368,6 +368,3 @@ game-data/
 
 # Generated book
 bookGenerator/book.txt
-/TuningPositionsGenerator/*.pgn
-/TuningPositionsGenerator/positions*
-/ChessEngine/positions.txt

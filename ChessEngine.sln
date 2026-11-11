@@ -12,8 +12,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcxpro
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "bookGenerator", "bookGenerator\bookGenerator.pyproj", "{331D503E-CD62-4C14-821E-0E1073A4A02A}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TuningPositionsGenerator", "TuningPositionsGenerator\TuningPositionsGenerator.pyproj", "{6E28C680-D792-4BA4-A065-9DF8A93D5219}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,18 +88,6 @@ Global
 		{331D503E-CD62-4C14-821E-0E1073A4A02A}.Release-Test|Any CPU.ActiveCfg = Release|Any CPU
 		{331D503E-CD62-4C14-821E-0E1073A4A02A}.Release-Test|x64.ActiveCfg = Release|Any CPU
 		{331D503E-CD62-4C14-821E-0E1073A4A02A}.Release-Test|x86.ActiveCfg = Release|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Debug-Test|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Debug-Test|x64.ActiveCfg = Debug|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Debug-Test|x86.ActiveCfg = Debug|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Release|x64.ActiveCfg = Release|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Release|x86.ActiveCfg = Release|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Release-Test|Any CPU.ActiveCfg = Release|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Release-Test|x64.ActiveCfg = Release|Any CPU
-		{6E28C680-D792-4BA4-A065-9DF8A93D5219}.Release-Test|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
