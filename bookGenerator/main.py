@@ -3,6 +3,10 @@ import chess.pgn
 import chess.polyglot
 import os
 
+import time
+
+start = time.perf_counter()
+
 positions = dict[int, dict[chess.Move, int]]() #Hash to dictionary of moves and frequencies
 
 def processNode(game : chess.pgn.GameNode, board : chess.Board | None, zHash : int | None, ply : int = 0):
@@ -41,17 +45,14 @@ try:
             counter += 1
             processNode(game, None, None)
 
-            if (counter % 100) == 0:
-                print(counter)
-                n = 0
-                for zHash in sorted(positions.keys(), key=lambda x: sum(positions[x].values()), reverse=True):
-                    n += 1
-                    if n > 20 : break
-                    print(zHash, len(positions[zHash].keys()), sum(positions[zHash].values()))
+            if (counter % 1000) == 0:
+                end = time.perf_counter()
+
+                print(f"{counter} games processed in {end - start}s.")
 
 
         pgnFile.close()
-        print("Closed: game-data/" + file)
+        print(f"Closed: game-data/{file}, {counter} games processed so far.")
 
 except KeyboardInterrupt:
     print(f"Exited with {counter} games added. Generating book...")
