@@ -1,30 +1,34 @@
-from types import NoneType
 import chess
 import chess.pgn
 import chess.polyglot
 import os
 
-positions = {} #Hash to dictionary of moves and frequencies
+positions = dict[int, dict[chess.Move, int]]() #Hash to dictionary of moves and frequencies
 
-def processNode(game : chess.GameNode | NoneType, zHash : int | NoneType):
-    if game == None:
-        return
+def processNode(game : chess.pgn.GameNode, board : chess.Board | None, zHash : int | None, ply : int = 0):
+    if board == None:
+        board = game.board()
 
     if zHash:
         if zHash in positions:
-            if game.move in positions[zHash]:
+            if not game.move:
+                ...
+            elif game.move in positions[zHash]:
                 positions[zHash][game.move] += 1
             else:
                 positions[zHash][game.move] = 1
-        else:
+        elif game.move != None:
             positions[zHash] = {game.move: 1}
 
-    if game.ply() > 16:
+    if ply > 16:
         return
 
-    zHash = chess.polyglot.zobrist_hash(game.board())
-
-    processNode(game.next(), zHash)
+    zHash = chess.polyglot.zobrist_hash(board)
+    nextPos = game.next()
+    
+    if nextPos:
+        board.push(nextPos.move)
+        processNode(nextPos, board, zHash, ply=(ply+1))
 
 counter = 0
 
@@ -35,7 +39,15 @@ try:
 
         while game := chess.pgn.read_game(pgnFile):
             counter += 1
-            processNode(game, None)
+            processNode(game, None, None)
+
+            if (counter % 100) == 0:
+                print(counter)
+                n = 0
+                for zHash in sorted(positions.keys(), key=lambda x: sum(positions[x].values()), reverse=True):
+                    n += 1
+                    if n > 20 : break
+                    print(zHash, len(positions[zHash].keys()), sum(positions[zHash].values()))
 
 
         pgnFile.close()
