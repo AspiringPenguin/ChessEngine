@@ -52,6 +52,7 @@ namespace search {
 		nodes = 0;
 		ideal = 0;
 		max = 0;
+		clearPVTable();
 	}
 
 	void Searcher::loadStart() {
@@ -430,7 +431,7 @@ namespace search {
 						alpha = score;
 
 						//PV table update
-						pvTable[0][0] = bestMove;
+						pvTable[0][0] = move;
 						std::copy(std::begin(pvTable[1]), std::begin(pvTable[1]) + (maxDepth - 1), std::begin(pvTable[0]) + 1);
 					}
 				}
