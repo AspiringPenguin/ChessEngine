@@ -28,6 +28,7 @@ namespace search {
 		std::chrono::steady_clock::time_point start;
 
 		std::array<std::array<int, extendedMaxDepth>, extendedMaxDepth> pvTable;
+		std::array<int, extendedMaxDepth> pvLengthTable;
 
 	public:
 		Searcher();

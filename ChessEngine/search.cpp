@@ -88,8 +88,9 @@ namespace search {
 	}
 
 	void Searcher::clearPVTable() {
-		for (int i = 0; i < maxDepth; i++) {
-			for (int j = 0; j < maxDepth; j++) {
+		for (int i = 0; i < extendedMaxDepth; i++) {
+			pvLengthTable[i] = 0;
+			for (int j = 0; j < extendedMaxDepth; j++) {
 				pvTable[i][j] = (1 << 27); //Null move
 			}
 		}
@@ -105,6 +106,7 @@ namespace search {
 	template <color c, nodeType nType, bool useTTScore, bool useNullMove>
 	int Searcher::negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount) {
 		if (depthRemaining == 0) {
+			pvLengthTable[depth] = 0;
 			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
 
@@ -143,6 +145,7 @@ namespace search {
 		if constexpr (useTTScore) {
 			if (resultType == tt::ttScore) {
 				if (p.moveIsValid(ttMove)) {
+					pvLengthTable[depth] = 0;
 					return std::get<1>(ttResult);
 				}
 			}
@@ -231,6 +234,8 @@ namespace search {
 			}
 
 			if (score >= beta) {
+				// Don't need to update the PV table here, as this move won't raise alpha at
+				// the next node up by the very nature of it being over beta
 				tt::ttStore(p.zobrist, score, move, depthRemaining, tt::lowerBound, firstMove);
 				return score;
 			}
@@ -244,6 +249,7 @@ namespace search {
 					//PV table update
 					pvTable[depth][0] = bestMove;
 					std::copy(std::begin(pvTable[depth + 1]), std::begin(pvTable[depth + 1]) + (maxDepth - depth), std::begin(pvTable[depth]) + 1);
+					pvLengthTable[depth] = pvLengthTable[depth+1] + 1;
 				}
 			}
 
@@ -252,6 +258,7 @@ namespace search {
 
 		if (legalMoves == 0) {
 			nodes++;
+			pvLengthTable[depth] = 0;
 			if (p.inCheck()) { //Checkmate
 				return (-10000 + depth);
 			}
@@ -433,6 +440,7 @@ namespace search {
 						//PV table update
 						pvTable[0][0] = move;
 						std::copy(std::begin(pvTable[1]), std::begin(pvTable[1]) + (maxDepth - 1), std::begin(pvTable[0]) + 1);
+						pvLengthTable[0] = pvLengthTable[1] + 1;
 					}
 				}
 
@@ -450,7 +458,7 @@ namespace search {
 				pvString = "";
 				for (int i = -1;  auto move : pvTable[0]) {
 					i++;
-					if (move == (1 << 27)) { //Move is null, so break here
+					if (move == (1 << 27) || i >= pvLengthTable[0]) { //Move is null or we have reached the end of the PV, so break here
 						break;
 					}
 					if (i != 0) {
