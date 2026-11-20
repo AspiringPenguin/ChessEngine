@@ -115,6 +115,7 @@ namespace search {
 		}
 
 		if (p.isDraw()) {
+			pvLengthTable[depth] = 0;
 			nodes++;
 			return 0;
 		}
@@ -122,6 +123,7 @@ namespace search {
 		const int reps = p.countRepetitions();
 		if constexpr (useTTScore) {
 			if (reps == 3) {
+				pvLengthTable[depth] = 0;
 				nodes++;
 				return 0;
 			}
@@ -131,6 +133,7 @@ namespace search {
 		}
 		else {
 			if (reps == 3) {
+				pvLengthTable[depth] = 0;
 				nodes++;
 				return 0;
 			}
@@ -162,6 +165,7 @@ namespace search {
 					score = -negamax<color(1 - c), NonPV, useTTScore, false>(-beta, -(beta - 1), depth, depthRemaining - r, extensionsCount);
 					p.undoNullMove();
 					if (score >= beta) {
+						pvLengthTable[depth] = 0;
 						return score;
 					}
 				}
