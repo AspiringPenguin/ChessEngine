@@ -122,4 +122,11 @@ namespace moves {
 		}
 		std::cout << std::endl;
 	}
+	std::string moveString(move m) {
+		std::string res = squareNames[getFrom(m)] + squareNames[getTo(m)];
+		if (getPromoteFlag(m)) {
+			res += pieceChars[moves::getPromote(m, black)];
+		}
+		return res;
+	}
 }

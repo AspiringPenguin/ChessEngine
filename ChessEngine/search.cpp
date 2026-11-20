@@ -86,6 +86,14 @@ namespace search {
 		nodes = 0;
 	}
 
+	void Searcher::clearPVTable() {
+		for (int i = 0; i < maxDepth; i++) {
+			for (int j = 0; j < maxDepth; j++) {
+				pvTable[i][j] = (1 << 27); //Null move
+			}
+		}
+	}
+
 	int Searcher::getExtensions(int extensionsCount) {
 		if (extensionsCount == 16) {
 			return 0;
@@ -226,6 +234,10 @@ namespace search {
 				if (score > alpha) {
 					alpha = score;
 					raisedAlpha = true;
+
+					//PV table update
+					pvTable[depth][0] = bestMove;
+					std::copy(std::begin(pvTable[depth + 1]), std::begin(pvTable[depth + 1]) + (maxDepth - depth), std::begin(pvTable[depth]) + 1);
 				}
 			}
 
@@ -343,6 +355,8 @@ namespace search {
 		
 		int bestVal = -10001;
 
+		std::string pvString;
+
 		//While elapsed time is less than the ideal search time
 		while (timeSearched < ideal || depth == 0) {
 			depth++; 
@@ -405,6 +419,10 @@ namespace search {
 					_bestMove = move;
 					if (score > alpha) {
 						alpha = score;
+
+						//PV table update
+						pvTable[0][0] = bestMove;
+						std::copy(std::begin(pvTable[1]), std::begin(pvTable[1]) + (maxDepth - 1), std::begin(pvTable[0]) + 1);
 					}
 				}
 
@@ -418,13 +436,26 @@ namespace search {
 				//get time searched
 				timeSearched = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
 
+				//pull out pv as string
+				pvString = "";
+				for (int i = -1;  auto move : pvTable[0]) {
+					i++;
+					if (move == (1 << 27)) { //Move is null, so break here
+						break;
+					}
+					if (i != 0) {
+						pvString += " ";
+					}
+					pvString += moves::moveString(move);
+				}
+
 				if (bestVal > 9900 || bestVal < -9900) {
 					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? ((-std::abs(bestVal) + 10000)/2 + 1) : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
-					moves::showMove(bestMove);
+					std::cout << pvString << std::endl;
 				}
 				else {
 					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
-					moves::showMove(bestMove);
+					std::cout << pvString << std::endl;
 				}
 			}
 		}

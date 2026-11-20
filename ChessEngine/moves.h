@@ -37,4 +37,6 @@ namespace moves {
 
 	void debugMove(move m);
 	void showMove(move m);
+
+	std::string moveString(move m);
 }

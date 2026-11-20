@@ -2,9 +2,12 @@
 #include "core.h"
 #include "moves.h"
 #include "position.h"
+#include <array>
 #include <chrono>
 
 namespace search {
+	constexpr int extendedMaxDepth = maxDepth + 16;
+
 	int scoreMove(const move& m, const move& ttMove);
 
 	move getNextMove(std::vector<move>& moves, int& moveN, const move& ttMove);
@@ -22,6 +25,8 @@ namespace search {
 		int max;
 
 		std::chrono::steady_clock::time_point start;
+
+		std::array<std::array<int, extendedMaxDepth>, extendedMaxDepth> pvTable;
 
 	public:
 		Searcher();
@@ -41,6 +46,8 @@ namespace search {
 
 		int getNodes();
 		void resetNodes();
+
+		void clearPVTable();
 
 		int getExtensions(int extensionsCount);
 

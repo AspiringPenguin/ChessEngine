@@ -124,6 +124,8 @@ int main() {
                 std::cout << "bestmove ";
                 moves::showMove(m);
                 std::cout << std::endl;
+
+                s.clearPVTable();
             }
             else if (cliInput.substr(0, 8) == "position") {
                 chunks = split(cliInput, " ");
