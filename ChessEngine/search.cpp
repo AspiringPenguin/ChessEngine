@@ -106,7 +106,12 @@ namespace search {
 		if (depthRemaining == 0) {
 			return negamaxQuiescence<c>(alpha, beta, depth);
 		}
-		else if (p.isDraw()) {
+
+		if (depth > seldepth) {
+			seldepth = depth;
+		}
+
+		if (p.isDraw()) {
 			nodes++;
 			return 0;
 		}
@@ -264,6 +269,10 @@ namespace search {
 
 	template <color c>
 	int Searcher::negamaxQuiescence(int alpha, int beta, int depth) {
+		if (depth > seldepth) {
+			seldepth = depth;
+		}
+
 		if (p.isDraw()) {
 			nodes++;
 			return 0;
@@ -450,13 +459,15 @@ namespace search {
 				}
 
 				if (bestVal > 9900 || bestVal < -9900) {
-					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? ((-std::abs(bestVal) + 10000)/2 + 1) : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
+					std::cout << "info score mate " << (bestVal == std::abs(bestVal) ? ((-std::abs(bestVal) + 10000)/2 + 1) : (std::abs(bestVal) - 10000)/2) << " depth " << depth << " seldepth " << seldepth << " nodes " << nodes << " time " << timeSearched << " pv ";
 					std::cout << pvString << std::endl;
 				}
 				else {
-					std::cout << "info score cp " << bestVal << " depth " << depth << " nodes " << nodes << " time " << timeSearched << " pv ";
+					std::cout << "info score cp " << bestVal << " depth " << depth << " seldepth " << seldepth << " nodes " << nodes << " time " << timeSearched << " pv ";
 					std::cout << pvString << std::endl;
 				}
+
+				seldepth = 0;
 			}
 		}
 		

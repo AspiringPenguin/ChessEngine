@@ -20,6 +20,7 @@ namespace search {
 		template <color c, nodeType nType, bool useTTScore, bool useNullMove> int negamax(int alpha, int beta, int depth, int depthRemaining, int extensionsCount);
 		template <color c> int negamaxQuiescence(int alpha, int beta, int depth);
 		int nodes;
+		int seldepth;
 
 		int ideal;
 		int max;
