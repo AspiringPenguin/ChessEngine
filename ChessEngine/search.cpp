@@ -252,7 +252,7 @@ namespace search {
 
 					//PV table update
 					pvTable[depth][0] = bestMove;
-					std::copy(std::begin(pvTable[depth + 1]), std::begin(pvTable[depth + 1]) + (maxDepth - depth), std::begin(pvTable[depth]) + 1);
+					std::copy(std::begin(pvTable[depth + 1]), std::begin(pvTable[depth + 1]) + pvLengthTable[depth + 1], std::begin(pvTable[depth]) + 1);
 					pvLengthTable[depth] = pvLengthTable[depth+1] + 1;
 				}
 			}
@@ -443,7 +443,7 @@ namespace search {
 
 						//PV table update
 						pvTable[0][0] = move;
-						std::copy(std::begin(pvTable[1]), std::begin(pvTable[1]) + (maxDepth - 1), std::begin(pvTable[0]) + 1);
+						std::copy(std::begin(pvTable[1]), std::begin(pvTable[1]) + pvLengthTable[1], std::begin(pvTable[0]) + 1);
 						pvLengthTable[0] = pvLengthTable[1] + 1;
 					}
 				}
