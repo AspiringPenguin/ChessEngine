@@ -1,5 +1,9 @@
 #include <iostream>
+#include "position.h"
 
 int main() {
-    std::cout << "Hello World!\n";
+    auto p = Position();
+    p.showPosition();
+
+    return 0;
 }

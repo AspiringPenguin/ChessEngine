@@ -115,6 +115,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)ChessEngine\$(IntermediateOutputPath)core.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)eval.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)moveGenHelpers.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)moves.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)position.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)zobrist.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -132,10 +133,13 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)\ChessEngine</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)ChessEngine\$(PlatformTargetAsMSBuildArchitecture)\$(ConfigurationName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)ChessEngine\$(IntermediateOutputPath)core.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)eval.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)moveGenHelpers.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)moves.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)position.obj;$(SolutionDir)ChessEngine\$(IntermediateOutputPath)zobrist.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
