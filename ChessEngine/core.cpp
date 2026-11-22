@@ -32,6 +32,16 @@ std::string loadFile(std::string fileName) {
 	}
 }
 
+void writeToFile(std::string fileName, std::string contents) {
+	std::ofstream writer(fileName);
+	if (!writer) {
+		std::cerr << "Error opening file " << fileName << std::endl;
+		return;
+	}
+	writer << contents;
+	writer.close();
+}
+
 
 
 std::vector<std::string> split(std::string string, std::string delimiter) {
