@@ -33,7 +33,7 @@ def processNode(game : pgn.GameNode, board: Board, result : int, gameID : int, p
     
     nextPos = game.next()
 
-    if nextPos and not isMateScore and ply < 100: #Ply > 100 tends to be shuffling leading to 50-move rule draw
+    if nextPos and not isMateScore and ply < 200: #Ply > 200 ie move > 100 tends to be shuffling leading to 50-move rule draw
         nextMove = nextPos.move
         board.push(nextMove)
         processNode(nextPos, board, result, gameID, ply+1)
