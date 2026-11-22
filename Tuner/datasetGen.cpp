@@ -24,7 +24,7 @@ namespace datasetGen {
 
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> dist(0, numPositionsToProcess);
+		std::uniform_int_distribution<> dist(0, numPositions);
 
 		int counter = 0;
 		std::vector<int> values;
@@ -52,6 +52,8 @@ namespace datasetGen {
 		for (auto value : values) {
 			//load fen to a Searcher object and run a quiescence search to pull out a PV.
 			//Apply that PV and store the final FEN and result of the game in the string to return
+
+			result += std::to_string(value) + " ";
 		}
 
 		return result;
