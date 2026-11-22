@@ -123,6 +123,8 @@ constexpr int maxDepth = 64;
 //Characters to represent pieces
 static char pieceChars[16] = { '.', 'P', 'N', 'B', 'R', 'Q', 'K', ' ', ' ', 'p', 'n', 'b', 'r', 'q', 'k', ' ' };
 
+std::string loadFile(std::string fileName);
+
 //String split
 std::vector<std::string> split(std::string string, std::string delimiter);
 
