@@ -372,3 +372,4 @@ bookGenerator/book.txt
 
 # Tuning positions
 */positions.txt
+/Tuner/processedPositions.txt
