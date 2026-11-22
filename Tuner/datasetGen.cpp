@@ -1,11 +1,5 @@
 #include "datasetGen.h"
 
-//Current final dataset aim:
-//min(10, numPositions/10) random positions from each game with the position having had the PV from quiescence applied
-//So algorithm: load all FENS as strings with metadata (gameID, result)
-//All FENs are in gameID order, so we iterate over them, count how many there are, then select up min(10, numPositions/10) randomly to have major processing (qSearch) applied
-//Store as FEN;result form.
-
 namespace datasetGen {
 	std::vector<fenPosition> loadPositions() {
 		auto lines = split(loadFile("positions.txt"), "\n");
@@ -25,7 +19,42 @@ namespace datasetGen {
 	}
 
 	std::string processGames(int startIndex, int numPositions, std::vector<fenPosition>& positions) {
-		return positions[startIndex].fen;
+		//Work out the relative indices of the positions to process
+		int numPositionsToProcess = (numPositions > 100) ? 10 : (numPositions / 10);
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dist(0, numPositionsToProcess);
+
+		int counter = 0;
+		std::vector<int> values;
+		int res;
+		bool found;
+
+		while (values.size() < numPositionsToProcess) {
+			res = dist(gen);
+			found = false;
+
+			for (auto value : values) {
+				if (res == value) {
+					found = true;
+					break;
+				}
+			}
+
+			if (!found) {
+				values.push_back(res);
+			}
+		}
+		
+		std::string result = "";
+
+		for (auto value : values) {
+			//load fen to a Searcher object and run a quiescence search to pull out a PV.
+			//Apply that PV and store the final FEN and result of the game in the string to return
+		}
+
+		return result;
 	}
 
 	int main() {
