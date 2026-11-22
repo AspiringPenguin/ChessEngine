@@ -18,12 +18,12 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="positionExtraction.cpp">
+    <ClCompile Include="datasetGen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="positionExtraction.h">
+    <ClInclude Include="datasetGen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

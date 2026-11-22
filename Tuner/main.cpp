@@ -1,3 +1,5 @@
+#include "datasetGen.h"
+
 #include <iostream>
 #include <string>
 
@@ -5,8 +7,8 @@ int main() {
     std::string inp;
     std::getline(std::cin, inp);
 
-    if (inp == "extractPositions") {
-        std::cout << "Implemented in Python Project." << std::endl;
+    if (inp == "generatePositions") {
+        return datasetGen::main();
     }
     else if (inp == "tuneK") {
         std::cout << "Not implemented" << std::endl;
