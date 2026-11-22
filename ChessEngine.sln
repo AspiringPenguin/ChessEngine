@@ -14,7 +14,12 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "bookGenerator", "bookGenera
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tuner", "Tuner\Tuner.vcxproj", "{FB060801-DAAA-4B11-A056-76581E689497}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TuningPositionsGenerator", "TuningPositionsGenerator\TuningPositionsGenerator.pyproj", "{D42575F9-F38C-4D14-B38E-D191780ABF98}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TuningPGNToFENAndResult", "TuningPGNToFENAndResult\TuningPGNToFENAndResult.pyproj", "{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2302660C-6062-4F2C-8CF6-63558C3BF5E1}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,18 +121,18 @@ Global
 		{FB060801-DAAA-4B11-A056-76581E689497}.Release-Test|x64.Build.0 = Release|x64
 		{FB060801-DAAA-4B11-A056-76581E689497}.Release-Test|x86.ActiveCfg = Release|Win32
 		{FB060801-DAAA-4B11-A056-76581E689497}.Release-Test|x86.Build.0 = Release|Win32
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Debug-Test|Any CPU.ActiveCfg = Debug|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Debug-Test|x64.ActiveCfg = Debug|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Debug-Test|x86.ActiveCfg = Debug|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Release|x64.ActiveCfg = Release|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Release|x86.ActiveCfg = Release|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Release-Test|Any CPU.ActiveCfg = Release|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Release-Test|x64.ActiveCfg = Release|Any CPU
-		{D42575F9-F38C-4D14-B38E-D191780ABF98}.Release-Test|x86.ActiveCfg = Release|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Debug-Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Debug-Test|x64.ActiveCfg = Debug|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Debug-Test|x86.ActiveCfg = Debug|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Release|x64.ActiveCfg = Release|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Release|x86.ActiveCfg = Release|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Release-Test|Any CPU.ActiveCfg = Release|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Release-Test|x64.ActiveCfg = Release|Any CPU
+		{0ADD8E42-BB4F-4B8C-849E-683EDB6A54B0}.Release-Test|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

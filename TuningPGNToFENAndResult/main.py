@@ -23,8 +23,7 @@ def processNode(game : pgn.GameNode, board: Board, result : int, ply: int = 0):
     if ply >= 16 and not isMateScore:
         #Now check the position is quiet
         inCheck = board.is_check()
-        isQuiet = all(map(lambda x: board.piece_at(x.to_square) == None, board.legal_moves))
-        if (not inCheck) and isQuiet:
+        if (not inCheck):
             #Process this node
             fen = board.fen(en_passant="fen")
 

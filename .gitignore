@@ -369,3 +369,6 @@ game-data/
 # Generated book
 bookGenerator/book.txt
 *.pgn
+
+# Tuning positions
+*/positions.txt

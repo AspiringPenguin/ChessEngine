@@ -2,16 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{d42575f9-f38c-4d14-b38e-d191780abf98}</ProjectGuid>
+    <ProjectGuid>0add8e42-bb4f-4b8c-849e-683edb6a54b0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>TuningPositionsGenerator</Name>
-    <RootNamespace>TuningPositionsGenerator</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|chessEnv</InterpreterId>
+    <Name>TuningPGNToFENAndResult</Name>
+    <RootNamespace>TuningPGNToFENAndResult</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,9 +22,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="main.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|chessEnv" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
