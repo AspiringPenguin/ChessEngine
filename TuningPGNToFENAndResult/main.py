@@ -6,7 +6,15 @@ import time
 
 annotatedFens = list[str]()
 
-def processGame(game : pgn.Game, gameID : int):
+otherEngineNames = ["stash"]
+
+def processGame(game : pgn.Game, gameID : int) -> bool:
+    white, black = game.headers.get("White", "?"), game.headers.get("Black", "?")
+
+    for otherEngine in otherEngineNames:
+        if otherEngine in white.lower() or otherEngine in black.lower():
+            return False
+
     res = game.headers.get("Result", "?")
     if res == "1-0":
         gameScore = 1
@@ -16,6 +24,7 @@ def processGame(game : pgn.Game, gameID : int):
         gameScore = 0
 
     processNode(game, game.board(), gameScore, gameID)
+    return True
 
 def processNode(game : pgn.GameNode, board: Board, result : int, gameID : int, ply: int = 0):
     isMateScore = "M" in game.comment
@@ -57,11 +66,14 @@ for file in os.listdir():
 
     tuningGames.seek(0)
 
-    while game := pgn.read_game(tuningGames):
-        counter += 1
-        gameID += 1
+    lastGameProcessed = True
 
-        processGame(game, gameID)
+    while game := pgn.read_game(tuningGames):
+        if lastGameProcessed:
+            counter += 1
+            gameID += 1
+
+        lastGameProcessed = processGame(game, gameID)
 
         if (counter % 500) == 0:
             print(f"{counter} games processed.")
