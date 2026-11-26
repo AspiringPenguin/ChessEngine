@@ -55,6 +55,7 @@ for file in os.listdir():
         continue
 
     counter = 0
+    skipped = 0
 
     start = time.perf_counter()
     
@@ -72,12 +73,16 @@ for file in os.listdir():
         if lastGameProcessed:
             counter += 1
             gameID += 1
+        else:
+            skipped += 1
 
         lastGameProcessed = processGame(game, gameID)
 
-        if (counter % 500) == 0:
-            print(f"{counter} games processed.")
-    print(f"{counter} games processed.")
+        if (counter % 500) == 0 and lastGameProcessed:
+            print(f"{counter} games processed, {skipped} games skipped.")
+
+    if not lastGameProcessed:
+        skipped += 1
 
 
     tuningGames.close()
@@ -86,8 +91,8 @@ for file in os.listdir():
 
     totalGames += counter
 
-    print(f"Finished file {file}, with {counter} games processed, in {end - start}s.")
-    print(f"Total games: {totalGames}, total positions: {len(annotatedFens)}.")
+    print(f"Finished file {file}, with {counter} games processed and {skipped} games skipped, in {end - start}s.")
+    print(f"Total games processed: {totalGames}, total positions: {len(annotatedFens)}.")
     print()
 
 with open("positions.txt", mode="w") as f:
