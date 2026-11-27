@@ -6,15 +6,7 @@ import time
 
 annotatedFens = list[str]()
 
-otherEngineNames = ["stash"]
-
-def processGame(game : pgn.Game, gameID : int) -> bool:
-    white, black = game.headers.get("White", "?"), game.headers.get("Black", "?")
-
-    for otherEngine in otherEngineNames:
-        if otherEngine in white.lower() or otherEngine in black.lower():
-            return False
-
+def processGame(game : pgn.Game, gameID : int):
     res = game.headers.get("Result", "?")
     if res == "1-0":
         gameScore = 1
@@ -24,7 +16,6 @@ def processGame(game : pgn.Game, gameID : int) -> bool:
         gameScore = 0
 
     processNode(game, game.board(), gameScore, gameID)
-    return True
 
 def processNode(game : pgn.GameNode, board: Board, result : int, gameID : int, ply: int = 0):
     isMateScore = "M" in game.comment
@@ -55,7 +46,6 @@ for file in os.listdir():
         continue
 
     counter = 0
-    skipped = 0
 
     start = time.perf_counter()
     
@@ -67,22 +57,15 @@ for file in os.listdir():
 
     tuningGames.seek(0)
 
-    lastGameProcessed = True
-
     while game := pgn.read_game(tuningGames):
-        if lastGameProcessed:
-            counter += 1
-            gameID += 1
-        else:
-            skipped += 1
+        counter += 1
+        gameID += 1
 
-        lastGameProcessed = processGame(game, gameID)
+        processGame(game, gameID)
 
-        if (counter % 500) == 0 and lastGameProcessed:
-            print(f"{counter} games processed, {skipped} games skipped.")
-
-    if not lastGameProcessed:
-        skipped += 1
+        if (counter % 500) == 0:
+            print(f"{counter} games processed.")
+    print(f"{counter} games processed.")
 
 
     tuningGames.close()
@@ -91,8 +74,8 @@ for file in os.listdir():
 
     totalGames += counter
 
-    print(f"Finished file {file}, with {counter} games processed and {skipped} games skipped, in {end - start}s.")
-    print(f"Total games processed: {totalGames}, total positions: {len(annotatedFens)}.")
+    print(f"Finished file {file}, with {counter} games processed, in {end - start}s.")
+    print(f"Total games: {totalGames}, total positions: {len(annotatedFens)}.")
     print()
 
 with open("positions.txt", mode="w") as f:
