@@ -51,9 +51,9 @@ for file in os.listdir():
     
     tuningGames = open(file, mode="r")
 
-    totalGames = len(re.findall("Event", tuningGames.read()))
+    totalGamesInFile = len(re.findall("Event", tuningGames.read()))
 
-    print(f"Started {file}, containing {totalGames} games.")
+    print(f"Started {file}, containing {totalGamesInFile} games.")
 
     tuningGames.seek(0)
 
@@ -72,7 +72,7 @@ for file in os.listdir():
 
     end = time.perf_counter()
 
-    totalGames += counter
+    totalGames += totalGamesInFile
 
     print(f"Finished file {file}, with {counter} games processed, in {end - start}s.")
     print(f"Total games: {totalGames}, total positions: {len(annotatedFens)}.")
