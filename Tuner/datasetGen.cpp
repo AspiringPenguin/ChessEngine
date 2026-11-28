@@ -1,13 +1,32 @@
 #include "datasetGen.h"
+#include <memory>
 
 namespace datasetGen {
-	std::vector<fenPosition> loadPositions() {
-		auto lines = split(loadFile("positions.txt"), "\n");
+	std::generator<std::string> loadFileByLines(std::string fileName) {
+		std::ifstream reader(fileName);
 
+		if (!reader) {
+			std::cerr << "Error opening file " << fileName << std::endl;
+		}
+		else {
+			std::string line; //For reading the file
+
+			std::string contents = ""; //To return
+
+			bool skip = true;
+
+			while (!reader.eof()) {
+				getline(reader, line);
+				co_yield line;
+			}
+			reader.close();
+		}
+	}
+	std::vector<fenPosition> loadPositions() {
 		auto positions = std::vector<fenPosition>();
 		std::vector<std::string> parts;
 
-		for (const std::string& line : lines) {
+		for (const std::string& line : loadFileByLines("positions.txt")) {
 			if (line == "") {
 				continue;
 			}
@@ -46,14 +65,32 @@ namespace datasetGen {
 				values.push_back(res);
 			}
 		}
+
+		bool first = true;
 		
 		std::string result = "";
+		std::unique_ptr<search::Searcher> s = std::make_unique<search::Searcher>();
 
 		for (auto value : values) {
 			//load fen to a Searcher object and run a quiescence search to pull out a PV.
 			//Apply that PV and store the final FEN and result of the game in the string to return
+			s->loadFEN(positions[value].fen);
+			s->generateQuiescencePV();
 
-			result += std::to_string(value) + " ";
+			//pull out pv as string
+			for (int i = -1; auto move : s->pvTable[0]) {
+				i++;
+				if (move == (1 << 27) || i >= s->pvLengthTable[0]) { //Move is null or we have reached the end of the PV, so break here
+					break;
+				}
+				s->makeMove(move);
+			}
+
+			if (!first) {
+				result += "\n";
+			}
+			first = false;
+			result += s->asFEN() + ";" + std::to_string(positions[value].result);
 		}
 
 		return result;
