@@ -58,6 +58,7 @@ public:
 
 	void loadStart();
 	void loadFEN(const std::string& fen);
+	std::string asFEN();
 
 	void makeMove(const move& m);
 	void makeNullMove();

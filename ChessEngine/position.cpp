@@ -287,6 +287,101 @@ void Position::loadFEN(const std::string& fen) {
 	calculateMaterialEnd();
 	calculateBonusesStart();
 	calculateBonusesEnd();
+
+	//half-move clock if included
+	if (info.size() >= 5) {
+		counter = std::stoi(info[4]);
+	}
+}
+
+std::string Position::asFEN() {
+	std::string string = "";
+	
+	//Pieces
+	int emptySpaces = 0;
+	piece p;
+
+	for (int rank = 7; rank >= 0; rank--) {
+		for (int file = 0; file <= 7; file++) {
+			p = mailbox[rank*8 + file];
+
+			if (p == nullPiece) {
+				emptySpaces += 1;
+			}
+			else {
+				if (emptySpaces != 0) {
+					string += std::to_string(emptySpaces);
+					emptySpaces = 0;
+				}
+				string += pieceChars[p];
+			}
+		}
+		if (emptySpaces != 0) {
+			string += std::to_string(emptySpaces);
+			emptySpaces = 0;
+		}
+		if (rank != 0) {
+			string += "/";
+		}
+	}
+
+	//To Move
+	string += " ";
+	if (toMove == white) {
+		string += "w";
+	}
+	else {
+		string += "b";
+	}
+
+	//Castling rights
+	string += " ";
+
+	std::string rightsString = "";
+	if (wKingside) {
+		rightsString += "K";
+	}
+	if (wQueenside) {
+		rightsString += "Q";
+	}
+	if (bKingside) {
+		rightsString += "k";
+	}
+	if (bQueenside) {
+		rightsString += "q";
+	}
+	
+	
+	if (rightsString == "") {
+		rightsString = "-";
+	}
+
+	string += rightsString;
+
+	//en passant
+	string += " ";
+	move theLastMove;
+	if (moveNum == -1) {
+		theLastMove = lastMove;
+	}
+	else {
+		theLastMove = moves[moveNum];
+	}
+
+	if (moves::getSpecial2(theLastMove)) {
+		int offset = (toMove == white) ? 8 : -8;
+		string += squareNames[moves::getTo(theLastMove) + offset];
+	}
+	else {
+		string += "-";
+	}
+
+	//Halfmove clock for 50 move rule
+	string += " " + std::to_string(counter);
+
+	//Currently don't include the move counter as it isn't stored in the Position class at all
+	
+	return string;
 }
 
 void Position::makeMove(const move& m, bool reversible) {
